@@ -7,7 +7,8 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <nav className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur dark:bg-black/30">
+    <nav className="sticky top-0 z-50 border-b bg-[#4C3D3D] backdrop-blur text-[#FFF7D4]
+ ">
       <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="text-lg font-bold tracking-tight">
