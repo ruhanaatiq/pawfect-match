@@ -13,7 +13,7 @@ export default function Services() {
   ];
 
   return (
-    <section id="services" className="relative py-16 md:py-20 bg-[#FFF7D4] text-[#4C3D3D]" aria-labelledby="services-heading">
+    <section id="services" className="relative py-16 md:py-20  text-[#4C3D3D]" aria-labelledby="services-heading">
       <div className="relative z-10 max-w-6xl mx-auto px-6">
         <div className="text-center mb-10 md:mb-14">
           <p className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/70 shadow-sm">

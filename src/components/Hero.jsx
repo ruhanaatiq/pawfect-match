@@ -4,7 +4,7 @@ import Image from "next/image";
 
 export default function Hero() {
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center bg-[#FFF7D4] overflow-hidden">
+    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
       {/* Paw background pattern */}
       <div className="absolute inset-0 bg-[url('/paws-bg.png')] bg-repeat opacity-10"></div>
 
