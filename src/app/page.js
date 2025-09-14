@@ -7,9 +7,9 @@ export default function HomePage() {
      
 
       {/* Content */}
-      <div className="relative z-10 text-center text-white px-4">
+      <div className="relative z-10 text-center text-[#FFD95A] px-4">
         <h1 className="text-4xl sm:text-5xl font-bold">
-          Adopt Love. <span className="text-emerald-400">Give a Home.</span>
+          Adopt Love. <span className="text-[#4C3D3D]">Give a Home.</span>
         </h1>
         <p className="mt-3 max-w-2xl mx-auto text-lg text-gray-200">
           Find your next best friend from shelters and foster homes.
