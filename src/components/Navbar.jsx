@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image"; 
+import Image from "next/image";
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -14,21 +14,34 @@ export default function Navbar() {
           href="/"
           className="flex items-center gap-2 text-lg font-bold tracking-tight"
         >
-         <Image
-            src="/paws.png" 
+          <Image
+            src="/paws.png"
             alt="Paw Logo"
             width={28}
             height={28}
             className="rounded-full"
           />
-          Pawfect<span className="px-1 rounded bg-black text-white dark:bg-white dark:text-black">Match</span>
+          Pawfect
+          <span className="px-1 rounded bg-black text-white dark:bg-white dark:text-black">
+            Match
+          </span>
         </Link>
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-6 text-sm font-medium">
-          <Link href="/" className="hover:text-emerald-600">Home</Link>
-          <Link href="/adopt" className="hover:text-emerald-600">Adopt</Link>
-          <Link href="/profile" className="hover:text-emerald-600">Profile</Link>
+          <Link href="/" className="hover:text-emerald-600">
+            Home
+          </Link>
+          <Link href="/pets" className="hover:text-emerald-600">
+            Pet Listings
+          </Link>
+
+          <Link href="/adopt" className="hover:text-emerald-600">
+            Adopt
+          </Link>
+          <Link href="/profile" className="hover:text-emerald-600">
+            Profile
+          </Link>
         </div>
 
         {/* Mobile Menu Button */}
@@ -44,10 +57,18 @@ export default function Navbar() {
       {menuOpen && (
         <div className="md:hidden bg-white dark:bg-black border-t">
           <div className="flex flex-col items-start p-4 gap-3 text-sm">
-            <Link href="/" onClick={() => setMenuOpen(false)}>Home</Link>
-            <Link href="/listings" onClick={() => setMenuOpen(false)}>Pet Listings</Link>
-             <Link href="/adopt" onClick={() => setMenuOpen(false)}>Adopt</Link>
-            <Link href="/profile" onClick={() => setMenuOpen(false)}>Profile</Link>
+            <Link href="/" onClick={() => setMenuOpen(false)}>
+              Home
+            </Link>
+            <Link href="/pets" onClick={() => setMenuOpen(false)}>
+              Pet Listings
+            </Link>
+            <Link href="/adopt" onClick={() => setMenuOpen(false)}>
+              Adopt
+            </Link>
+            <Link href="/profile" onClick={() => setMenuOpen(false)}>
+              Profile
+            </Link>
           </div>
         </div>
       )}
