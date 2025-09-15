@@ -1,0 +1,762 @@
+[
+  {
+    "id": 1,
+    "petName": "Robby",
+    "species": "Dog",
+    "breed": "Golden Retriever",
+    "petAge": "5 months",
+    "gender": "Male",
+    "size": "Medium",
+    "color": "Golden",
+    "petCategory": "Puppy",
+    "petLocation": {
+      "city": "Dhaka",
+      "area": "New Market",
+      "address": "House 23, Green Road, New Market, Dhaka",
+      "geo": { "lat": 23.7389, "lng": 90.3905 }
+    },
+    "vaccinationStatus": "Fully vaccinated",
+    "healthCondition": "Healthy, Neutered",
+    "temperament": "Quiet and calm, friendly with children and other pets",
+    "longDescription": "Robby is a playful Golden Retriever puppy who loves fetch and long walks.",
+    "adoptionFee": 0,
+    "adopted": false,
+    "images": "https://i.ibb.co/4RkhPdYW/download-12.jpg",
+    "shelterInfo": {
+      "name": "Happy Paws Shelter",
+      "contactNumber": "+8801712345678",
+      "email": "info@happypaws.org"
+    },
+    "vetDetails": {
+      "name": "Dr. Rahman",
+      "clinic": "Pet Care Clinic, Dhaka",
+      "contact": "+8801911223344",
+      "lastCheckup": "2025-06-20"
+    },
+    "createdBy": "rubaiya@gmail.com",
+    "createdAt": "2025-07-11T04:45:57.697Z",
+    "status": "Available"
+  },
+  {
+    "id": 2,
+    "petName": "Mittens",
+    "species": "Cat",
+    "breed": "Persian",
+    "petAge": "2 years",
+    "gender": "Female",
+    "size": "Small",
+    "color": "White",
+    "petCategory": "Adult",
+    "petLocation": {
+      "city": "Chittagong",
+      "area": "Agrabad",
+      "address": "Flat 12B, Ocean View Tower, Agrabad, Chittagong",
+      "geo": { "lat": 22.3350, "lng": 91.8320 }
+    },
+    "vaccinationStatus": "Partially vaccinated",
+    "healthCondition": "Healthy",
+    "temperament": "Calm, affectionate, indoor-loving",
+    "longDescription": "Mittens is a fluffy Persian cat who enjoys being pampered and lounging indoors.",
+    "adoptionFee": 500,
+    "adopted": false,
+    "images": "https://i.ibb.co/MittensPersian.jpg",
+    "shelterInfo": {
+      "name": "Cat Haven",
+      "contactNumber": "+8801811122233",
+      "email": "info@cathaven.org"
+    },
+    "vetDetails": {
+      "name": "Dr. Alam",
+      "clinic": "Chittagong Pet Hospital",
+      "contact": "+8801711222333",
+      "lastCheckup": "2025-07-01"
+    },
+    "createdBy": "sadia@gmail.com",
+    "createdAt": "2025-07-12T09:15:12.697Z",
+    "status": "Available"
+  },
+  {
+    "id": 3,
+    "petName": "Charlie",
+    "species": "Dog",
+    "breed": "Beagle",
+    "petAge": "1 year",
+    "gender": "Male",
+    "size": "Medium",
+    "color": "Brown & White",
+    "petCategory": "Young",
+    "petLocation": {
+      "city": "Khulna",
+      "area": "Shibbari",
+      "address": "45 Lake Road, Shibbari, Khulna",
+      "geo": { "lat": 22.8090, "lng": 89.5670 }
+    },
+    "vaccinationStatus": "Fully vaccinated",
+    "healthCondition": "Healthy",
+    "temperament": "Playful, loves kids, active",
+    "longDescription": "Charlie is a fun-loving Beagle with lots of energy for family activities.",
+    "adoptionFee": 800,
+    "adopted": false,
+    "images": "https://i.ibb.co/CharlieBeagle.jpg",
+    "shelterInfo": {
+      "name": "Paws & Friends",
+      "contactNumber": "+8801722334455",
+      "email": "adopt@pawsfriends.org"
+    },
+    "vetDetails": {
+      "name": "Dr. Sultana",
+      "clinic": "Khulna Vet Clinic",
+      "contact": "+8801933445566",
+      "lastCheckup": "2025-07-05"
+    },
+    "createdBy": "rahim@gmail.com",
+    "createdAt": "2025-07-13T10:20:44.697Z",
+    "status": "Available"
+  },
+  {
+    "id": 4,
+    "petName": "Snowball",
+    "species": "Rabbit",
+    "breed": "Holland Lop",
+    "petAge": "6 months",
+    "gender": "Female",
+    "size": "Small",
+    "color": "White & Gray",
+    "petCategory": "Young",
+    "petLocation": {
+      "city": "Sylhet",
+      "area": "Zindabazar",
+      "address": "22A Green Valley, Zindabazar, Sylhet",
+      "geo": { "lat": 24.8917, "lng": 91.8830 }
+    },
+    "vaccinationStatus": "Not required",
+    "healthCondition": "Healthy",
+    "temperament": "Gentle, quiet, likes being held",
+    "longDescription": "Snowball is a cuddly lop rabbit that enjoys fresh vegetables and quiet time.",
+    "adoptionFee": 300,
+    "adopted": false,
+    "images": "https://i.ibb.co/SnowballRabbit.jpg",
+    "shelterInfo": {
+      "name": "Sylhet Pet Shelter",
+      "contactNumber": "+8801944556677",
+      "email": "shelter@sylhetpets.org"
+    },
+    "vetDetails": {
+      "name": "Dr. Hossain",
+      "clinic": "Sylhet Animal Care",
+      "contact": "+8801788990011",
+      "lastCheckup": "2025-06-25"
+    },
+    "createdBy": "sharmin@gmail.com",
+    "createdAt": "2025-07-14T11:45:31.697Z",
+    "status": "Available"
+  },
+  {
+    "id": 5,
+    "petName": "Rio",
+    "species": "Bird",
+    "breed": "Macaw Parrot",
+    "petAge": "3 years",
+    "gender": "Male",
+    "size": "Medium",
+    "color": "Blue & Yellow",
+    "petCategory": "Adult",
+    "petLocation": {
+      "city": "Rajshahi",
+      "area": "Shaheb Bazar",
+      "address": "Flat 9C, Lake View, Shaheb Bazar, Rajshahi",
+      "geo": { "lat": 24.3636, "lng": 88.6050 }
+    },
+    "vaccinationStatus": "Not required",
+    "healthCondition": "Healthy",
+    "temperament": "Talkative, active, attention-seeking",
+    "longDescription": "Rio is a colorful Macaw who loves to interact and mimic sounds.",
+    "adoptionFee": 1200,
+    "adopted": false,
+    "images": "https://i.ibb.co/RioMacaw.jpg",
+    "shelterInfo": {
+      "name": "Bird Rescue Center",
+      "contactNumber": "+8801555667788",
+      "email": "birds@rescue.org"
+    },
+    "vetDetails": {
+      "name": "Dr. Karim",
+      "clinic": "Rajshahi Bird Clinic",
+      "contact": "+8801999887766",
+      "lastCheckup": "2025-07-02"
+    },
+    "createdBy": "nayeem@gmail.com",
+    "createdAt": "2025-07-15T12:30:22.697Z",
+    "status": "Available"
+  },
+  {
+    "id": 6,
+    "petName": "Luna",
+    "species": "Cat",
+    "breed": "Bengal",
+    "petAge": "1 year 3 months",
+    "gender": "Female",
+    "size": "Medium",
+    "color": "Brown Spotted",
+    "petCategory": "Young",
+    "petLocation": {
+      "city": "Barisal",
+      "area": "Nathullabad",
+      "address": "House 15, Lake Side, Barisal",
+      "geo": { "lat": 22.7010, "lng": 90.3535 }
+    },
+    "vaccinationStatus": "Fully vaccinated",
+    "healthCondition": "Healthy",
+    "temperament": "Energetic, playful, intelligent",
+    "longDescription": "Luna loves climbing and toys and is very curious and active.",
+    "adoptionFee": 700,
+    "adopted": false,
+    "images": "https://i.ibb.co/LunaBengal.jpg",
+    "shelterInfo": {
+      "name": "Barisal Pet Home",
+      "contactNumber": "+8801766778899",
+      "email": "barisal@pethome.org"
+    },
+    "vetDetails": {
+      "name": "Dr. Jahan",
+      "clinic": "Barisal Vet Care",
+      "contact": "+8801555332211",
+      "lastCheckup": "2025-07-03"
+    },
+    "createdBy": "farhana@gmail.com",
+    "createdAt": "2025-07-15T13:05:44.697Z",
+    "status": "Available"
+  },
+  {
+    "id": 7,
+    "petName": "Rocky",
+    "species": "Dog",
+    "breed": "German Shepherd",
+    "petAge": "4 years",
+    "gender": "Male",
+    "size": "Large",
+    "color": "Black & Tan",
+    "petCategory": "Adult",
+    "petLocation": {
+      "city": "Dhaka",
+      "area": "Banani",
+      "address": "Banani DOHS, Road 5, Dhaka",
+      "geo": { "lat": 23.7980, "lng": 90.4125 }
+    },
+    "vaccinationStatus": "Fully vaccinated",
+    "healthCondition": "Healthy",
+    "temperament": "Protective, loyal, intelligent",
+    "longDescription": "Rocky is a trained German Shepherd suitable as a guard and family dog.",
+    "adoptionFee": 2000,
+    "adopted": false,
+    "images": "https://i.ibb.co/RockyShepherd.jpg",
+    "shelterInfo": {
+      "name": "Dhaka Animal Rescue",
+      "contactNumber": "+8801999223344",
+      "email": "info@dar.org"
+    },
+    "vetDetails": {
+      "name": "Dr. Mahmud",
+      "clinic": "Banani Vet Hospital",
+      "contact": "+8801777889900",
+      "lastCheckup": "2025-07-06"
+    },
+    "createdBy": "mehedi@gmail.com",
+    "createdAt": "2025-07-15T14:12:21.697Z",
+    "status": "Available"
+  },
+  {
+    "id": 8,
+    "petName": "Bella",
+    "species": "Dog",
+    "breed": "Shih Tzu",
+    "petAge": "2 years",
+    "gender": "Female",
+    "size": "Small",
+    "color": "White & Brown",
+    "petCategory": "Adult",
+    "petLocation": {
+      "city": "Rangpur",
+      "area": "Cantonment",
+      "address": "12 Flower Street, Rangpur Cantonment",
+      "geo": { "lat": 25.7465, "lng": 89.2500 }
+    },
+    "vaccinationStatus": "Fully vaccinated",
+    "healthCondition": "Healthy, Spayed",
+    "temperament": "Friendly, lap dog, calm",
+    "longDescription": "Bella is affectionate and great for apartment living and seniors.",
+    "adoptionFee": 600,
+    "adopted": false,
+    "images": "https://i.ibb.co/Bella-ShihTzu.jpg",
+    "shelterInfo": {
+      "name": "Rangpur Rescue",
+      "contactNumber": "+8801719988776",
+      "email": "rangpur@rescue.org"
+    },
+    "vetDetails": {
+      "name": "Dr. Rafique",
+      "clinic": "Rangpur Pet Clinic",
+      "contact": "+8801755667788",
+      "lastCheckup": "2025-06-30"
+    },
+    "createdBy": "tanzim@gmail.com",
+    "createdAt": "2025-07-16T08:22:10.697Z",
+    "status": "Available"
+  },
+  {
+    "id": 9,
+    "petName": "Coco",
+    "species": "Cat",
+    "breed": "Siamese",
+    "petAge": "6 months",
+    "gender": "Male",
+    "size": "Small",
+    "color": "Cream & Brown",
+    "petCategory": "Kitten",
+    "petLocation": {
+      "city": "Mymensingh",
+      "area": "Kewatkhali",
+      "address": "Plot 7, Kewatkhali, Mymensingh",
+      "geo": { "lat": 24.7471, "lng": 90.4203 }
+    },
+    "vaccinationStatus": "Partially vaccinated",
+    "healthCondition": "Healthy",
+    "temperament": "Curious, vocal, playful",
+    "longDescription": "Coco is a curious Siamese kitten who loves playtime and exploring.",
+    "adoptionFee": 400,
+    "adopted": false,
+    "images": "https://i.ibb.co/Coco-Siamese.jpg",
+    "shelterInfo": {
+      "name": "Mymensingh Animal Care",
+      "contactNumber": "+8801714455667",
+      "email": "info@mymenpet.org"
+    },
+    "vetDetails": {
+      "name": "Dr. Nisha",
+      "clinic": "Mymensingh Vet Center",
+      "contact": "+8801777112233",
+      "lastCheckup": "2025-07-07"
+    },
+    "createdBy": "asma@gmail.com",
+    "createdAt": "2025-07-16T09:10:05.697Z",
+    "status": "Available"
+  },
+  {
+    "id": 10,
+    "petName": "Nugget",
+    "species": "Bird",
+    "breed": "Cockatiel",
+    "petAge": "1 year",
+    "gender": "Male",
+    "size": "Small",
+    "color": "Gray & Yellow",
+    "petCategory": "Young",
+    "petLocation": {
+      "city": "Cox's Bazar",
+      "area": "Laboni Beach",
+      "address": "Shop 4, Sea View Market, Cox's Bazar",
+      "geo": { "lat": 21.4272, "lng": 92.0058 }
+    },
+    "vaccinationStatus": "Not required",
+    "healthCondition": "Healthy",
+    "temperament": "Friendly, whistle learner",
+    "longDescription": "Nugget is a gentle cockatiel that enjoys human company and soft music.",
+    "adoptionFee": 250,
+    "adopted": false,
+    "images": "https://i.ibb.co/Nugget-Cockatiel.jpg",
+    "shelterInfo": {
+      "name": "Coastal Pet Rescue",
+      "contactNumber": "+8801999001122",
+      "email": "coastal@pets.org"
+    },
+    "vetDetails": {
+      "name": "Dr. Rafi",
+      "clinic": "Cox's Bazar Vet",
+      "contact": "+8801788992233",
+      "lastCheckup": "2025-06-28"
+    },
+    "createdBy": "tanvir@gmail.com",
+    "createdAt": "2025-07-16T10:05:44.697Z",
+    "status": "Available"
+  },
+  {
+    "id": 11,
+    "petName": "Pudding",
+    "species": "Guinea Pig",
+    "breed": "Abyssinian",
+    "petAge": "8 months",
+    "gender": "Female",
+    "size": "Small",
+    "color": "Brown & White",
+    "petCategory": "Young",
+    "petLocation": {
+      "city": "Comilla",
+      "area": "Adarsha Bazar",
+      "address": "House 5, Adarsha Bazar, Comilla",
+      "geo": { "lat": 23.4602, "lng": 91.1820 }
+    },
+    "vaccinationStatus": "Not required",
+    "healthCondition": "Healthy",
+    "temperament": "Docile, loves veggies",
+    "longDescription": "Pudding is a friendly guinea pig that enjoys fresh greens and gentle handling.",
+    "adoptionFee": 150,
+    "adopted": false,
+    "images": "https://i.ibb.co/Pudding-Guinea.jpg",
+    "shelterInfo": {
+      "name": "Comilla Small Pets",
+      "contactNumber": "+8801722445566",
+      "email": "smallpets@comilla.org"
+    },
+    "vetDetails": {
+      "name": "Dr. Sayeed",
+      "clinic": "Comilla Vet Care",
+      "contact": "+8801777665544",
+      "lastCheckup": "2025-07-04"
+    },
+    "createdBy": "shanto@gmail.com",
+    "createdAt": "2025-07-16T11:00:00.697Z",
+    "status": "Available"
+  },
+  {
+    "id": 12,
+    "petName": "Turbo",
+    "species": "Turtle",
+    "breed": "Red-eared Slider",
+    "petAge": "2 years",
+    "gender": "Male",
+    "size": "Small",
+    "color": "Green & Brown",
+    "petCategory": "Adult",
+    "petLocation": {
+      "city": "Gazipur",
+      "area": "Kaliakair",
+      "address": "Plot 3, Kaliakair Industrial, Gazipur",
+      "geo": { "lat": 24.0017, "lng": 90.4267 }
+    },
+    "vaccinationStatus": "Not required",
+    "healthCondition": "Healthy",
+    "temperament": "Calm, slow-moving, needs water habitat",
+    "longDescription": "Turbo is a healthy red-eared slider that needs an aquatic setup and gentle care.",
+    "adoptionFee": 300,
+    "adopted": false,
+    "images": "https://i.ibb.co/Turbo-Turtle.jpg",
+    "shelterInfo": {
+      "name": "Gazipur Pets",
+      "contactNumber": "+8801712233445",
+      "email": "info@gazipurpets.org"
+    },
+    "vetDetails": {
+      "name": "Dr. Iqbal",
+      "clinic": "Gazipur Animal Clinic",
+      "contact": "+8801777332211",
+      "lastCheckup": "2025-06-18"
+    },
+    "createdBy": "nazma@gmail.com",
+    "createdAt": "2025-07-16T11:30:12.697Z",
+    "status": "Available"
+  },
+  {
+    "id": 13,
+    "petName": "Kalu",
+    "species": "Dog",
+    "breed": "Local Mix",
+    "petAge": "3 years",
+    "gender": "Male",
+    "size": "Medium",
+    "color": "Black",
+    "petCategory": "Adult",
+    "petLocation": {
+      "city": "Narayanganj",
+      "area": "Fatullah",
+      "address": "Road 8, Fatullah, Narayanganj",
+      "geo": { "lat": 23.6236, "lng": 90.5000 }
+    },
+    "vaccinationStatus": "Partially vaccinated",
+    "healthCondition": "Healthy",
+    "temperament": "Friendly, street-smart, loyal",
+    "longDescription": "Kalu is a resilient mixed-breed dog, well socialized and great on walks.",
+    "adoptionFee": 200,
+    "adopted": false,
+    "images": "https://i.ibb.co/Kalu-Mix.jpg",
+    "shelterInfo": {
+      "name": "Narayanganj Rescue",
+      "contactNumber": "+8801713344556",
+      "email": "naray@rescue.org"
+    },
+    "vetDetails": {
+      "name": "Dr. Banu",
+      "clinic": "Narayanganj Vet Care",
+      "contact": "+8801799886655",
+      "lastCheckup": "2025-07-08"
+    },
+    "createdBy": "atif@gmail.com",
+    "createdAt": "2025-07-16T12:05:22.697Z",
+    "status": "Available"
+  },
+  {
+    "id": 14,
+    "petName": "Sunny",
+    "species": "Dog",
+    "breed": "Labrador Retriever",
+    "petAge": "6 months",
+    "gender": "Female",
+    "size": "Medium",
+    "color": "Yellow",
+    "petCategory": "Puppy",
+    "petLocation": {
+      "city": "Tangail",
+      "area": "Station Road",
+      "address": "12 Station Road, Tangail",
+      "geo": { "lat": 24.2500, "lng": 89.9167 }
+    },
+    "vaccinationStatus": "Fully vaccinated",
+    "healthCondition": "Healthy",
+    "temperament": "Playful, trainable, loves water",
+    "longDescription": "Sunny is a friendly Labrador puppy who learns quickly and loves swims.",
+    "adoptionFee": 1000,
+    "adopted": false,
+    "images": "https://i.ibb.co/Sunny-Lab.jpg",
+    "shelterInfo": {
+      "name": "Tangail Pet Rescue",
+      "contactNumber": "+8801715566778",
+      "email": "tangail@pets.org"
+    },
+    "vetDetails": {
+      "name": "Dr. Ruma",
+      "clinic": "Tangail Vet Hospital",
+      "contact": "+8801722998877",
+      "lastCheckup": "2025-07-09"
+    },
+    "createdBy": "rabeya@gmail.com",
+    "createdAt": "2025-07-16T12:40:55.697Z",
+    "status": "Available"
+  },
+  {
+    "id": 15,
+    "petName": "Whiskers",
+    "species": "Cat",
+    "breed": "Mixed Domestic",
+    "petAge": "5 years",
+    "gender": "Male",
+    "size": "Medium",
+    "color": "Gray",
+    "petCategory": "Adult",
+    "petLocation": {
+      "city": "Pabna",
+      "area": "College Road",
+      "address": "10 College Road, Pabna",
+      "geo": { "lat": 24.0060, "lng": 89.2436 }
+    },
+    "vaccinationStatus": "Fully vaccinated",
+    "healthCondition": "Healthy",
+    "temperament": "Mellow, independent, house-trained",
+    "longDescription": "Whiskers is a calm adult cat who is used to home life and lap naps.",
+    "adoptionFee": 250,
+    "adopted": false,
+    "images": "https://i.ibb.co/Whiskers-Mixed.jpg",
+    "shelterInfo": {
+      "name": "Pabna Animal Welfare",
+      "contactNumber": "+8801716677889",
+      "email": "pabna@welfare.org"
+    },
+    "vetDetails": {
+      "name": "Dr. Monir",
+      "clinic": "Pabna Vet Clinic",
+      "contact": "+8801733776655",
+      "lastCheckup": "2025-06-15"
+    },
+    "createdBy": "fahim@gmail.com",
+    "createdAt": "2025-07-16T13:15:33.697Z",
+    "status": "Available"
+  },
+  {
+    "id": 16,
+    "petName": "Maple",
+    "species": "Hamster",
+    "breed": "Syrian",
+    "petAge": "4 months",
+    "gender": "Female",
+    "size": "Small",
+    "color": "Golden",
+    "petCategory": "Baby",
+    "petLocation": {
+      "city": "Jessore",
+      "area": "Bera Road",
+      "address": "25B Bera Road, Jessore",
+      "geo": { "lat": 23.1667, "lng": 89.2167 }
+    },
+    "vaccinationStatus": "Not required",
+    "healthCondition": "Healthy",
+    "temperament": "Curious, nocturnal, cuddly",
+    "longDescription": "Maple is a tiny Syrian hamster who enjoys tunnels and sunflower seeds.",
+    "adoptionFee": 100,
+    "adopted": false,
+    "images": "https://i.ibb.co/Maple-Hamster.jpg",
+    "shelterInfo": {
+      "name": "Jessore Small Pets",
+      "contactNumber": "+8801717788990",
+      "email": "smallpets@jessore.org"
+    },
+    "vetDetails": {
+      "name": "Dr. Shaila",
+      "clinic": "Jessore Pet Clinic",
+      "contact": "+8801777001122",
+      "lastCheckup": "2025-07-10"
+    },
+    "createdBy": "mita@gmail.com",
+    "createdAt": "2025-07-16T13:45:01.697Z",
+    "status": "Available"
+  },
+  {
+    "id": 17,
+    "petName": "Pepper",
+    "species": "Parrot",
+    "breed": "Indian Ringneck",
+    "petAge": "2 years",
+    "gender": "Female",
+    "size": "Medium",
+    "color": "Green",
+    "petCategory": "Adult",
+    "petLocation": {
+      "city": "Jhenaidah",
+      "area": "City Center",
+      "address": "8 Market Road, Jhenaidah",
+      "geo": { "lat": 23.5460, "lng": 89.0030 }
+    },
+    "vaccinationStatus": "Not required",
+    "healthCondition": "Healthy",
+    "temperament": "Vocal, playful, social",
+    "longDescription": "Pepper is an Indian Ringneck that enjoys talking and interactive play.",
+    "adoptionFee": 500,
+    "adopted": false,
+    "images": "https://i.ibb.co/Pepper-Parrot.jpg",
+    "shelterInfo": {
+      "name": "Jhenaidah Bird Care",
+      "contactNumber": "+8801718899001",
+      "email": "birdcare@jhenaidah.org"
+    },
+    "vetDetails": {
+      "name": "Dr. Alamgir",
+      "clinic": "Jhenaidah Vet Clinic",
+      "contact": "+8801788554433",
+      "lastCheckup": "2025-07-11"
+    },
+    "createdBy": "joy@gmail.com",
+    "createdAt": "2025-07-16T14:10:12.697Z",
+    "status": "Available"
+  },
+  {
+    "id": 18,
+    "petName": "Sahara",
+    "species": "Dog",
+    "breed": "Pomeranian",
+    "petAge": "1 year",
+    "gender": "Female",
+    "size": "Small",
+    "color": "Orange",
+    "petCategory": "Young",
+    "petLocation": {
+      "city": "Dinajpur",
+      "area": "Station Road",
+      "address": "6 Station Road, Dinajpur",
+      "geo": { "lat": 25.6270, "lng": 88.6376 }
+    },
+    "vaccinationStatus": "Fully vaccinated",
+    "healthCondition": "Healthy, Spayed",
+    "temperament": "Fluffy, energetic, lap-loving",
+    "longDescription": "Sahara is a tiny Pomeranian with a big personality and lots of fluff.",
+    "adoptionFee": 900,
+    "adopted": false,
+    "images": "https://i.ibb.co/Sahara-Pom.jpg",
+    "shelterInfo": {
+      "name": "Dinajpur Pet Rescue",
+      "contactNumber": "+8801777990011",
+      "email": "dinajpur@petrescue.org"
+    },
+    "vetDetails": {
+      "name": "Dr. Shakir",
+      "clinic": "Dinajpur Vet Center",
+      "contact": "+8801712445566",
+      "lastCheckup": "2025-07-12"
+    },
+    "createdBy": "nafisa@gmail.com",
+    "createdAt": "2025-07-16T14:45:22.697Z",
+    "status": "Available"
+  },
+  {
+    "id": 19,
+    "petName": "Ginger",
+    "species": "Cat",
+    "breed": "Ragdoll",
+    "petAge": "3 years",
+    "gender": "Female",
+    "size": "Large",
+    "color": "Cream & Brown",
+    "petCategory": "Adult",
+    "petLocation": {
+      "city": "Sylhet",
+      "area": "Mirabazar",
+      "address": "9 Mirabazar Lane, Sylhet",
+      "geo": { "lat": 24.8940, "lng": 91.8685 }
+    },
+    "vaccinationStatus": "Fully vaccinated",
+    "healthCondition": "Healthy",
+    "temperament": "Calm, affectionate, great with kids",
+    "longDescription": "Ginger is a gentle Ragdoll who loves cuddles and quiet homes.",
+    "adoptionFee": 800,
+    "adopted": false,
+    "images": "https://i.ibb.co/Ginger-Ragdoll.jpg",
+    "shelterInfo": {
+      "name": "Sylhet Pet Shelter",
+      "contactNumber": "+8801944556677",
+      "email": "shelter@sylhetpets.org"
+    },
+    "vetDetails": {
+      "name": "Dr. Hossain",
+      "clinic": "Sylhet Animal Care",
+      "contact": "+8801788990011",
+      "lastCheckup": "2025-06-25"
+    },
+    "createdBy": "sharmin@gmail.com",
+    "createdAt": "2025-07-16T15:20:55.697Z",
+    "status": "Available"
+  },
+  {
+    "id": 20,
+    "petName": "Bolt",
+    "species": "Dog",
+    "breed": "Doberman",
+    "petAge": "5 years",
+    "gender": "Male",
+    "size": "Large",
+    "color": "Black & Rust",
+    "petCategory": "Adult",
+    "petLocation": {
+      "city": "Dhaka",
+      "area": "Gulshan",
+      "address": "House 40, Road 12, Gulshan, Dhaka",
+      "geo": { "lat": 23.7925, "lng": 90.4078 }
+    },
+    "vaccinationStatus": "Fully vaccinated",
+    "healthCondition": "Healthy",
+    "temperament": "Alert, disciplined, needs experienced owner",
+    "longDescription": "Bolt is a strong, well-trained Doberman looking for a committed owner.",
+    "adoptionFee": 2500,
+    "adopted": false,
+    "images": "https://i.ibb.co/Bolt-Doberman.jpg",
+    "shelterInfo": {
+      "name": "Gulshan Animal Rescue",
+      "contactNumber": "+8801719090909",
+      "email": "gulshan@animalrescue.org"
+    },
+    "vetDetails": {
+      "name": "Dr. Tasnim",
+      "clinic": "Gulshan Vet Care",
+      "contact": "+8801777668899",
+      "lastCheckup": "2025-07-01"
+    },
+    "createdBy": "arif@gmail.com",
+    "createdAt": "2025-07-16T16:00:00.697Z",
+    "status": "Available"
+  }
+]
