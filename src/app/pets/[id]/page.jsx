@@ -1,71 +1,164 @@
 "use client";
 import React from "react";
 import Image from "next/image";
+import Slider from "react-slick";
 import pets from "../../../../public/pets.json";
-import { FaSyringe, FaMapMarkerAlt } from 'react-icons/fa';
-import { GiDogBowl } from 'react-icons/gi';
+import { FaSyringe, FaMapMarkerAlt } from "react-icons/fa";
+import { GiDogBowl } from "react-icons/gi";
+import AvailablePetsCard from "@/components/AvailablePetsCard";
 
-export default function PetDetail({ params }){
-    // console.log(pets)
-    const {id} = React.use(params);
-  const pet1 = pets.filter(p => p.id === parseInt(id));
-  console.log(pet1)
-    return (
-       <>
-       {
-        pet1.map(pet =>(
-               <div key={pet.id} className=" min-h-screen flex justify-center items-center">
-      <div className="bg-white shadow-lg rounded-2xl overflow-hidden w-full max-w-5xl grid md:grid-cols-2">
-        {/* Left: Image */}
-        <div className="relative flex flex-col justify-center items-center md:items-start p-4 md:p-0 ">
-          <Image
-            src={pet.images}
-            alt={pet.petName}
-            className=" object-cover h-[300] md:h-full rounded-2xl md:rounded-none"
-            width={300}
-            height={300}
-          />
-        </div>
+function NextArrow(props) {
+  const { className, style, onClick } = props;
+  return (
+    <div
+      className={className}
+      style={{
+        ...style,
+        display: "block",
+        background: "#FFB22C", 
+        borderRadius: "50%",
+        right: "-25px", 
+        zIndex: 1,
+      }}
+      onClick={onClick}
+    />
+  );
+}
 
-        {/* Right: Details */}
-        <div className="p-6 flex flex-col justify-center">
-          <h2 className="text-3xl font-bold mb-4">
-            Meet <span className="relative">{pet.petName}
-                 <span className="absolute left-0 -bottom-1 w-full h-[3px] bg-[#FFB22C] rounded-full"></span>
-            </span>
-          </h2>
-          <div className="grid grid-cols-2 gap-y-2 mb-4 text-gray-700">
-            <p><strong>Gender:</strong> {pet.gender}</p>
-            <p><strong>Breed:</strong> {pet.breed}</p>
-            <p><strong>Neutered:</strong> {pet.healthCondition.includes('Neutered') ? 'Yes' : 'No'}</p>
-            <p><strong>Vaccinated:</strong> {pet.vaccinationStatus}</p>
-            <p><strong>Age:</strong> {pet.petAge}</p>
-            <p><strong>Size:</strong> {pet.size}</p>
-          </div>
+function PrevArrow(props) {
+  const { className, style, onClick } = props;
+  return (
+    <div
+      className={className}
+      style={{
+        ...style,
+        display: "block",
+        background: "#FFB22C",
+        borderRadius: "50%",
+        left: "-25px",
+        zIndex: 1,
+      }}
+      onClick={onClick}
+    />
+  );
+}
 
-          <div className="flex items-center text-sm text-gray-500 mb-4">
-            <FaMapMarkerAlt className="mr-2 text-orange-500" />
-            {pet.petLocation?.address}, {pet.petLocation.city}
-          </div>
+export default function PetDetail({ params }) {
+  // console.log(pets)
+  const { id } = React.use(params);
+  const pet1 = pets.filter((p) => p.id === parseInt(id));
+  //   console.log(pet1)
+  const settings = {
+    dots: false, 
+    infinite: true, 
+    speed: 500,
+    slidesToShow: 3, 
+    slidesToScroll: 1, 
+    arrows: true, 
+     nextArrow: <NextArrow />,
+  prevArrow: <PrevArrow />,
+    responsive: [
+      {
+        breakpoint: 1024,
+        settings: {
+          slidesToShow: 2,
+        },
+      },
+      {
+        breakpoint: 640,
+        settings: {
+          slidesToShow: 1,
+        },
+      },
+    ],
+  };
+  return (
+    <>
+      {pet1.map((pet) => (
+        <div
+          key={pet.id}
+          className=" min-h-screen flex justify-center items-center"
+        >
+          <div className="bg-white shadow-lg rounded-2xl overflow-hidden w-full max-w-5xl grid md:grid-cols-2">
+            {/* Left: Image */}
+            <div className="relative flex flex-col justify-center items-center md:items-start p-4 md:p-0 ">
+              <Image
+                src={pet.images}
+                alt={pet.petName}
+                className=" object-cover h-[300] md:h-full rounded-2xl md:rounded-none"
+                width={300}
+                height={300}
+              />
+            </div>
 
-          <p className="text-gray-600 mb-4">{pet.longDescription}</p>
+            {/* Right: Details */}
+            <div className="p-6 flex flex-col justify-center">
+              <h2 className="text-3xl font-bold mb-4">
+                Meet{" "}
+                <span className="relative">
+                  {pet.petName}
+                  <span className="absolute left-0 -bottom-1 w-full h-[3px] bg-[#FFB22C] rounded-full"></span>
+                </span>
+              </h2>
+              <div className="grid grid-cols-2 gap-y-2 mb-4 text-gray-700">
+                <p>
+                  <strong>Gender:</strong> {pet.gender}
+                </p>
+                <p>
+                  <strong>Breed:</strong> {pet.breed}
+                </p>
+                <p>
+                  <strong>Neutered:</strong>{" "}
+                  {pet.healthCondition.includes("Neutered") ? "Yes" : "No"}
+                </p>
+                <p>
+                  <strong>Vaccinated:</strong> {pet.vaccinationStatus}
+                </p>
+                <p>
+                  <strong>Age:</strong> {pet.petAge}
+                </p>
+                <p>
+                  <strong>Size:</strong> {pet.size}
+                </p>
+              </div>
 
-          <button className="bg-[#FFB22C] hover:bg-[#FA812F] text-white font-semibold px-6 py-2 rounded-lg shadow-md w-fit transition-all duration-300 cursor-pointer">
-            Adopt Today →
-          </button>
+              <div className="flex items-center text-sm text-gray-500 mb-4">
+                <FaMapMarkerAlt className="mr-2 text-[#FFB22C]" />
+                {pet.petLocation?.address}
+              </div>
 
-          {/* Optional Icons */}
-          <div className="flex space-x-4 mt-5 text-gray-400">
-            {/* <FaSyringe title="Vaccination Info" className="text-xl" />
+              <p className="text-gray-600 mb-4">{pet.longDescription}</p>
+
+              <button className="bg-[#FFB22C] hover:bg-[#FA812F] text-white font-semibold px-6 py-2 rounded-lg shadow-md w-fit transition-all duration-300 cursor-pointer">
+                Adopt Today →
+              </button>
+
+              {/* Optional Icons */}
+              <div className="flex space-x-4 mt-5 text-gray-400">
+                {/* <FaSyringe title="Vaccination Info" className="text-xl" />
             <GiDogBowl title="Pet Care Info" className="text-xl" /> */}
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+      <div className="max-w-5xl mx-auto px-4 mt-10">
+        <h3 className="text-2xl font-bold mb-6">Other Pets Available</h3>
+        <h2 className="text-3xl font-bold mb-6">More Pets For Adoption</h2>
+        <div className="grid grid-cols-1 auto-rows-fr gap-6">
+          <div className="px-6 py-10">
+            <Slider {...settings}>
+              {pets.map((pet) => (
+                <div key={pet.id} className="p-2">
+                  <AvailablePetsCard pet={pet} />
+                </div>
+              ))}
+            </Slider>
           </div>
         </div>
       </div>
-    </div>
-        )
-        )
-       }
-       </>
-    );
-};
- 
+    </>
+  );
+}
+
+// .filter((p) => p.id !== parseInt(id))
