@@ -55,6 +55,7 @@ export default function PetDetail({ params }) {
     slidesToShow: 3, 
     slidesToScroll: 1, 
     arrows: true, 
+     adaptiveHeight: false,
      nextArrow: <NextArrow />,
   prevArrow: <PrevArrow />,
     responsive: [
@@ -74,12 +75,13 @@ export default function PetDetail({ params }) {
   };
   return (
     <>
+    {/* details card */}
       {pet1.map((pet) => (
         <div
           key={pet.id}
           className=" min-h-screen flex justify-center items-center"
         >
-          <div className="bg-white shadow-lg rounded-2xl overflow-hidden w-full max-w-5xl grid md:grid-cols-2">
+          <div className="min-h-[450px] bg-white shadow-lg rounded-2xl overflow-hidden w-full max-w-6xl grid md:grid-cols-2">
             {/* Left: Image */}
             <div className="relative flex flex-col justify-center items-center md:items-start p-4 md:p-0 ">
               <Image
@@ -97,7 +99,7 @@ export default function PetDetail({ params }) {
                 Meet{" "}
                 <span className="relative">
                   {pet.petName}
-                  <span className="absolute left-0 -bottom-1 w-full h-[3px] bg-[#FFB22C] rounded-full"></span>
+                  <span className="absolute left-0 -bottom-1 w-full h-[3px] bg-[#fccc49] rounded-full"></span>
                 </span>
               </h2>
               <div className="grid grid-cols-2 gap-y-2 mb-4 text-gray-700">
@@ -129,7 +131,7 @@ export default function PetDetail({ params }) {
 
               <p className="text-gray-600 mb-4">{pet.longDescription}</p>
 
-              <button className="bg-[#FFB22C] hover:bg-[#FA812F] text-white font-semibold px-6 py-2 rounded-lg shadow-md w-fit transition-all duration-300 cursor-pointer">
+              <button className="bg-[#FFB22C] hover:bg-orange-400 text-white font-semibold px-6 py-2 rounded-lg shadow-md w-fit transition-all duration-300 cursor-pointer">
                 Adopt Today →
               </button>
 
@@ -142,13 +144,19 @@ export default function PetDetail({ params }) {
           </div>
         </div>
       ))}
-      <div className="max-w-5xl mx-auto px-4 mt-10">
-        <h3 className="text-2xl font-bold mb-6">Other Pets Available</h3>
-        <h2 className="text-3xl font-bold mb-6">More Pets For Adoption</h2>
-        <div className="grid grid-cols-1 auto-rows-fr gap-6">
-          <div className="px-6 py-10">
+
+      {/* //Available section */}
+      <div className="max-w-4xl mx-auto px-4 my-16">
+        <div className="flex items-start">
+        <span className="w-14 mt-2 h-[3px] bg-[#fccc49] rounded-full"></span>
+          <h3 className="text-lg font-bold mb-3"> Available Pets</h3>
+        </div>
+        <h2 className="text-3xl font-bold mb-8">More Pets For Adoption</h2>
+        <div className="grid grid-cols-1 gap-6">
+          <div className="">
             <Slider {...settings}>
-              {pets.map((pet) => (
+              {pets.filter((p) => p.id !== parseInt(id))
+              .map((pet) => (
                 <div key={pet.id} className="p-2">
                   <AvailablePetsCard pet={pet} />
                 </div>
@@ -161,4 +169,3 @@ export default function PetDetail({ params }) {
   );
 }
 
-// .filter((p) => p.id !== parseInt(id))
