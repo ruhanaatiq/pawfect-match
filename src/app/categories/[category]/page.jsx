@@ -3,8 +3,7 @@ import { useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import petsData from "../../../../public/pets.json";
-import categoriesData from "../../../../public/category.json";
-
+import categoriesData from "@/data/category.json" assert { type: "json" };
 export default function CategoryPage() {
   const params = useParams();
   const category = params.category;
