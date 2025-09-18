@@ -1,3 +1,5 @@
+import { Quote } from "lucide-react";
+
 export default function Testimonials() {
   const testimonials = [
     {
@@ -41,7 +43,8 @@ export default function Testimonials() {
   return (
     <section className="py-16 bg-base-100">
       <div className="max-w-6xl mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center mb-12">
+        <h2 className="text-3xl font-bold text-center mb-12 flex items-center justify-center gap-2">
+          <Quote className="w-8 h-8 text-primary" />
           What Our Users Say
         </h2>
 
