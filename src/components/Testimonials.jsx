@@ -43,8 +43,8 @@ export default function Testimonials() {
   return (
     <section className="py-16 bg-base-100">
       <div className="max-w-6xl mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center mb-12 flex items-center justify-center gap-2">
-          <Quote className="w-8 h-8 text-primary" />
+        <h2 className="text-3xl font-bold text-center mb-12 flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 via-emerald-400 to-emerald-600 bg-clip-text text-transparent">
+          <Quote className="w-8 h-8 text-emerald-600" />
           What Our Users Say
         </h2>
 
