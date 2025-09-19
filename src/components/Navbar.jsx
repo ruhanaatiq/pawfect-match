@@ -42,6 +42,9 @@ export default function Navbar() {
           <Link href="/profile" className="hover:text-emerald-600">
             Profile
           </Link>
+           <Link href="/dashboard" className="hover:text-emerald-600">
+            Dashboard
+          </Link>
         </div>
 
         {/* Mobile Menu Button */}
