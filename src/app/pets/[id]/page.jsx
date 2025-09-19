@@ -152,7 +152,57 @@ export default function PetDetail({ params }) {
               </div>
             </div>
           </div>
-         
+          {/* table */}
+          <section className="my-10 md:mt-2 md:mb-26  max-w-5xl mx-auto">
+            <h3 className="text-2xl md:text-3xl font-bold mb-4">
+              {" "}
+              Others Info
+            </h3>
+            <div className=" bg-white rounded-2xl shadow p-6 md:p-8 md:px-12 ">
+              <table className="table-auto w-full text-left text-gray-700">
+                <tbody className="divide-y-2 divide-gray-100 ">
+                  <tr>
+                    <th className="py-2 pr-4 font-semibold">Shelter Name</th>
+                    <td className="py-2">{pet.shelterInfo.name}</td>
+                  </tr>
+                  <tr>
+                    <th className="py-2 pr-4 font-semibold">
+                      Shelter Contact Number
+                    </th>
+                    <td className="py-2">
+                      <br />
+                      {pet.shelterInfo.contactNumber}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th className="py-2 pr-4 font-semibold">Shelter Email</th>
+                    <td className="py-2">
+                      <br />
+                      {pet.shelterInfo.email}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th className="py-2 pr-4 font-semibold">Vet Name</th>
+                    <td className="py-2"> {pet.vetDetails.name}</td>
+                  </tr>
+                  <tr>
+                    <th className="py-2 pr-4 font-semibold">Vet Clinic</th>
+                    <td className="py-2">{pet.vetDetails.clinic}</td>
+                  </tr>
+                  <tr>
+                    <th className="py-2 pr-4 font-semibold">
+                      Vet Contact Number
+                    </th>
+                    <td className="py-2">{pet.vetDetails.contact}</td>
+                  </tr>
+                  <tr>
+                    <th className="py-2 pr-4 font-semibold">Last Checkup</th>
+                    <td className="py-2">{pet.vetDetails.lastCheckup}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
         </div>
       ))}
 
