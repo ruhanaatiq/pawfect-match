@@ -1,0 +1,66 @@
+{
+  "categories": {
+    "Cats": {
+      "species": {
+        "Cat": [
+          "Persian",
+          "Bengal",
+          "Siamese",
+          "Mixed Domestic",
+          "Ragdoll"
+        ]
+      }
+    },
+    "Dogs": {
+      "species": {
+        "Dog": [
+          "Golden Retriever",
+          "Beagle",
+          "German Shepherd",
+          "Shih Tzu",
+          "Doberman",
+          "Local Mix",
+          "Labrador Retriever",
+          "Pomeranian"
+        ]
+      }
+    },
+    "Birds": {
+      "species": {
+        "Bird": [
+          "Macaw Parrot",
+          "Cockatiel",
+          "Indian Ringneck"
+        ]
+      }
+    },
+    "Reptiles": {
+      "species": {
+        "Turtle": [
+          "Red-eared Slider"
+        ]
+      }
+    },
+    "Rabbits": {
+      "species": {
+        "Rabbit": [
+          "Holland Lop"
+        ]
+      }
+    },
+    "Hamsters": {
+      "species": {
+        "Hamster": [
+          "Syrian"
+        ]
+      }
+    },
+    "Guinea Pigs": {
+      "species": {
+        "Guinea Pig": [
+          "Abyssinian"
+        ]
+      }
+    }
+  }
+}

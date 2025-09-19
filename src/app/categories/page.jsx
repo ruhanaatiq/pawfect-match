@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { FaPaw } from "react-icons/fa";
-import categoriesData from "../../public/category.json";
+import categoriesData from "@/data/category.json" assert { type: "json" };
 
 export default function CategoriesPage() {
   // Count total species across all categories
