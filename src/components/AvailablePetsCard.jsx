@@ -4,7 +4,7 @@ import React from "react";
 import { FaArrowRight } from "react-icons/fa";
 
 const AvailablePetsCard = ({pet}) => {
-  console.log(pet)
+  // console.log(pet)
   const {images, petName, petAge, temperament, longDescription} = pet
   return (
     <div className="bg-white rounded-2xl shadow-md hover:shadow-orange-100 duration-500 overflow-hidden hover:shadow-lg transition flex flex-col h-[390px]">

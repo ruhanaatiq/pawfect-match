@@ -7,6 +7,7 @@ import { FaSyringe, FaMapMarkerAlt } from "react-icons/fa";
 import { GiDogBowl } from "react-icons/gi";
 import AvailablePetsCard from "@/components/AvailablePetsCard";
 
+
 function NextArrow(props) {
   const { className, style, onClick } = props;
   return (
