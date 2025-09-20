@@ -1,4 +1,11 @@
 @import "tailwindcss";
-
 @import "slick-carousel/slick/slick.css";
 @import "slick-carousel/slick/slick-theme.css";
+
+.icons p svg {
+color: #FFB22C;
+}
+
+html {
+  scroll-behavior: smooth;
+}
