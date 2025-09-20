@@ -10,7 +10,7 @@ import {
   FaVenusMars,
   FaNotesMedical,
   FaSyringe,
-  FaClock,
+  FaClock, 
   FaRulerCombined,
   FaMapMarkerAlt,
 } from "react-icons/fa";
