@@ -93,7 +93,7 @@ export default function AboutPage() {
             <div className="absolute -inset-4 md:-inset-6 rounded-[28px] bg-emerald-100/60 rotate-3" />
             <div className="relative aspect-[5/4] w-full overflow-hidden rounded-[28px] border border-black/5 bg-white/70">
               <Image
-                src="/about-pet.png" // put an image in /public
+                src="/about.jpg"
                 alt="Adopter holding a happy pet"
                 fill
                 className="object-cover"
