@@ -21,7 +21,7 @@
     "longDescription": "Robby is a playful Golden Retriever puppy who loves fetch and long walks.",
     "adoptionFee": 0,
     "adopted": false,
-    "images": "https://i.ibb.co/4RkhPdYW/download-12.jpg",
+    "images": "https://i.ibb.co.com/1JYq0gwF/483-1.jpg",
     "shelterInfo": {
       "name": "Happy Paws Shelter",
       "contactNumber": "+8801712345678",
@@ -59,7 +59,7 @@
     "longDescription": "Mittens is a fluffy Persian cat who enjoys being pampered and lounging indoors.",
     "adoptionFee": 500,
     "adopted": false,
-    "images": "https://i.ibb.co.com/0yPh0Kzm/2147997419.jpg",
+    "images": "https://i.ibb.co.com/G3tV6XzG/2147997419-1.jpg",
     "shelterInfo": {
       "name": "Cat Haven",
       "contactNumber": "+8801811122233",
@@ -75,84 +75,8 @@
     "createdAt": "2025-07-12T09:15:12.697Z",
     "status": "Available"
   },
-  {
+   {
     "id": 3,
-    "petName": "Charlie",
-    "species": "Dog",
-    "breed": "Beagle",
-    "petAge": "1 year",
-    "gender": "Male",
-    "size": "Medium",
-    "color": "Brown & White",
-    "petCategory": "Young",
-    "petLocation": {
-      "city": "Khulna",
-      "area": "Shibbari",
-      "address": "45 Lake Road, Shibbari, Khulna",
-      "geo": { "lat": 22.8090, "lng": 89.5670 }
-    },
-    "vaccinationStatus": "Fully vaccinated",
-    "healthCondition": "Healthy",
-    "temperament": "Playful, loves kids, active",
-    "longDescription": "Charlie is a fun-loving Beagle with lots of energy for family activities.",
-    "adoptionFee": 800,
-    "adopted": false,
-    "images": "https://i.ibb.co.com/35Dr3d81/45380.jpg",
-    "shelterInfo": {
-      "name": "Paws & Friends",
-      "contactNumber": "+8801722334455",
-      "email": "adopt@pawsfriends.org"
-    },
-    "vetDetails": {
-      "name": "Dr. Sultana",
-      "clinic": "Khulna Vet Clinic",
-      "contact": "+8801933445566",
-      "lastCheckup": "2025-07-05"
-    },
-    "createdBy": "rahim@gmail.com",
-    "createdAt": "2025-07-13T10:20:44.697Z",
-    "status": "Available"
-  },
-  {
-    "id": 4,
-    "petName": "Snowball",
-    "species": "Rabbit",
-    "breed": "Holland Lop",
-    "petAge": "6 months",
-    "gender": "Female",
-    "size": "Small",
-    "color": "White & Gray",
-    "petCategory": "Young",
-    "petLocation": {
-      "city": "Sylhet",
-      "area": "Zindabazar",
-      "address": "22A Green Valley, Zindabazar, Sylhet",
-      "geo": { "lat": 24.8917, "lng": 91.8830 }
-    },
-    "vaccinationStatus": "Not required",
-    "healthCondition": "Healthy",
-    "temperament": "Gentle, quiet, likes being held",
-    "longDescription": "Snowball is a cuddly lop rabbit that enjoys fresh vegetables and quiet time.",
-    "adoptionFee": 300,
-    "adopted": false,
-    "images": "https://i.ibb.co.com/1fxKV5zx/2147860412.jpg",
-    "shelterInfo": {
-      "name": "Sylhet Pet Shelter",
-      "contactNumber": "+8801944556677",
-      "email": "shelter@sylhetpets.org"
-    },
-    "vetDetails": {
-      "name": "Dr. Hossain",
-      "clinic": "Sylhet Animal Care",
-      "contact": "+8801788990011",
-      "lastCheckup": "2025-06-25"
-    },
-    "createdBy": "sharmin@gmail.com",
-    "createdAt": "2025-07-14T11:45:31.697Z",
-    "status": "Available"
-  },
-  {
-    "id": 5,
     "petName": "Rio",
     "species": "Bird",
     "breed": "Macaw Parrot",
@@ -173,7 +97,7 @@
     "longDescription": "Rio is a colorful Macaw who loves to interact and mimic sounds.",
     "adoptionFee": 1200,
     "adopted": false,
-    "images": "https://i.ibb.co.com/TMrWFM0V/58071.jpg",
+    "images": "https://i.ibb.co.com/TBzgXndZ/58071-1.jpg",
     "shelterInfo": {
       "name": "Bird Rescue Center",
       "contactNumber": "+8801555667788",
@@ -187,6 +111,82 @@
     },
     "createdBy": "nayeem@gmail.com",
     "createdAt": "2025-07-15T12:30:22.697Z",
+    "status": "Available"
+  },
+  {
+    "id": 4,
+    "petName": "Charlie",
+    "species": "Dog",
+    "breed": "Beagle",
+    "petAge": "1 year",
+    "gender": "Male",
+    "size": "Medium",
+    "color": "Brown & White",
+    "petCategory": "Young",
+    "petLocation": {
+      "city": "Khulna",
+      "area": "Shibbari",
+      "address": "45 Lake Road, Shibbari, Khulna",
+      "geo": { "lat": 22.8090, "lng": 89.5670 }
+    },
+    "vaccinationStatus": "Fully vaccinated",
+    "healthCondition": "Healthy",
+    "temperament": "Playful, loves kids, active",
+    "longDescription": "Charlie is a fun-loving Beagle with lots of energy for family activities.",
+    "adoptionFee": 800,
+    "adopted": false,
+    "images": "https://i.ibb.co.com/gFVHgB9W/45380-1.jpg",
+    "shelterInfo": {
+      "name": "Paws & Friends",
+      "contactNumber": "+8801722334455",
+      "email": "adopt@pawsfriends.org"
+    },
+    "vetDetails": {
+      "name": "Dr. Sultana",
+      "clinic": "Khulna Vet Clinic",
+      "contact": "+8801933445566",
+      "lastCheckup": "2025-07-05"
+    },
+    "createdBy": "rahim@gmail.com",
+    "createdAt": "2025-07-13T10:20:44.697Z",
+    "status": "Available"
+  },
+  {
+    "id": 5,
+    "petName": "Snowball",
+    "species": "Rabbit",
+    "breed": "Holland Lop",
+    "petAge": "6 months",
+    "gender": "Female",
+    "size": "Small",
+    "color": "White & Gray",
+    "petCategory": "Young",
+    "petLocation": {
+      "city": "Sylhet",
+      "area": "Zindabazar",
+      "address": "22A Green Valley, Zindabazar, Sylhet",
+      "geo": { "lat": 24.8917, "lng": 91.8830 }
+    },
+    "vaccinationStatus": "Not required",
+    "healthCondition": "Healthy",
+    "temperament": "Gentle, quiet, likes being held",
+    "longDescription": "Snowball is a cuddly lop rabbit that enjoys fresh vegetables and quiet time.",
+    "adoptionFee": 300,
+    "adopted": false,
+    "images": "https://i.ibb.co.com/wrZY2L8S/2147860412-1.jpg",
+    "shelterInfo": {
+      "name": "Sylhet Pet Shelter",
+      "contactNumber": "+8801944556677",
+      "email": "shelter@sylhetpets.org"
+    },
+    "vetDetails": {
+      "name": "Dr. Hossain",
+      "clinic": "Sylhet Animal Care",
+      "contact": "+8801788990011",
+      "lastCheckup": "2025-06-25"
+    },
+    "createdBy": "sharmin@gmail.com",
+    "createdAt": "2025-07-14T11:45:31.697Z",
     "status": "Available"
   },
   {
@@ -211,7 +211,7 @@
     "longDescription": "Luna loves climbing and toys and is very curious and active.",
     "adoptionFee": 700,
     "adopted": false,
-    "images": "https://i.ibb.co.com/HpN41xZP/512.jpg",
+    "images": "https://i.ibb.co.com/JRnRjKdw/512-1.jpg",
     "shelterInfo": {
       "name": "Barisal Pet Home",
       "contactNumber": "+8801766778899",
@@ -249,7 +249,7 @@
     "longDescription": "Rocky is a trained German Shepherd suitable as a guard and family dog.",
     "adoptionFee": 2000,
     "adopted": false,
-    "images": "https://i.ibb.co.com/F4krJMK5/6410.jpg",
+    "images": "https://i.ibb.co.com/G4qdFp6C/6410-1.jpg",
     "shelterInfo": {
       "name": "Dhaka Animal Rescue",
       "contactNumber": "+8801999223344",
@@ -287,7 +287,7 @@
     "longDescription": "Bella is affectionate and great for apartment living and seniors.",
     "adoptionFee": 600,
     "adopted": false,
-    "images": "https://i.ibb.co.com/1Yfr5BCn/59036.jpg",
+    "images": "https://i.ibb.co.com/DfypxfnV/59036-1.jpg",
     "shelterInfo": {
       "name": "Rangpur Rescue",
       "contactNumber": "+8801719988776",
@@ -325,7 +325,7 @@
     "longDescription": "Coco is a curious Siamese kitten who loves playtime and exploring.",
     "adoptionFee": 400,
     "adopted": false,
-    "images": "https://i.ibb.co.com/QFsnmJkx/13963.jpg",
+    "images": "https://i.ibb.co.com/pG2Xj05/13963-1.jpg",
     "shelterInfo": {
       "name": "Mymensingh Animal Care",
       "contactNumber": "+8801714455667",
@@ -363,7 +363,7 @@
     "longDescription": "Nugget is a gentle cockatiel that enjoys human company and soft music.",
     "adoptionFee": 250,
     "adopted": false,
-    "images": "https://i.ibb.co.com/8L76tV12/42514.jpg",
+    "images": "https://i.ibb.co.com/XxWwWQhf/42514-1.jpg",
     "shelterInfo": {
       "name": "Coastal Pet Rescue",
       "contactNumber": "+8801999001122",
@@ -401,7 +401,7 @@
     "longDescription": "Pudding is a friendly guinea pig that enjoys fresh greens and gentle handling.",
     "adoptionFee": 150,
     "adopted": false,
-    "images": "https://i.ibb.co/Pudding-Guinea.jpg",
+    "images": "https://i.ibb.co.com/3Y1zzfkw/2149152075-1.jpg",
     "shelterInfo": {
       "name": "Comilla Small Pets",
       "contactNumber": "+8801722445566",
@@ -439,7 +439,7 @@
     "longDescription": "Turbo is a healthy red-eared slider that needs an aquatic setup and gentle care.",
     "adoptionFee": 300,
     "adopted": false,
-    "images": "https://i.ibb.co/Turbo-Turtle.jpg",
+    "images": "https://i.ibb.co.com/8nTft1hN/8900-1.jpg",
     "shelterInfo": {
       "name": "Gazipur Pets",
       "contactNumber": "+8801712233445",
@@ -463,7 +463,7 @@
     "petAge": "3 years",
     "gender": "Male",
     "size": "Medium",
-    "color": "Black",
+    "color": " ",
     "petCategory": "Adult",
     "petLocation": {
       "city": "Narayanganj",
@@ -477,7 +477,7 @@
     "longDescription": "Kalu is a resilient mixed-breed dog, well socialized and great on walks.",
     "adoptionFee": 200,
     "adopted": false,
-    "images": "https://i.ibb.co/Kalu-Mix.jpg",
+    "images": "https://i.ibb.co.com/hFfwR895/2148882550-1.jpg",
     "shelterInfo": {
       "name": "Narayanganj Rescue",
       "contactNumber": "+8801713344556",
@@ -515,7 +515,7 @@
     "longDescription": "Sunny is a friendly Labrador puppy who learns quickly and loves swims.",
     "adoptionFee": 1000,
     "adopted": false,
-    "images": "https://i.ibb.co/Sunny-Lab.jpg",
+    "images": "https://i.ibb.co.com/27Xpg1q6/40167-1.jpg",
     "shelterInfo": {
       "name": "Tangail Pet Rescue",
       "contactNumber": "+8801715566778",
@@ -553,7 +553,7 @@
     "longDescription": "Whiskers is a calm adult cat who is used to home life and lap naps.",
     "adoptionFee": 250,
     "adopted": false,
-    "images": "https://i.ibb.co/Whiskers-Mixed.jpg",
+    "images": "https://i.ibb.co.com/GfYsTXTr/51731-1.jpg",
     "shelterInfo": {
       "name": "Pabna Animal Welfare",
       "contactNumber": "+8801716677889",
@@ -591,7 +591,7 @@
     "longDescription": "Maple is a tiny Syrian hamster who enjoys tunnels and sunflower seeds.",
     "adoptionFee": 100,
     "adopted": false,
-    "images": "https://i.ibb.co/Maple-Hamster.jpg",
+    "images": "https://i.ibb.co.com/pvt4gfD7/1467-1.jpg",
     "shelterInfo": {
       "name": "Jessore Small Pets",
       "contactNumber": "+8801717788990",
@@ -629,7 +629,7 @@
     "longDescription": "Pepper is an Indian Ringneck that enjoys talking and interactive play.",
     "adoptionFee": 500,
     "adopted": false,
-    "images": "https://i.ibb.co/Pepper-Parrot.jpg",
+    "images": "https://i.ibb.co.com/gMgLzYm4/1667-1.jpg",
     "shelterInfo": {
       "name": "Jhenaidah Bird Care",
       "contactNumber": "+8801718899001",
@@ -667,7 +667,7 @@
     "longDescription": "Sahara is a tiny Pomeranian with a big personality and lots of fluff.",
     "adoptionFee": 900,
     "adopted": false,
-    "images": "https://i.ibb.co/Sahara-Pom.jpg",
+    "images": "https://i.ibb.co.com/jvY5WhSf/2149873404-1.jpg",
     "shelterInfo": {
       "name": "Dinajpur Pet Rescue",
       "contactNumber": "+8801777990011",
@@ -705,7 +705,7 @@
     "longDescription": "Ginger is a gentle Ragdoll who loves cuddles and quiet homes.",
     "adoptionFee": 800,
     "adopted": false,
-    "images": "https://i.ibb.co/Ginger-Ragdoll.jpg",
+    "images": "https://i.ibb.co.com/fGp0RRzQ/2149152103-1.jpg",
     "shelterInfo": {
       "name": "Sylhet Pet Shelter",
       "contactNumber": "+8801944556677",
@@ -743,7 +743,7 @@
     "longDescription": "Bolt is a strong, well-trained Doberman looking for a committed owner.",
     "adoptionFee": 2500,
     "adopted": false,
-    "images": "https://i.ibb.co/Bolt-Doberman.jpg",
+    "images": "https://i.ibb.co.com/6R4VsGmW/14580-1.jpg",
     "shelterInfo": {
       "name": "Gulshan Animal Rescue",
       "contactNumber": "+8801719090909",
