@@ -7,13 +7,13 @@ const AvailablePetsCard = ({pet}) => {
   // console.log(pet)
   const {images, petName, petAge, temperament, longDescription} = pet
   return (
-    <div className="bg-white rounded-2xl shadow-md hover:shadow-orange-100 duration-500 overflow-hidden hover:shadow-lg transition flex flex-col h-[390px]">
+    <div className="bg-white rounded-2xl shadow-md hover:shadow-orange-100 duration-500 overflow-hidden hover:shadow-lg transition flex flex-col h-[410px]">
       {/* Image  */}
       <div className="relative">
         <Image
           src={images}
           alt={petName}
-          className="w-full h-56 object-cover hover:scale-105 transition-all duration-500"
+          className="w-full h-64 object-cover hover:scale-105 transition-all duration-500"
           width={600}
           height={300}
         />

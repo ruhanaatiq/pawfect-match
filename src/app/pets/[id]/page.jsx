@@ -88,14 +88,14 @@ export default function PetDetail({ params }) {
       {/* details card */}
       {pet1.map((pet) => (
         <div key={pet.id} className="">
-          <div className=" min-h-screen flex justify-center items-center my-10 md:my-1">
+          <div className=" flex justify-center items-center my-14 md:my-20 ">
             <div className="min-h-[450px] bg-white shadow-lg rounded-2xl overflow-hidden w-full max-w-6xl grid md:grid-cols-2 py-6 md:py-0">
               {/* Left: Image */}
               <div className="relative flex flex-col justify-center items-center md:items-start p-4 md:p-0 ">
                 <Image
                   src={pet.images}
                   alt={pet.petName}
-                  className=" object-cover h-[300] md:h-full rounded-2xl md:rounded-none"
+                  className=" object-cover h-[400] md:h-full rounded-2xl md:rounded-none"
                   width={380}
                   height={300}
                 />
@@ -154,13 +154,13 @@ export default function PetDetail({ params }) {
           </div>
           {/* table */}
           <section className="my-10 md:mt-2 md:mb-26  max-w-5xl mx-auto">
-            <h3 className="text-2xl md:text-3xl font-bold mb-4">
-              {" "}
+            <h3 className="text-3xl font-bold mb-4 relative">
+
               Others Info
             </h3>
             <div className=" bg-white rounded-2xl shadow p-6 md:p-8 md:px-12 ">
-              <table className="table-auto w-full text-left text-gray-700">
-                <tbody className="divide-y-2 divide-gray-100 ">
+              <table className="table-auto w-full text-left text-gray-700 text-sm md:text-base">
+                <tbody className="divide-y divide-orange-100 ">
                   <tr>
                     <th className="py-2 pr-4 font-semibold">Shelter Name</th>
                     <td className="py-2">{pet.shelterInfo.name}</td>
