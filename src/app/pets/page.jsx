@@ -1,35 +1,35 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import pets from "../../../public/pets.json";
+// import pets from "../../../public/pets.json";
 import Link from "next/link";
 
 export default function AllPets() {
-  // const [pets, setPets] = useState([])
+  const [pets, setPets] = useState([])
   const [searchTerm, setSearchTerm] = useState("");
-//   const [loading, setLoading] = useState(true)
-//   const [error, setError] = useState(null)
-//  useEffect(() => {
-//     fetchPets()
-//   }, [])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+ useEffect(() => {
+    fetchPets()
+  }, [])
 
-//   const fetchPets = async () => {
-//     try {
-//       const response = await fetch('/api/pets')
-//       const result = await response.json()
+  const fetchPets = async () => {
+    try {
+      const response = await fetch('/api/pets')
+      const result = await response.json()
       
-//       if (result.success) {
-//         setPets(result.data)
-//       } else {
-//         setError(result.error)
-//       }
-//     } catch (err) {
-//       setError('Failed to fetch pets')
-//       console.error('Error:', err)
-//     } finally {
-//       setLoading(false)
-//     }
-//   }
+      if (result.success) {
+        setPets(result.data)
+      } else {
+        setError(result.error)
+      }
+    } catch (err) {
+      setError('Failed to fetch pets')
+      console.error('Error:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
 
 
   // Filter pets by name (case-insensitive)

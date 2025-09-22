@@ -29,7 +29,6 @@ async function dbConnect() {
 
 export default dbConnect
 
-// Helper function
 export async function getCollection(collectionName) {
   const client = await dbConnect()
   const dbName = process.env.DB_NAME
