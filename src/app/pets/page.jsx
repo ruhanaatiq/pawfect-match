@@ -48,7 +48,6 @@ export default function AllPets() {
 
   if (loading) return <div>Loading pets...</div>;
   if (error) return <div>Error: {error}</div>;
-
   return (
     <div className="px-4 py-8">
       <h1 className="text-2xl font-bold text-center mb-6">
@@ -97,7 +96,7 @@ export default function AllPets() {
                 {/* View Details Button */}
                 <div className="mt-3">
                   <Link
-                    href={`/pets/${pet._id}`}
+                    href={`/pets/${pet.id}`}
                     className="inline-block w-full text-center bg-emerald-500 text-white px-4 py-2 rounded-lg hover:bg-emerald-600 transition"
                   >
                     View Details

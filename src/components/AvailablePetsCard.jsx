@@ -5,7 +5,7 @@ import { FaArrowRight } from "react-icons/fa";
 
 const AvailablePetsCard = ({pet}) => {
   // console.log(pet)
-  const {images, petName, petAge, temperament, longDescription, breed, _id} = pet
+  const {images, petName, petAge, temperament, longDescription, breed, id} = pet
   return (
     <div className="bg-white rounded-2xl shadow-md hover:shadow-orange-100 duration-500 overflow-hidden hover:shadow-lg transition flex flex-col h-[440px]">
       {/* Image  */}
@@ -36,7 +36,7 @@ const AvailablePetsCard = ({pet}) => {
         </p>
 
         <div className=" flex justify-end items-end">
-          <Link href={`/pets/${_id}`} className="mt-4 inline-flex items-center bg-orange-400 text-white px-4 py-1 sm:py-2 rounded-full text-sm font-medium hover:bg-[#FFB22C] transition cursor-pointer">
+          <Link href={`/pets/${id}`} className="mt-4 inline-flex items-center bg-orange-400 text-white px-4 py-1 sm:py-2 rounded-full text-sm font-medium hover:bg-[#FFB22C] transition cursor-pointer">
           Learn More <FaArrowRight className="ml-2" />
         </Link>
         </div>
