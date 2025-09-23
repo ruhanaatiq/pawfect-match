@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -29,19 +30,37 @@ export default function Navbar() {
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-6 text-sm font-medium">
-          <Link href="/" className="hover:text-emerald-600">
+          <Link href="/" className="hover:text-emerald-400">
             Home
           </Link>
-          <Link href="/pets" className="hover:text-emerald-600">
+          <Link href="/pets" className="hover:text-emerald-400">
             Pet Listings
           </Link>
-
-          <Link href="/adopt" className="hover:text-emerald-600">
+          <Link href="/adopt" className="hover:text-emerald-400">
             Adopt
           </Link>
-          <Link href="/profile" className="hover:text-emerald-600">
+          <Link href="/profile" className="hover:text-emerald-400">
             Profile
           </Link>
+          <Link href="/dashboard" className="hover:text-emerald-400">
+            Dashboard
+          </Link>
+
+          {/* Login & Register buttons */}
+          <div className="flex items-center gap-3 ml-6">
+            <Link
+              href="/login"
+              className="px-4 py-2 rounded-md border border-emerald-500 text-white hover:bg-emerald-500 hover:text-white transition"
+            >
+              Login
+            </Link>
+            <Link
+              href="/register"
+              className="px-4 py-2 rounded-md bg-emerald-500 text-white hover:bg-emerald-600 transition"
+            >
+              Register
+            </Link>
+          </div>
         </div>
 
         {/* Mobile Menu Button */}
@@ -68,6 +87,25 @@ export default function Navbar() {
             </Link>
             <Link href="/profile" onClick={() => setMenuOpen(false)}>
               Profile
+            </Link>
+            <Link href="/dashboard" onClick={() => setMenuOpen(false)}>
+              Dashboard
+            </Link>
+
+            {/* Login & Register in Mobile */}
+            <Link
+              href="/login"
+              onClick={() => setMenuOpen(false)}
+              className="mt-3 w-full text-center px-4 py-2 rounded-md border border-emerald-500 text-emerald-500 hover:bg-emerald-500 hover:text-white transition"
+            >
+              Login
+            </Link>
+            <Link
+              href="/register"
+              onClick={() => setMenuOpen(false)}
+              className="w-full text-center px-4 py-2 rounded-md bg-emerald-500 text-white hover:bg-emerald-600 transition"
+            >
+              Register
             </Link>
           </div>
         </div>
