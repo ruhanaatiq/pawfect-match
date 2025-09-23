@@ -14,9 +14,9 @@ export default function HomePage() {
       <Services />
       <About/>
        <PetCategories/>
-       <CalltoAction/>
        <WhyChooseUs/>
        <Testimonials/>
+       <CalltoAction/>
        <BlogSection/>
        
        
