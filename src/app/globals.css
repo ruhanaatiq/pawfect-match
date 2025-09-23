@@ -5,3 +5,7 @@
 .icons p svg {
 color: #FFB22C;
 }
+
+html {
+  scroll-behavior: smooth;
+}

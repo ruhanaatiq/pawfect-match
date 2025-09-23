@@ -56,7 +56,7 @@ export default function About() {
           {/* Right: content */}
           <div>
             <p className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/70 shadow-sm text-sm font-semibold">
-              <span className="text-emerald-600">About Us</span>
+              <span className="text-emerald-600 text-3xl">About Us</span>
             </p>
             <h2 className="mt-4 text-3xl md:text-4xl font-extrabold tracking-tight">
               Our Journey To <span className="text-emerald-600">PawfectMatch</span>
