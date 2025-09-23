@@ -3,75 +3,102 @@ import PetsGrid from "./ui/PetsGrid";
 import Filters from "./ui/Filters";
 import Toolbar from "./ui/Toolbar";
 
-// mock fetch — replace with your real API/db
-async function getPets(searchParams) {
-  const {
-    q = "",
-    species = "",
-    breed = "",
-    age = "",
-    size = "",
-    gender = "",
-    good = "",
-    vax = "",
-    spay = "",
-    sort = "recent",
-    view = "grid",
-    page = "1",
-    loc = "",
-    radius = "25",
-  } = searchParams;
+import { connectDB } from "@/lib/mongoose";
+import Pet from "@/models/Pets"; // <- singular file: src/models/Pet.js
+
+// Helper: turn your DB doc into the shape PetsGrid/PetCard expects
+function shapePet(p) {
+  // images may be string or array
+  const img = Array.isArray(p.images) ? (p.images[0] || "/placeholder-pet.jpg") : (p.images || "/placeholder-pet.jpg");
+
+  // build tags from your booleans/strings
+  const tags = []
+  if (p.vaccinationStatus === true || p.vaccinationStatus === "Vaccinated") tags.push("Vaccinated");
+  if (p.healthCondition && typeof p.healthCondition === "string") tags.push(p.healthCondition);
+  if (p.temperament && typeof p.temperament === "string") tags.push("Good temperament");
 
   return {
-    total: 132,
-    page: Number(page),
-    pageSize: 12,
-    items: Array.from({ length: 12 }, (_, i) => ({
-      id: `pet-${page}-${i}`,
-      name: ["Milo", "Bella", "Max", "Luna", "Charlie", "Coco"][i % 6],
-      species: species || ["dog", "cat", "rabbit"][i % 3],
-      breed: breed || ["Spitz", "Tabby", "Mixed"][i % 3],
-      age: ["Puppy", "Adult", "Senior"][i % 3],
-      gender: ["Male", "Female"][i % 2],
-      size: ["Small", "Medium", "Large"][i % 3],
-      distanceKm: [2, 6, 10, 12, 18, 25][i % 6],
-      image: ["/spitz.jpg", "/pets-hero.png", "/why-dog.png"][i % 3],
-      tags: ["Vaccinated", "House-trained", "Good with kids"].slice(0, (i % 3) + 1),
-      shelter: ["Happy Paws Shelter", "City Rescue", "Purr & Fur"][i % 3],
-    })),
+    id: String(p._id),
+    name: p.petName || p.name || "Unnamed Friend",
+    species: p.species || p.petCategory || "",
+    breed: p.breed || "",
+    age: p.petAge || p.age || "",
+    gender: p.gender || "",
+    size: p.size || "",
+    image: img,
+    tags,
+    shelter: (typeof p.shelterInfo === "object" && p.shelterInfo?.name) ? p.shelterInfo.name : (p.shelterInfo || "Shelter"),
+    distanceKm: p.distanceKm ?? null, // if you compute this elsewhere
   };
 }
 
 export default async function AdoptPage({ searchParams }) {
-  const data = await getPets(searchParams);
+  await connectDB();
 
-  // derive total pages
-  const totalPages = Math.ceil(data.total / data.pageSize);
+  // paging
+  const page = Number(searchParams.page || 1);
+  const pageSize = Number(searchParams.pageSize || 12);
+
+  // build query from your filters
+  const query = {};
+  if (searchParams.q) {
+    // simple case-insensitive match across key fields
+    const q = String(searchParams.q);
+    query.$or = [
+      { petName: { $regex: q, $options: "i" } },
+      { breed: { $regex: q, $options: "i" } },
+      { species: { $regex: q, $options: "i" } },
+      { petLocation: { $regex: q, $options: "i" } },
+      { shelterInfo: { $regex: q, $options: "i" } },
+    ];
+  }
+  if (searchParams.species) query.species = searchParams.species;
+  if (searchParams.gender)  query.gender  = searchParams.gender;
+  if (searchParams.size)    query.size    = searchParams.size;
+  if (searchParams.age)     query.petAge  = searchParams.age; // adjust if you store bands like "Puppy/Kitten"
+
+  if (searchParams.vax)  query.vaccinationStatus = { $in: [true, "Vaccinated"] };
+  if (searchParams.spay) query.spayedNeutered    = true;
+  if (searchParams.good) query.temperament       = { $regex: "good", $options: "i" }; // tweak to your data
+
+  // sort mapping
+  const sortKey = String(searchParams.sort || "recent");
+  const sortMap = {
+    recent:   { createdAt: -1 },
+    youngest: { ageMonths: 1, createdAt: -1 }, // if you store ageMonths
+    distance: { createdAt: -1 }, // real distance needs geo pipeline; handled elsewhere
+  };
+  const sort = sortMap[sortKey] || sortMap.recent;
+
+  const total = await Pet.countDocuments(query);
+  const raw = await Pet.find(query)
+    .sort(sort)
+    .skip((page - 1) * pageSize)
+    .limit(pageSize)
+    .lean(); // plain objects (but _id is still ObjectId)
+
+  // serialize & map to UI shape
+  const items = raw.map(shapePet);
+  const data = { total, page, pageSize, items };
 
   return (
-    <main className="py-8 ">
-      <div className=" mx-auto max-w-6xl px-6">
-        <header className="mb-6">
+    <main className="py-8">
+      <div className="mx-auto max-w-6xl px-6">
+        <header className="mb-6 ">
           <h1 className="text-3xl font-extrabold text-[#4C3D3D]">Adopt a Friend</h1>
-          <p className="text-[#4C3D3D]/70">
-            Browse pets from verified shelters and fosters.
-          </p>
+          <p className="text-[#4C3D3D]/70">Browse pets from verified shelters and fosters.</p>
         </header>
 
-        {/* toolbar: results count, sort, view toggle, mobile filters button */}
+        {/* results summary / sort / view toggle */}
         <Toolbar total={data.total} />
 
-        {/* horizontal filters */}
-        <div className="mt-8 mb-8">
+        {/* horizontal filters bar */}
+        <div className="mt-6 mb-6">
           <Filters />
         </div>
 
-        {/* results grid with pagination */}
-        <PetsGrid
-          data={data}
-          currentPage={data.page}
-          totalPages={totalPages}
-        />
+        {/* pet cards + internal pagination */}
+        <PetsGrid data={data} />
       </div>
     </main>
   );
