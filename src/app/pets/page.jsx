@@ -1,16 +1,44 @@
 "use client";
 
-import React, { useState } from "react";
-import pets from "../../../public/pets.json";
+import React, { useEffect, useState } from "react";
+// import pets from "../../../public/pets.json";
 import Link from "next/link";
 
 export default function AllPets() {
+  const [pets, setPets] = useState([])
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+ useEffect(() => {
+    fetchPets()
+  }, [])
+
+  const fetchPets = async () => {
+    try {
+      const response = await fetch('/api/pets')
+      const result = await response.json()
+      
+      if (result.success) {
+        setPets(result.data)
+      } else {
+        setError(result.error)
+      }
+    } catch (err) {
+      setError('Failed to fetch pets')
+      console.error('Error:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
 
   // Filter pets by name (case-insensitive)
   const filteredPets = pets.filter((pet) =>
     pet.petName.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  
+  if (loading) return <div>Loading pets...</div>
+  if (error) return <div>Error: {error}</div>
 
   return (
     <div className="px-4 py-8">
