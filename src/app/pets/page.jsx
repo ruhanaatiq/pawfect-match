@@ -86,7 +86,7 @@ export default function AllPets() {
                 {/* View Details Button */}
                 <div className="mt-3">
                   <Link
-                    href={`/pets/${pet.id}`}
+                    href={`/pets/${pet._id}`}
                     className="inline-block w-full text-center bg-emerald-500 text-white px-4 py-2 rounded-lg hover:bg-emerald-600 transition"
                   >
                     View Details
