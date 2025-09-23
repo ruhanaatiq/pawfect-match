@@ -1,44 +1,53 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-// import pets from "../../../public/pets.json";
 import Link from "next/link";
 
 export default function AllPets() {
-  const [pets, setPets] = useState([])
+  const [pets, setPets] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
- useEffect(() => {
-    fetchPets()
-  }, [])
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetchPets();
+  }, []);
 
   const fetchPets = async () => {
     try {
-      const response = await fetch('/api/pets')
-      const result = await response.json()
-      
+      const response = await fetch("/api/pets");
+      const result = await response.json();
+
       if (result.success) {
-        setPets(result.data)
+        // Normalize MongoDB docs
+        const shaped = result.data.map((p) => ({
+          id: p._id?.toString() ?? p.id, // use _id as id
+          petName: p.petName ?? "Unnamed",
+          petAge: p.petAge ?? "Unknown",
+          petLocation: p.petLocation ?? {},
+          images: Array.isArray(p.images)
+            ? p.images[0] ?? "/placeholder-pet.jpg"
+            : p.images ?? "/placeholder-pet.jpg",
+        }));
+        setPets(shaped);
       } else {
-        setError(result.error)
+        setError(result.error);
       }
     } catch (err) {
-      setError('Failed to fetch pets')
-      console.error('Error:', err)
+      setError("Failed to fetch pets");
+      console.error("Error:", err);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
-
+  };
 
   // Filter pets by name (case-insensitive)
   const filteredPets = pets.filter((pet) =>
     pet.petName.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  
-  if (loading) return <div>Loading pets...</div>
-  if (error) return <div>Error: {error}</div>
+
+  if (loading) return <div>Loading pets...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return (
     <div className="px-4 py-8">
@@ -80,7 +89,9 @@ export default function AllPets() {
                 </h2>
                 <p className="text-sm text-gray-600">Age: {pet.petAge}</p>
                 <p className="text-sm text-gray-600">
-                  Location: {pet.petLocation.city}, {pet.petLocation.area}
+                  Location:{" "}
+                  {pet.petLocation?.city ?? "Unknown"},{" "}
+                  {pet.petLocation?.area ?? ""}
                 </p>
 
                 {/* View Details Button */}

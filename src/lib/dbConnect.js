@@ -1,36 +1,25 @@
-import { MongoClient, ServerApiVersion } from 'mongodb'
+import "server-only";
+import { MongoClient, ServerApiVersion } from "mongodb";
 
-let client
+const uri = process.env.MONGODB_URI;          // ✅ use server var
+const dbName = process.env.DB_NAME || "test";
+if (!uri) throw new Error("Missing MONGODB_URI in .env.local");
 
-async function dbConnect() {
-  if (client) {
-    return client
-  }
+let clientPromise;
+if (!global._mongoClientPromise) {
+  const client = new MongoClient(uri, {
+    serverApi: { version: ServerApiVersion.v1, strict: true, deprecationErrors: true },
+  });
+  global._mongoClientPromise = client.connect();
+}
+clientPromise = global._mongoClientPromise;
 
-  const uri = process.env.NEXT_PUBLIC_MONGODB_URI
-  
-  client = new MongoClient(uri, {
-    serverApi: {
-      version: ServerApiVersion.v1,
-      strict: true,
-      deprecationErrors: true,
-    }
-  })
-
-  try {
-    await client.connect()
-    console.log("Connected to MongoDB!")
-    return client
-  } catch (error) {
-    console.error("MongoDB connection error:", error)
-    throw error
-  }
+export async function getDb(name = dbName) {
+  const client = await clientPromise;
+  return client.db(name);
 }
 
-export default dbConnect
-
-export async function getCollection(collectionName) {
-  const client = await dbConnect()
-  const dbName = process.env.DB_NAME
-  return client.db(dbName).collection(collectionName)
+export async function getCollection(collectionName, name = dbName) {
+  const db = await getDb(name);
+  return db.collection(collectionName);
 }

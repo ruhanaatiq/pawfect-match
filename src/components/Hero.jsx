@@ -37,11 +37,11 @@ export default function Hero() {
         <div className="flex justify-center md:justify-end">
           <div className="relative w-[350px] h-[350px] md:w-[450px] md:h-[450px]">
             {/* Blue Shape Behind */}
-            <div className="absolute inset-0 bg-emerald-100 rounded-[50%_40%_60%_50%] rotate-6"></div>
+            <div className="absolute inset-0 bg-emerald-500 rounded-[50%_40%_60%_50%] rotate-6"></div>
 
             {/* Pet Image */}
             <Image
-              src="/different-pets-selection.png" // 👈 Place your dog & cat image in public/
+              src="/different-pets-selection.png" 
               alt="Dog and Cat"
               fill
               className="object-contain relative z-10"
