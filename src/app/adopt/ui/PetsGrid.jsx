@@ -56,12 +56,12 @@ function PetCard({ pet, view }) {
         </div>
 
         <div className="mt-3">
-          <Link
-            href={`/adopt/${pet.id}`}
-            className="inline-block rounded-md bg-emerald-600 px-3 py-2 text-white text-sm font-semibold hover:bg-emerald-700"
-          >
-            View Details
-          </Link>
+         <Link
+  href={`/adopt/request/${pet.id}`}
+  className="inline-block rounded-md bg-emerald-600 px-3 py-2 text-white text-sm font-semibold hover:bg-emerald-700"
+>
+  Adopt
+</Link>
         </div>
       </div>
     </div>
