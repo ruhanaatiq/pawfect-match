@@ -12,9 +12,15 @@ function PetCard({ pet, view }) {
       }`}
     >
       <div
-        className={`${view === "list" ? "w-48 h-40" : "h-48"} bg-gray-100 overflow-hidden`}
+        className={`${
+          view === "list" ? "w-48 h-40" : "h-48"
+        } bg-gray-100 overflow-hidden`}
       >
-        <img src={pet.image} alt={pet.name} className="h-full w-full object-cover" />
+        <img
+          src={pet.image}
+          alt={pet.name}
+          className="h-full w-full object-cover"
+        />
       </div>
 
       <div className="p-4 flex-1">
@@ -65,42 +71,55 @@ function PetCard({ pet, view }) {
 function Pagination({ total, pageSize }) {
   const sp = useSearchParams();
   const router = useRouter();
-  const page = Number(sp.get("page") || "1");
+
+  const page = Math.max(1, Number(sp.get("page") || "1"));
   const pages = Math.max(1, Math.ceil(total / pageSize));
+
+  // ✅ hooks always run before conditional returns
+  const items = useMemo(
+    () => Array.from({ length: pages }, (_, i) => i + 1),
+    [pages]
+  );
+  const canPrev = page > 1;
+  const canNext = page < pages;
 
   function go(n) {
     const next = new URLSearchParams(sp.toString());
     next.set("page", String(n));
     router.push(`/adopt?${next.toString()}`);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   }
 
   if (pages <= 1) return null;
 
-  const items = useMemo(() => Array.from({ length: pages }, (_, i) => i + 1), [pages]);
-
   return (
     <nav className="mt-6 flex justify-center gap-2">
       <button
-        disabled={page <= 1}
+        disabled={!canPrev}
         onClick={() => go(page - 1)}
         className="rounded-md border border-black/10 bg-white px-3 py-1 text-sm disabled:opacity-50"
       >
         Prev
       </button>
+
       {items.map((i) => (
         <button
           key={i}
           onClick={() => go(i)}
           className={`rounded-md px-3 py-1 text-sm border ${
-            i === page ? "bg-emerald-600 text-white border-emerald-600" : "bg-white border-black/10"
+            i === page
+              ? "bg-emerald-600 text-white border-emerald-600"
+              : "bg-white border-black/10"
           }`}
         >
           {i}
         </button>
       ))}
+
       <button
-        disabled={page >= pages}
+        disabled={!canNext}
         onClick={() => go(page + 1)}
         className="rounded-md border border-black/10 bg-white px-3 py-1 text-sm disabled:opacity-50"
       >
@@ -136,7 +155,6 @@ export default function PetsGrid({ data }) {
         ))}
       </div>
 
-      {/* Correct pagination usage (no recursion) */}
       <Pagination total={data.total} pageSize={data.pageSize} />
     </div>
   );
