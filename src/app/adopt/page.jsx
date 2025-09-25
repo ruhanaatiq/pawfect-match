@@ -4,18 +4,35 @@ import Filters from "./ui/Filters";
 import Toolbar from "./ui/Toolbar";
 
 import { connectDB } from "@/lib/mongoose";
-import Pet from "@/models/Pets"; // <- singular file: src/models/Pet.js
+import Pet from "@/models/Pets"; // ensure the default export matches file name
 
-// Helper: turn your DB doc into the shape PetsGrid/PetCard expects
+
+function arrify(v) {
+  if (!v) return [];
+  if (Array.isArray(v)) return v.filter(Boolean);
+  // comma-separated -> array
+  return String(v)
+    .split(",")
+    .map(s => s.trim())
+    .filter(Boolean);
+}
+
+function iRegex(val) {
+  // escape regex specials
+  const safe = val.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return { $regex: safe, $options: "i" };
+}
+
+// Adapt DB doc to UI shape used by PetsGrid/PetCard
 function shapePet(p) {
-  // images may be string or array
-  const img = Array.isArray(p.images) ? (p.images[0] || "/placeholder-pet.jpg") : (p.images || "/placeholder-pet.jpg");
+  const img = Array.isArray(p.images)
+    ? p.images[0] || "/placeholder-pet.jpg"
+    : p.images || "/placeholder-pet.jpg";
 
-  // build tags from your booleans/strings
-  const tags = []
-  if (p.vaccinationStatus === true || p.vaccinationStatus === "Vaccinated") tags.push("Vaccinated");
-  if (p.healthCondition && typeof p.healthCondition === "string") tags.push(p.healthCondition);
-  if (p.temperament && typeof p.temperament === "string") tags.push("Good temperament");
+  const tags = [];
+  if (p.vaccinationStatus) tags.push(String(p.vaccinationStatus)); // e.g., "Fully vaccinated"
+  if (p.healthCondition) tags.push(String(p.healthCondition));      // e.g., "Healthy, Neutered"
+  if (p.temperament) tags.push("Temperament: " + String(p.temperament));
 
   return {
     id: String(p._id),
@@ -27,46 +44,76 @@ function shapePet(p) {
     size: p.size || "",
     image: img,
     tags,
-    shelter: (typeof p.shelterInfo === "object" && p.shelterInfo?.name) ? p.shelterInfo.name : (p.shelterInfo || "Shelter"),
-    distanceKm: p.distanceKm ?? null, // if you compute this elsewhere
+    shelter:
+      (p.shelterInfo && typeof p.shelterInfo === "object" && p.shelterInfo.name)
+        ? p.shelterInfo.name
+        : (p.shelterInfo || "Shelter"),
+    distanceKm: p.distanceKm ?? null,
   };
 }
 
+// --- page ----------------------------------------------------
 export default async function AdoptPage({ searchParams }) {
   await connectDB();
 
-  // paging
-  const page = Number(searchParams.page || 1);
-  const pageSize = Number(searchParams.pageSize || 12);
+  const page = Math.max(1, Number(searchParams.page || 1));
+  const pageSize = Math.max(1, Number(searchParams.pageSize || 12));
 
-  // build query from your filters
   const query = {};
+
+  // text search
   if (searchParams.q) {
-    // simple case-insensitive match across key fields
     const q = String(searchParams.q);
     query.$or = [
       { petName: { $regex: q, $options: "i" } },
       { breed: { $regex: q, $options: "i" } },
       { species: { $regex: q, $options: "i" } },
-      { petLocation: { $regex: q, $options: "i" } },
-      { shelterInfo: { $regex: q, $options: "i" } },
+      // if petLocation is an object, remove this next line or target a field inside it
+      // { petLocation: { $regex: q, $options: "i" } },
+      { "shelterInfo.name": { $regex: q, $options: "i" } },
     ];
   }
+
+  // basic filters
   if (searchParams.species) query.species = searchParams.species;
   if (searchParams.gender)  query.gender  = searchParams.gender;
   if (searchParams.size)    query.size    = searchParams.size;
-  if (searchParams.age)     query.petAge  = searchParams.age; // adjust if you store bands like "Puppy/Kitten"
+  if (searchParams.age)     query.petAge  = searchParams.age;
 
-  if (searchParams.vax)  query.vaccinationStatus = { $in: [true, "Vaccinated"] };
-  if (searchParams.spay) query.spayedNeutered    = true;
-  if (searchParams.good) query.temperament       = { $regex: "good", $options: "i" }; // tweak to your data
+  // ✅ vaccinationStatus (strings like "Fully vaccinated", "Partially vaccinated", etc.)
+  // supports: ?vax=Fully vaccinated OR ?vax=Fully vaccinated&vax=Partially vaccinated OR ?vax=Fully vaccinated,Partially vaccinated
+  const vaxValues = arrify(searchParams.vax);
+  if (vaxValues.length === 1) {
+    query.vaccinationStatus = iRegex(vaxValues[0]);
+  } else if (vaxValues.length > 1) {
+    query.$and = (query.$and || []).concat({
+      $or: vaxValues.map(v => ({ vaccinationStatus: iRegex(v) })),
+    });
+  }
 
-  // sort mapping
+  // ✅ healthCondition (e.g., "Healthy, Neutered")
+  // supports same forms: ?health=Healthy, Neutered OR multiple keys
+  const healthValues = arrify(searchParams.health);
+  if (healthValues.length === 1) {
+    query.healthCondition = iRegex(healthValues[0]);
+  } else if (healthValues.length > 1) {
+    query.$and = (query.$and || []).concat({
+      $or: healthValues.map(h => ({ healthCondition: iRegex(h) })),
+    });
+  }
+
+  // example: temperament contains "calm"
+  if (searchParams.temperament) {
+    query.temperament = iRegex(String(searchParams.temperament));
+  }
+
+  // sort
   const sortKey = String(searchParams.sort || "recent");
   const sortMap = {
     recent:   { createdAt: -1 },
-    youngest: { ageMonths: 1, createdAt: -1 }, // if you store ageMonths
-    distance: { createdAt: -1 }, // real distance needs geo pipeline; handled elsewhere
+    youngest: { ageMonths: 1, createdAt: -1 },
+    // implement geo sort separately if you have coords
+    distance: { createdAt: -1 },
   };
   const sort = sortMap[sortKey] || sortMap.recent;
 
@@ -75,29 +122,25 @@ export default async function AdoptPage({ searchParams }) {
     .sort(sort)
     .skip((page - 1) * pageSize)
     .limit(pageSize)
-    .lean(); // plain objects (but _id is still ObjectId)
+    .lean();
 
-  // serialize & map to UI shape
   const items = raw.map(shapePet);
   const data = { total, page, pageSize, items };
 
   return (
     <main className="py-8">
       <div className="mx-auto max-w-6xl px-6">
-        <header className="mb-6 ">
+        <header className="mb-6">
           <h1 className="text-3xl font-extrabold text-[#4C3D3D]">Adopt a Friend</h1>
           <p className="text-[#4C3D3D]/70">Browse pets from verified shelters and fosters.</p>
         </header>
 
-        {/* results summary / sort / view toggle */}
         <Toolbar total={data.total} />
 
-        {/* horizontal filters bar */}
         <div className="mt-6 mb-6">
           <Filters />
         </div>
 
-        {/* pet cards + internal pagination */}
         <PetsGrid data={data} />
       </div>
     </main>
