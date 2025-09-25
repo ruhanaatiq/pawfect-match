@@ -8,7 +8,8 @@ import { useSession, signOut } from "next-auth/react";
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);        // mobile nav
   const [profileOpen, setProfileOpen] = useState(false);  // avatar dropdown
-  const { data: session } = useSession();
+  const { data: session,status } = useSession();
+  console.log('status : ',status)
   const role = session?.user?.role;
 
   const userImage = session?.user?.image;
@@ -34,7 +35,7 @@ export default function Navbar() {
     }
     document.addEventListener("keydown", onEsc);
     return () => document.removeEventListener("keydown", onEsc);
-  }, []);
+  }, []);          
 
   return (
     <nav className="sticky top-0 z-50 border-b bg-[#4C3D3D] text-[#FFF7D4]">
@@ -51,7 +52,12 @@ export default function Navbar() {
           <Link href="/" className="hover:text-emerald-400">Home</Link>
           <Link href="/pets" className="hover:text-emerald-400">Pet Listings</Link>
           <Link href="/adopt" className="hover:text-emerald-400">Adopt</Link>
+          {status === "unauthenticated" && (
+            <Link href="/add-pet" className="hover:text-emerald-400">Add A Pet</Link>
+          )}
           <Link href="/profile" className="hover:text-emerald-400">Profile</Link>
+           
+
 
           {role === "admin" && (
             <Link href="/admin" className="hover:text-emerald-400">Dashboard</Link>
@@ -157,6 +163,9 @@ export default function Navbar() {
             <Link href="/" onClick={() => setMenuOpen(false)}>Home</Link>
             <Link href="/pets" onClick={() => setMenuOpen(false)}>Pet Listings</Link>
             <Link href="/adopt" onClick={() => setMenuOpen(false)}>Adopt</Link>
+            {status === "unauthenticated" && (
+            <Link href="/add-pet" className="hover:text-emerald-400">Add A Pet</Link>
+          )}
             <Link href="/profile" onClick={() => setMenuOpen(false)}>Profile</Link>
 
             {role === "admin" && (

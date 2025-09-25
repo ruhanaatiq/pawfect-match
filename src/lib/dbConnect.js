@@ -1,7 +1,7 @@
 import "server-only";
 import { MongoClient, ServerApiVersion } from "mongodb";
 
-const uri = process.env.MONGODB_URI;          // ✅ use server var
+const uri = process.env.NEXT_PUBLIC_MONGODB_URI;          // ✅ use server var
 const dbName = process.env.DB_NAME || "test";
 if (!uri) throw new Error("Missing MONGODB_URI in .env.local");
 
