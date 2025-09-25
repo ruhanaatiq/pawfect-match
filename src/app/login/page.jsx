@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -19,10 +19,32 @@ export default function LoginPage() {
   const [info, setInfo] = useState("");
   const [pending, setPending] = useState(false);
 
+  const [attempts, setAttempts] = useState(0);
+  const [isLocked, setIsLocked] = useState(false);
+  const [lockTime, setLockTime] = useState(0);
+
   const notVerified = error?.toLowerCase().includes("email not verified");
+
+  useEffect(() => {
+    let timer;
+    if (isLocked && lockTime > 0) {
+      timer = setInterval(() => {
+        setLockTime((t) => t - 1);
+      }, 1000);
+    } else if (lockTime === 0 && isLocked) {
+      setIsLocked(false);
+      setAttempts(0);
+    }
+    return () => clearInterval(timer);
+  }, [isLocked, lockTime]);
 
   async function handleSubmit(e) {
     e.preventDefault();
+    if (isLocked) {
+      setError(`Too many failed attempts. Try again in ${lockTime}s.`);
+      return;
+    }
+
     setError(""); setInfo(""); setPending(true);
 
     const result = await signIn("credentials", {
@@ -35,8 +57,19 @@ export default function LoginPage() {
 
     if (result?.error) {
       setError(result.error);
+      setAttempts((prev) => {
+        const newAttempts = prev + 1;
+        if (newAttempts >= 3) {
+          setIsLocked(true);
+          setLockTime(60); // start countdown
+          setError("Too many failed attempts. Locked for 1 minute.");
+        }
+        return newAttempts;
+      });
       return;
     }
+
+    setAttempts(0);
     router.push("/");
   }
 
@@ -150,13 +183,13 @@ export default function LoginPage() {
             </div>
 
             <button
-              type="submit"
-              disabled={pending}
-              className="w-full rounded-lg bg-emerald-600 py-3 text-white font-semibold hover:bg-emerald-700 disabled:opacity-50 transition"
+            type="submit"
+            disabled={pending || isLocked}
+            className="w-full rounded-lg bg-emerald-600 py-3 text-white font-semibold hover:bg-emerald-700 disabled:opacity-50 transition"
             >
-              {pending ? "Logging in…" : "Log in"}
+            {isLocked? `Locked (${lockTime}s)`: pending? "Logging in…": "Log in"}
             </button>
-          </form>
+            </form>
 
           <div className="mt-6">
             <p className="text-center text-sm text-gray-600 mb-3">or continue with</p>
