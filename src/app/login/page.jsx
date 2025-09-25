@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { FcGoogle } from "react-icons/fc";
+import { FaGithub } from "react-icons/fa";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -15,7 +17,6 @@ export default function LoginPage() {
     setError("");
 
     try {
-      // your custom credentials login (keep as-is if you already have /api/auth/login)
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -85,15 +86,18 @@ export default function LoginPage() {
             <div className="grid grid-cols-1 gap-3">
               <button
                 onClick={() => signIn("google", { callbackUrl: "/" })}
-                className="w-full rounded-lg border border-[#4C3D3D] py-3 font-semibold hover:bg-[#4C3D3D] hover:text-white transition"
+                className="flex items-center justify-center gap-3 w-full rounded-lg border border-gray-300 py-3 font-medium hover:bg-gray-50 transition"
               >
-                Continue with Google
+                <FcGoogle size={22} />
+                <span>Continue with Google</span>
               </button>
+
               <button
                 onClick={() => signIn("github", { callbackUrl: "/" })}
-                className="w-full rounded-lg border border-[#4C3D3D] py-3 font-semibold hover:bg-[#4C3D3D] hover:text-white transition"
+                className="flex items-center justify-center gap-3 w-full rounded-lg border border-gray-300 py-3 font-medium hover:bg-gray-50 transition"
               >
-                Continue with GitHub
+                <FaGithub size={22} className="text-gray-800" />
+                <span>Continue with GitHub</span>
               </button>
             </div>
           </div>
@@ -101,7 +105,9 @@ export default function LoginPage() {
           {/* Sign up link */}
           <p className="mt-6 text-center text-sm text-gray-600">
             Don’t have an account?{" "}
-            <a href="/register" className="text-emerald-700 font-medium hover:underline">Sign up</a>
+            <a href="/register" className="text-emerald-700 font-medium hover:underline">
+              Sign up
+            </a>
           </p>
         </div>
       </div>
