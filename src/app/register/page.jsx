@@ -14,48 +14,57 @@ export default function RegisterPage() {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
   }
 
-  async function onSubmit(e) {
-    e.preventDefault();
-    setError("");
-    setInfo("");
-    setPending(true);
+ async function onSubmit(e) {
+  e.preventDefault();
+  setError("");
+  setInfo("");
+  setPending(true);
 
-    try {
-      // 1) Register
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-      const data = await res.json().catch(() => ({}));
+  try {
+    // 1) Register user
+    const res = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
+    const data = await res.json().catch(() => ({}));
 
-      if (!res.ok) {
-        setError(data.error || "Registration failed");
-        setPending(false);
-        return;
-      }
-
-      // 2) Auto-send OTP email
-      const otpRes = await fetch("/api/auth/otp/request", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: form.email, reason: "verify_email" }),
-      });
-      const otpJson = await otpRes.json().catch(() => ({}));
-      if (!otpRes.ok) {
-        // Not fatal—user can still go to verify page and press "Resend code"
-        setInfo("Account created. We couldn't send the code automatically, but you can request it on the next page.");
-      } else {
-        setInfo("Account created. We've sent a verification code to your email.");
-      }
-
-      // 3) Redirect to verify page
-      router.push(`/verify-otp?email=${encodeURIComponent(form.email)}`);
-    } catch {
-      setError("Something went wrong. Try again.");
+    if (!res.ok) {
+      if (res.status === 409) setError("Email is already registered.");
+      else setError(data.error || "Registration failed.");
       setPending(false);
+      return;
     }
+
+    // 2) Auto-send OTP
+    const otpRes = await fetch("/api/auth/otp/request", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: form.email, reason: "verify_email" }),
+    });
+    const otpData = await otpRes.json().catch(() => ({}));
+
+    if (!otpRes.ok || otpData.sent === false) {
+      setInfo(
+        "Account created. OTP could not be sent automatically. You can request it on the verification page."
+      );
+    } else {
+      setInfo("Account created. A verification code has been sent to your email.");
+    }
+
+    // 3) Clear password from state for security
+    setForm(f => ({ ...f, password: "" }));
+
+    // 4) Redirect to OTP verification page
+    router.push(`/verify-otp?email=${encodeURIComponent(form.email)}`);
+  } catch (err) {
+    console.error("Registration error:", err);
+    setError("Something went wrong. Try again.");
+  } finally {
+    setPending(false);
   }
+}
+
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
