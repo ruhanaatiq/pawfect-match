@@ -1,17 +1,40 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 
 export default function Navbar() {
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);        // mobile nav
+  const [profileOpen, setProfileOpen] = useState(false);  // avatar dropdown
   const { data: session } = useSession();
   const role = session?.user?.role;
 
   const userImage = session?.user?.image;
   const userName = session?.user?.name || "User";
+
+  const dropdownRef = useRef(null);
+
+  // Close avatar dropdown on outside click
+  useEffect(() => {
+    function handleOutside(e) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setProfileOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleOutside);
+    return () => document.removeEventListener("mousedown", handleOutside);
+  }, []);
+
+  // Close avatar dropdown on Escape
+  useEffect(() => {
+    function onEsc(e) {
+      if (e.key === "Escape") setProfileOpen(false);
+    }
+    document.addEventListener("keydown", onEsc);
+    return () => document.removeEventListener("keydown", onEsc);
+  }, []);
 
   return (
     <nav className="sticky top-0 z-50 border-b bg-[#4C3D3D] text-[#FFF7D4]">
@@ -50,54 +73,78 @@ export default function Navbar() {
               </Link>
             </div>
           ) : (
-            <div className="relative group ml-6">
-              {/* Avatar */}
-              {userImage ? (
-                <Image
-                  src={userImage}
-                  alt={userName}
-                  width={36}
-                  height={36}
-                  className="rounded-full cursor-pointer border-2 border-emerald-500"
-                />
-              ) : (
-                <div className="w-9 h-9 flex items-center justify-center rounded-full bg-emerald-600 text-white font-bold cursor-pointer">
-                  {userName.charAt(0).toUpperCase()}
+            <div className="relative ml-6" ref={dropdownRef}>
+              {/* Avatar button (click to toggle) */}
+              <button
+                type="button"
+                onClick={() => setProfileOpen((v) => !v)}
+                aria-haspopup="menu"
+                aria-expanded={profileOpen}
+                className="flex items-center gap-2 focus:outline-none"
+              >
+                {userImage ? (
+                  <Image
+                    src={userImage}
+                    alt={userName}
+                    width={36}
+                    height={36}
+                    className="rounded-full cursor-pointer border-2 border-emerald-500"
+                  />
+                ) : (
+                  <div className="w-9 h-9 flex items-center justify-center rounded-full bg-emerald-600 text-white font-bold cursor-pointer">
+                    {userName.charAt(0).toUpperCase()}
+                  </div>
+                )}
+              </button>
+
+              {/* Dropdown (click-controlled, stable) */}
+              {profileOpen && (
+                <div
+                  role="menu"
+                  className="absolute right-0 mt-2 w-44 rounded-lg bg-white text-gray-800 shadow-lg border p-2 z-50"
+                >
+                  <div className="px-3 py-2 text-sm text-gray-700 border-b truncate">
+                    {userName}
+                  </div>
+                  <Link
+                    href="/profile"
+                    role="menuitem"
+                    className="block px-3 py-2 text-sm rounded hover:bg-emerald-50"
+                    onClick={() => setProfileOpen(false)}
+                  >
+                    Profile
+                  </Link>
+                  {role === "admin" && (
+                    <Link
+                      href="/admin"
+                      role="menuitem"
+                      className="block px-3 py-2 text-sm rounded hover:bg-emerald-50"
+                      onClick={() => setProfileOpen(false)}
+                    >
+                      Dashboard
+                    </Link>
+                  )}
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => signOut()}
+                    className="w-full text-left px-3 py-2 text-sm rounded hover:bg-red-50 text-red-600"
+                  >
+                    Logout
+                  </button>
                 </div>
               )}
-
-              {/* Dropdown on hover */}
-              <div className="absolute right-0 mt-2 hidden group-hover:block w-40 rounded-lg bg-white text-gray-800 shadow-lg">
-                <Link
-                  href="/profile"
-                  className="block px-4 py-2 text-sm hover:bg-emerald-50"
-                >
-                  Profile
-                </Link>
-                {role === "admin" && (
-                  <Link
-                    href="/admin"
-                    className="block px-4 py-2 text-sm hover:bg-emerald-50"
-                  >
-                    Dashboard
-                  </Link>
-                )}
-                <button
-                  onClick={() => signOut()}
-                  className="block w-full text-left px-4 py-2 text-sm hover:bg-red-50 text-red-600"
-                >
-                  Logout
-                </button>
-              </div>
             </div>
           )}
         </div>
 
         {/* Mobile Menu Button */}
         <button
+          type="button"
           onClick={() => setMenuOpen((v) => !v)}
           className="md:hidden rounded-md p-2 hover:bg-slate-100/20"
           aria-label="Toggle menu"
+          aria-expanded={menuOpen}
         >
           ☰
         </button>
@@ -135,6 +182,7 @@ export default function Navbar() {
               </>
             ) : (
               <button
+                type="button"
                 onClick={() => { setMenuOpen(false); signOut(); }}
                 className="mt-3 w-full text-center px-4 py-2 rounded-md border border-red-500 text-red-600 hover:bg-red-50 transition"
               >
