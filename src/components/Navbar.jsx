@@ -6,13 +6,18 @@ import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 
 export default function Navbar() {
-  const [menuOpen, setMenuOpen] = useState(false);        // mobile nav
-  const [profileOpen, setProfileOpen] = useState(false);  // avatar dropdown
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const { data: session } = useSession();
   const role = session?.user?.role;
 
-  const userImage = session?.user?.image;
   const userName = session?.user?.name || "User";
+  const userEmail = session?.user?.email || "";
+  const userImage =
+    session?.user?.image ||
+    `https://api.dicebear.com/9.x/identicon/png?seed=${encodeURIComponent(
+      userEmail || userName
+    )}&size=128`;
 
   const dropdownRef = useRef(null);
 
@@ -40,10 +45,21 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 border-b bg-[#4C3D3D] text-[#FFF7D4]">
       <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 text-lg font-bold tracking-tight">
-          <Image src="/paws.png" alt="Paw Logo" width={28} height={28} className="rounded-full" />
+        <Link
+          href="/"
+          className="flex items-center gap-2 text-lg font-bold tracking-tight"
+        >
+          <Image
+            src="/paws.png"
+            alt="Paw Logo"
+            width={28}
+            height={28}
+            className="rounded-full"
+          />
           Pawfect
-          <span className="px-1 rounded bg-black text-white dark:bg-white dark:text-black">Match</span>
+          <span className="px-1 rounded bg-black text-white dark:bg-white dark:text-black">
+            Match
+          </span>
         </Link>
 
         {/* Desktop Menu */}
@@ -52,7 +68,6 @@ export default function Navbar() {
           <Link href="/pets" className="hover:text-emerald-400">Pet Listings</Link>
           <Link href="/adopt" className="hover:text-emerald-400">Adopt</Link>
           <Link href="/profile" className="hover:text-emerald-400">Profile</Link>
-
           {role === "admin" && (
             <Link href="/admin" className="hover:text-emerald-400">Dashboard</Link>
           )}
@@ -74,41 +89,27 @@ export default function Navbar() {
             </div>
           ) : (
             <div className="relative ml-6" ref={dropdownRef}>
-              {/* Avatar button (click to toggle) */}
               <button
                 type="button"
                 onClick={() => setProfileOpen((v) => !v)}
-                aria-haspopup="menu"
-                aria-expanded={profileOpen}
                 className="flex items-center gap-2 focus:outline-none"
               >
-                {userImage ? (
-                  <Image
-                    src={userImage}
-                    alt={userName}
-                    width={36}
-                    height={36}
-                    className="rounded-full cursor-pointer border-2 border-emerald-500"
-                  />
-                ) : (
-                  <div className="w-9 h-9 flex items-center justify-center rounded-full bg-emerald-600 text-white font-bold cursor-pointer">
-                    {userName.charAt(0).toUpperCase()}
-                  </div>
-                )}
+                <Image
+                  src={userImage}
+                  alt={userName}
+                  width={36}
+                  height={36}
+                  className="rounded-full cursor-pointer border-2 border-emerald-500"
+                  unoptimized
+                />
               </button>
-
-              {/* Dropdown (click-controlled, stable) */}
               {profileOpen && (
-                <div
-                  role="menu"
-                  className="absolute right-0 mt-2 w-44 rounded-lg bg-white text-gray-800 shadow-lg border p-2 z-50"
-                >
+                <div className="absolute right-0 mt-2 w-44 rounded-lg bg-white text-gray-800 shadow-lg border p-2 z-50">
                   <div className="px-3 py-2 text-sm text-gray-700 border-b truncate">
                     {userName}
                   </div>
                   <Link
                     href="/profile"
-                    role="menuitem"
                     className="block px-3 py-2 text-sm rounded hover:bg-emerald-50"
                     onClick={() => setProfileOpen(false)}
                   >
@@ -117,7 +118,6 @@ export default function Navbar() {
                   {role === "admin" && (
                     <Link
                       href="/admin"
-                      role="menuitem"
                       className="block px-3 py-2 text-sm rounded hover:bg-emerald-50"
                       onClick={() => setProfileOpen(false)}
                     >
@@ -126,7 +126,6 @@ export default function Navbar() {
                   )}
                   <button
                     type="button"
-                    role="menuitem"
                     onClick={() => signOut()}
                     className="w-full text-left px-3 py-2 text-sm rounded hover:bg-red-50 text-red-600"
                   >
@@ -154,14 +153,24 @@ export default function Navbar() {
       {menuOpen && (
         <div className="md:hidden bg-white text-[#4C3D3D] border-t">
           <div className="flex flex-col items-start p-4 gap-3 text-sm">
+            {session && (
+              <div className="flex items-center gap-3 mb-2">
+                <Image
+                  src={userImage}
+                  alt={userName}
+                  width={36}
+                  height={36}
+                  className="rounded-full border-2 border-emerald-500"
+                  unoptimized
+                />
+                <div className="text-gray-800 font-medium truncate">{userName}</div>
+              </div>
+            )}
             <Link href="/" onClick={() => setMenuOpen(false)}>Home</Link>
             <Link href="/pets" onClick={() => setMenuOpen(false)}>Pet Listings</Link>
             <Link href="/adopt" onClick={() => setMenuOpen(false)}>Adopt</Link>
             <Link href="/profile" onClick={() => setMenuOpen(false)}>Profile</Link>
-
-            {role === "admin" && (
-              <Link href="/admin" onClick={() => setMenuOpen(false)}>Dashboard</Link>
-            )}
+            {role === "admin" && <Link href="/admin" onClick={() => setMenuOpen(false)}>Dashboard</Link>}
 
             {!session ? (
               <>

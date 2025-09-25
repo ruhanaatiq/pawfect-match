@@ -1,14 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
 import { FcGoogle } from "react-icons/fc";
 import { FaGithub } from "react-icons/fa";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -16,6 +17,11 @@ export default function LoginPage() {
   const [pending, setPending] = useState(false);
 
   const notVerified = error?.toLowerCase().includes("email not verified");
+
+  // If user is already logged in, redirect to home
+  useEffect(() => {
+    if (status === "authenticated") router.push("/");
+  }, [status, router]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -35,7 +41,13 @@ export default function LoginPage() {
       setError(result.error);
       return;
     }
+
     router.push("/");
+  }
+
+  async function handleSocialLogin(provider) {
+    // Social login will redirect automatically
+    await signIn(provider, { callbackUrl: "/" });
   }
 
   async function resendCode() {
@@ -57,20 +69,14 @@ export default function LoginPage() {
     <div className="min-h-screen flex flex-col">
       <div className="flex flex-1 items-center justify-center px-4">
         <div className="w-full max-w-md rounded-2xl bg-white shadow-xl border-t-4 border-[#4C3D3D] p-8">
-          <h1 className="mb-6 text-center text-3xl font-bold text-green-700">
-            Login
-          </h1>
+          <h1 className="mb-6 text-center text-3xl font-bold text-green-700">Login</h1>
 
           {info && (
-            <div className="mb-4 rounded-md bg-emerald-50 p-3 text-sm text-emerald-700 text-center">
-              {info}
-            </div>
+            <div className="mb-4 rounded-md bg-emerald-50 p-3 text-sm text-emerald-700 text-center">{info}</div>
           )}
 
           {error && (
-            <div className="mb-4 rounded-md bg-red-100 p-3 text-sm text-red-700 text-center">
-              {error}
-            </div>
+            <div className="mb-4 rounded-md bg-red-100 p-3 text-sm text-red-700 text-center">{error}</div>
           )}
 
           {notVerified && (
@@ -95,9 +101,7 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
-                Email
-              </label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">Email</label>
               <input
                 type="email"
                 value={email}
@@ -109,9 +113,7 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
-                Password
-              </label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">Password</label>
               <input
                 type="password"
                 value={password}
@@ -122,14 +124,8 @@ export default function LoginPage() {
               />
             </div>
 
-            {/* Forgot Password link */}
             <div className="text-right mt-1">
-              <Link
-                href="/forgot-password"
-                className="text-sm text-emerald-700 hover:underline"
-              >
-                Forgot Password?
-              </Link>
+              <Link href="/forgot-password" className="text-sm text-emerald-700 hover:underline">Forgot Password?</Link>
             </div>
 
             <button
@@ -145,14 +141,14 @@ export default function LoginPage() {
             <p className="text-center text-sm text-gray-600 mb-3">or continue with</p>
             <div className="grid grid-cols-1 gap-3">
               <button
-                onClick={() => signIn("google", { callbackUrl: "/" })}
+                onClick={() => handleSocialLogin("google")}
                 className="flex items-center justify-center gap-3 w-full rounded-lg border border-gray-300 py-3 font-medium hover:bg-gray-50 transition"
               >
                 <FcGoogle size={22} />
                 <span>Continue with Google</span>
               </button>
               <button
-                onClick={() => signIn("github", { callbackUrl: "/" })}
+                onClick={() => handleSocialLogin("github")}
                 className="flex items-center justify-center gap-3 w-full rounded-lg border border-gray-300 py-3 font-medium hover:bg-gray-50 transition"
               >
                 <FaGithub size={22} className="text-gray-800" />
@@ -163,12 +159,7 @@ export default function LoginPage() {
 
           <p className="mt-6 text-center text-sm text-gray-600">
             Don’t have an account?{" "}
-            <Link
-              href="/register"
-              className="text-emerald-700 font-medium hover:underline"
-            >
-              Sign up
-            </Link>
+            <Link href="/register" className="text-emerald-700 font-medium hover:underline">Sign up</Link>
           </p>
         </div>
       </div>
