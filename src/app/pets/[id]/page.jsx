@@ -138,7 +138,11 @@ export default function PetDetail() {
   if (!pet) return <div className="p-8">Pet not found</div>
 
     // Filter other pets (exclude current pet)
-  const otherPets = allPets.filter(p => p._id !== pet._id)
+  const otherPets = allPets.filter(p => p.id !== pet._id)
+
+  // console.log(otherPets.map(p => p.id))
+  console.log(otherPets)
+  // console.log(pet._id)
 
   return (
     <>
@@ -299,10 +303,10 @@ export default function PetDetail() {
             <div className="">
               <Slider {...settings}>
                 {otherPets.map((pet) => (
-                  <div key={pet._id} className="p-2">
-                   {pet.status === 'Available' &&
+                  <div key={pet.id} className="p-2">
+                   {/* {pet.status === 'Available' && */}
                      <AvailablePetsCard pet={pet} />
-                   }
+                   {/* } */}
                   </div>
                 ))}
               </Slider>

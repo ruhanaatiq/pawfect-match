@@ -7,7 +7,7 @@ import Testimonials from "@/components/Testimonials";
 import BlogSection from "@/components/BlogSection";
 import Newsletter from "@/components/Newsletter";
 import CalltoAction from "@/components/CalltoAction";
-
+import ContactForm from "@/components/ContactForm";
 
 export default function HomePage() {
   return (
@@ -16,10 +16,11 @@ export default function HomePage() {
       <Services />
       <About/>
        <PetCategories/>
-       <CalltoAction/>
        <WhyChooseUs/>
        <Testimonials/>
+       <CalltoAction/>
        <BlogSection/>
+       <ContactForm/>
         <Newsletter/>
        
     </>
