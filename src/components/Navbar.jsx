@@ -3,15 +3,18 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useSession, signOut } from "next-auth/react"; // ✅ add NextAuth
+import { useSession, signOut } from "next-auth/react";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { data: session } = useSession();
-  const role = session?.user?.role; // make sure you add role to the session in NextAuth callbacks
+  const role = session?.user?.role;
+
+  const userImage = session?.user?.image;
+  const userName = session?.user?.name || "User";
 
   return (
-    <nav className="sticky top-0 z-50 border-b bg-[#4C3D3D] backdrop-blur text-[#FFF7D4]">
+    <nav className="sticky top-0 z-50 border-b bg-[#4C3D3D] text-[#FFF7D4]">
       <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 text-lg font-bold tracking-tight">
@@ -27,7 +30,6 @@ export default function Navbar() {
           <Link href="/adopt" className="hover:text-emerald-400">Adopt</Link>
           <Link href="/profile" className="hover:text-emerald-400">Profile</Link>
 
-          {/* Admin-only */}
           {role === "admin" && (
             <Link href="/admin" className="hover:text-emerald-400">Dashboard</Link>
           )}
@@ -48,12 +50,46 @@ export default function Navbar() {
               </Link>
             </div>
           ) : (
-            <button
-              onClick={() => signOut()}
-              className="px-4 py-2 rounded-md border border-red-500 hover:bg-red-500 hover:text-white transition"
-            >
-              Logout
-            </button>
+            <div className="relative group ml-6">
+              {/* Avatar */}
+              {userImage ? (
+                <Image
+                  src={userImage}
+                  alt={userName}
+                  width={36}
+                  height={36}
+                  className="rounded-full cursor-pointer border-2 border-emerald-500"
+                />
+              ) : (
+                <div className="w-9 h-9 flex items-center justify-center rounded-full bg-emerald-600 text-white font-bold cursor-pointer">
+                  {userName.charAt(0).toUpperCase()}
+                </div>
+              )}
+
+              {/* Dropdown on hover */}
+              <div className="absolute right-0 mt-2 hidden group-hover:block w-40 rounded-lg bg-white text-gray-800 shadow-lg">
+                <Link
+                  href="/profile"
+                  className="block px-4 py-2 text-sm hover:bg-emerald-50"
+                >
+                  Profile
+                </Link>
+                {role === "admin" && (
+                  <Link
+                    href="/admin"
+                    className="block px-4 py-2 text-sm hover:bg-emerald-50"
+                  >
+                    Dashboard
+                  </Link>
+                )}
+                <button
+                  onClick={() => signOut()}
+                  className="block w-full text-left px-4 py-2 text-sm hover:bg-red-50 text-red-600"
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
           )}
         </div>
 
@@ -76,7 +112,6 @@ export default function Navbar() {
             <Link href="/adopt" onClick={() => setMenuOpen(false)}>Adopt</Link>
             <Link href="/profile" onClick={() => setMenuOpen(false)}>Profile</Link>
 
-            {/* Admin-only (mobile) */}
             {role === "admin" && (
               <Link href="/admin" onClick={() => setMenuOpen(false)}>Dashboard</Link>
             )}
