@@ -48,7 +48,6 @@ export default function AllPets() {
 
   if (loading) return <div>Loading pets...</div>;
   if (error) return <div>Error: {error}</div>;
-
   return (
     <div className="px-4 py-8">
       <h1 className="text-2xl font-bold text-center mb-6">
