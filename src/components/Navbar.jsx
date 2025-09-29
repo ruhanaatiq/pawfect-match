@@ -6,11 +6,12 @@ import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 
 export default function Navbar() {
-  const [menuOpen, setMenuOpen] = useState(false);        // mobile nav
-  const [profileOpen, setProfileOpen] = useState(false);  // avatar dropdown
-  const { data: session } = useSession();
-  const role = session?.user?.role;
+  const [menuOpen, setMenuOpen] = useState(false);       // mobile nav
+  const [profileOpen, setProfileOpen] = useState(false); // avatar dropdown
+  const { data: session, status } = useSession();
+  console.log("status:", status);
 
+  const role = session?.user?.role;
   const userImage = session?.user?.image;
   const userName = session?.user?.name || "User";
 
@@ -51,6 +52,7 @@ export default function Navbar() {
           <Link href="/" className="hover:text-emerald-400">Home</Link>
           <Link href="/pets" className="hover:text-emerald-400">Pet Listings</Link>
           <Link href="/adopt" className="hover:text-emerald-400">Adopt</Link>
+          <Link href="/vets" className="hover:text-emerald-400">Vet Details</Link>
           <Link href="/profile" className="hover:text-emerald-400">Profile</Link>
 
           {role === "admin" && (
@@ -97,7 +99,7 @@ export default function Navbar() {
                 )}
               </button>
 
-              {/* Dropdown (click-controlled, stable) */}
+              {/* Dropdown */}
               {profileOpen && (
                 <div
                   role="menu"
@@ -157,6 +159,7 @@ export default function Navbar() {
             <Link href="/" onClick={() => setMenuOpen(false)}>Home</Link>
             <Link href="/pets" onClick={() => setMenuOpen(false)}>Pet Listings</Link>
             <Link href="/adopt" onClick={() => setMenuOpen(false)}>Adopt</Link>
+            <Link href="/vets" onClick={() => setMenuOpen(false)}>Vet Details</Link>
             <Link href="/profile" onClick={() => setMenuOpen(false)}>Profile</Link>
 
             {role === "admin" && (
@@ -183,7 +186,10 @@ export default function Navbar() {
             ) : (
               <button
                 type="button"
-                onClick={() => { setMenuOpen(false); signOut(); }}
+                onClick={() => {
+                  setMenuOpen(false);
+                  signOut();
+                }}
                 className="mt-3 w-full text-center px-4 py-2 rounded-md border border-red-500 text-red-600 hover:bg-red-50 transition"
               >
                 Logout
