@@ -23,7 +23,7 @@ export default function Vets() {
           placeholder="Search by vet name..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full md:w-1/2 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full md:w-1/2 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#F8E7B6]"
         />
       </div>
 
@@ -54,7 +54,7 @@ export default function Vets() {
                 <div className="mt-3">
                   <Link
                     href={`/vets/${vet.id}`}
-                    className="inline-block w-full text-center bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+                    className="inline-block w-full text-center bg-[#f9d66f]  px-4 py-2 rounded-lg hover:bg-[#f8d056] transition"
                   >
                     View Details
                   </Link>

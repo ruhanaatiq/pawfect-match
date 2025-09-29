@@ -53,7 +53,7 @@ export default function VetDetail({ params }) {
             <p className="text-gray-700"><strong>Address:</strong> {vet.contact.address}</p>
           </div>
 
-          <button className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-2 rounded-lg shadow-md w-fit transition-all duration-300 cursor-pointer mt-4">
+          <button className="bg-[#f9d66f] hover:bg-[#f9d66f]  font-semibold px-6 py-2 rounded-lg shadow-md w-fit transition-all duration-300 cursor-pointer mt-4">
             Book Appointment
           </button>
         </div>
@@ -88,6 +88,7 @@ export default function VetDetail({ params }) {
       <section className="bg-white shadow rounded-xl p-6 flex flex-col sm:flex-row gap-4 sm:gap-12 text-gray-700 text-sm sm:text-base">
         <p><strong>Created At:</strong> {vet.createdAt}</p>
         <p><strong>Last Updated:</strong> {vet.updatedAt}</p>
+        <p><strong>Average Rating:</strong> {vet.averageRating} ⭐</p>
       </section>
     </div>
   );
