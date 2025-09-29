@@ -1,16 +1,24 @@
 "use client";
 
+<<<<<<< HEAD
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { FaPaw, FaEnvelope, FaLock, FaGithub } from "react-icons/fa";
+=======
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { signIn, useSession } from "next-auth/react";
+import Link from "next/link";
+>>>>>>> 30b4ee4e99da753c68cf1718d704bcfbd1410510
 import { FcGoogle } from "react-icons/fc";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
@@ -21,14 +29,25 @@ export default function LoginPage() {
 
   const notVerified = error?.toLowerCase().includes("email not verified");
 
+  // If user is already logged in, redirect to home
+  useEffect(() => {
+    if (status === "authenticated") router.push("/");
+  }, [status, router]);
+
   async function handleSubmit(e) {
     e.preventDefault();
-    setError(""); setInfo(""); setPending(true);
+    setError("");
+    setInfo("");
+    setPending(true);
 
     const result = await signIn("credentials", {
       email,
       password,
+<<<<<<< HEAD
       redirect: false,
+=======
+      redirect: false, // manual redirect
+>>>>>>> 30b4ee4e99da753c68cf1718d704bcfbd1410510
     });
 
     setPending(false);
@@ -37,12 +56,25 @@ export default function LoginPage() {
       setError(result.error);
       return;
     }
+
     router.push("/");
   }
 
+  async function handleSocialLogin(provider) {
+    // Social login will redirect automatically
+    await signIn(provider, { callbackUrl: "/" });
+  }
+
   async function resendCode() {
+<<<<<<< HEAD
     if (!email) { setError("Enter your email first."); return; }
     setError(""); setInfo("");
+=======
+    if (!email) {
+      setError("Enter your email first.");
+      return;
+    }
+>>>>>>> 30b4ee4e99da753c68cf1718d704bcfbd1410510
     const res = await fetch("/api/auth/otp/request", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -59,6 +91,7 @@ export default function LoginPage() {
       <FaPaw className="hidden md:block absolute left-6 top-6 text-emerald-200/70 text-3xl" />
       <FaPaw className="hidden md:block absolute right-8 bottom-8 text-rose-200/70 text-4xl rotate-12" />
 
+<<<<<<< HEAD
       {/* Left: form card */}
       <div className="flex items-center justify-center p-6">
         <div className="w-full max-w-md rounded-2xl bg-white/95 backdrop-blur shadow-xl border border-emerald-100 p-8">
@@ -82,6 +115,14 @@ export default function LoginPage() {
             <div className="mb-4 rounded-md bg-red-100 p-3 text-sm text-red-700 text-center">
               {error}
             </div>
+=======
+          {info && (
+            <div className="mb-4 rounded-md bg-emerald-50 p-3 text-sm text-emerald-700 text-center">{info}</div>
+          )}
+
+          {error && (
+            <div className="mb-4 rounded-md bg-red-100 p-3 text-sm text-red-700 text-center">{error}</div>
+>>>>>>> 30b4ee4e99da753c68cf1718d704bcfbd1410510
           )}
 
           {notVerified && (
@@ -95,7 +136,10 @@ export default function LoginPage() {
                   Verify now
                 </Link>
                 <button
+<<<<<<< HEAD
                   type="button"
+=======
+>>>>>>> 30b4ee4e99da753c68cf1718d704bcfbd1410510
                   onClick={resendCode}
                   className="inline-flex items-center justify-center rounded-md border px-3 py-2 text-sm hover:bg-emerald-50"
                 >
@@ -149,6 +193,10 @@ export default function LoginPage() {
               </div>
             </div>
 
+            <div className="text-right mt-1">
+              <Link href="/forgot-password" className="text-sm text-emerald-700 hover:underline">Forgot Password?</Link>
+            </div>
+
             <button
               type="submit"
               disabled={pending}
@@ -162,16 +210,24 @@ export default function LoginPage() {
             <p className="text-center text-sm text-gray-600 mb-3">or continue with</p>
             <div className="grid grid-cols-1 gap-3">
               <button
+<<<<<<< HEAD
                 type="button"
                 onClick={() => signIn("google", { callbackUrl: "/" })}
+=======
+                onClick={() => handleSocialLogin("google")}
+>>>>>>> 30b4ee4e99da753c68cf1718d704bcfbd1410510
                 className="flex items-center justify-center gap-3 w-full rounded-lg border border-gray-300 py-3 font-medium hover:bg-gray-50 transition"
               >
                 <FcGoogle size={22} />
                 <span>Continue with Google</span>
               </button>
               <button
+<<<<<<< HEAD
                 type="button"
                 onClick={() => signIn("github", { callbackUrl: "/" })}
+=======
+                onClick={() => handleSocialLogin("github")}
+>>>>>>> 30b4ee4e99da753c68cf1718d704bcfbd1410510
                 className="flex items-center justify-center gap-3 w-full rounded-lg border border-gray-300 py-3 font-medium hover:bg-gray-50 transition"
               >
                 <FaGithub size={22} className="text-gray-800" />
@@ -182,9 +238,13 @@ export default function LoginPage() {
 
           <p className="mt-6 text-center text-sm text-gray-600">
             Don’t have an account?{" "}
+<<<<<<< HEAD
             <Link href="/register" className="text-emerald-700 font-medium hover:underline">
               Create one
             </Link>
+=======
+            <Link href="/register" className="text-emerald-700 font-medium hover:underline">Sign up</Link>
+>>>>>>> 30b4ee4e99da753c68cf1718d704bcfbd1410510
           </p>
         </div>
       </div>
