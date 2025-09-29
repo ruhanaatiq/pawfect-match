@@ -107,12 +107,12 @@ export default function Navbar() {
                     {userName}
                   </div>
                   <Link
-                    href="/profile"
+                    href="/dashboard"
                     role="menuitem"
                     className="block px-3 py-2 text-sm rounded hover:bg-emerald-50"
                     onClick={() => setProfileOpen(false)}
                   >
-                    Profile
+                   Dashboard
                   </Link>
                   {role === "admin" && (
                     <Link
@@ -157,7 +157,7 @@ export default function Navbar() {
             <Link href="/" onClick={() => setMenuOpen(false)}>Home</Link>
             <Link href="/pets" onClick={() => setMenuOpen(false)}>Pet Listings</Link>
             <Link href="/adopt" onClick={() => setMenuOpen(false)}>Adopt</Link>
-            <Link href="/profile" onClick={() => setMenuOpen(false)}>Profile</Link>
+            <Link href="/dashboard" onClick={() => setMenuOpen(false)}>Dashboard</Link>
 
             {role === "admin" && (
               <Link href="/admin" onClick={() => setMenuOpen(false)}>Dashboard</Link>
