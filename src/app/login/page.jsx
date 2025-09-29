@@ -14,7 +14,6 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
-
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
   const [pending, setPending] = useState(false);
@@ -23,31 +22,41 @@ export default function LoginPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setError(""); setInfo(""); setPending(true);
+    setError("");
+    setInfo("");
+    setPending(true);
 
     const result = await signIn("credentials", {
       email,
       password,
-      redirect: false,
+      redirect: false, // we'll redirect manually
     });
 
     setPending(false);
 
     if (result?.error) {
+      // e.g., "Email not verified"
       setError(result.error);
       return;
     }
+
     router.push("/");
   }
 
   async function resendCode() {
-    if (!email) { setError("Enter your email first."); return; }
-    setError(""); setInfo("");
+    if (!email) {
+      setError("Enter your email first.");
+      return;
+    }
+    setError("");
+    setInfo("");
+
     const res = await fetch("/api/auth/otp/request", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, reason: "verify_email" }),
     });
+
     const j = await res.json().catch(() => ({}));
     if (!res.ok) setError(j.error || "Failed to send code");
     else setInfo("Verification code sent. Check your inbox.");
@@ -68,7 +77,10 @@ export default function LoginPage() {
               Pawfect Match
             </span>
           </div>
-          <h1 className="mb-2 text-center text-3xl font-extrabold text-[#4C3D3D]">Welcome back</h1>
+
+          <h1 className="mb-2 text-center text-3xl font-extrabold text-[#4C3D3D]">
+            Welcome back
+          </h1>
           <p className="mb-6 text-center text-sm text-gray-600">
             Log in to continue your adoption journey.
           </p>
@@ -107,7 +119,9 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Email</label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                Email
+              </label>
               <div className="relative">
                 <FaEnvelope className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
@@ -122,7 +136,9 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Password</label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                Password
+              </label>
               <div className="relative">
                 <FaLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
@@ -143,7 +159,10 @@ export default function LoginPage() {
                 </button>
               </div>
               <div className="mt-2 text-right">
-                <Link href="/forgot-password" className="text-xs text-emerald-700 hover:underline">
+                <Link
+                  href="/forgot-password"
+                  className="text-xs text-emerald-700 hover:underline"
+                >
                   Forgot password?
                 </Link>
               </div>
@@ -159,7 +178,9 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-6">
-            <p className="text-center text-sm text-gray-600 mb-3">or continue with</p>
+            <p className="text-center text-sm text-gray-600 mb-3">
+              or continue with
+            </p>
             <div className="grid grid-cols-1 gap-3">
               <button
                 type="button"
@@ -182,7 +203,10 @@ export default function LoginPage() {
 
           <p className="mt-6 text-center text-sm text-gray-600">
             Don’t have an account?{" "}
-            <Link href="/register" className="text-emerald-700 font-medium hover:underline">
+            <Link
+              href="/register"
+              className="text-emerald-700 font-medium hover:underline"
+            >
               Create one
             </Link>
           </p>
