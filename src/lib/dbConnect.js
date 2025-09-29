@@ -5,6 +5,11 @@ const uri = process.env.NEXT_PUBLIC_MONGODB_URI;          // ✅ use server var
 const dbName = process.env.DB_NAME || "test";
 if (!uri) throw new Error("Missing MONGODB_URI in .env.local");
 
+export const collectionNamesObj = {
+  petCollection: "pets",
+  
+};
+
 let clientPromise;
 if (!global._mongoClientPromise) {
   const client = new MongoClient(uri, {

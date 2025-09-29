@@ -52,9 +52,7 @@ export default function Navbar() {
           <Link href="/" className="hover:text-emerald-400">Home</Link>
           <Link href="/pets" className="hover:text-emerald-400">Pet Listings</Link>
           <Link href="/adopt" className="hover:text-emerald-400">Adopt</Link>
-          {status === "unauthenticated" && (
-            <Link href="/add-pet" className="hover:text-emerald-400">Add A Pet</Link>
-          )}
+
           <Link href="/profile" className="hover:text-emerald-400">Profile</Link>
            
 
@@ -163,9 +161,7 @@ export default function Navbar() {
             <Link href="/" onClick={() => setMenuOpen(false)}>Home</Link>
             <Link href="/pets" onClick={() => setMenuOpen(false)}>Pet Listings</Link>
             <Link href="/adopt" onClick={() => setMenuOpen(false)}>Adopt</Link>
-            {status === "unauthenticated" && (
-            <Link href="/add-pet" className="hover:text-emerald-400">Add A Pet</Link>
-          )}
+            
             <Link href="/profile" onClick={() => setMenuOpen(false)}>Profile</Link>
 
             {role === "admin" && (

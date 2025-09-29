@@ -1,0 +1,882 @@
+[
+  {
+    "id": "vet001",
+    "name": "Dr. Rahman",
+    "photo": "https://example.com/images/vets/dr-rahman.jpg",
+    "specialties": ["Small Animal Surgery", "Pet Nutrition", "General Checkups"],
+    "organization": "Pet Care Clinic, Dhaka",
+    "contact": {
+      "phone": "+8801911223344",
+      "email": "dr.rahman@petcareclinic.com",
+      "address": "123 Banani Road, Dhaka, Bangladesh"
+    },
+    "availability": "Mon-Fri, 10AM - 6PM",
+    "licenseNumber": "BD-VET-2020-456",
+    "education": "DVM, Bangladesh Agricultural University",
+    "experienceYears": 12,
+    "servicesOffered": ["Vaccination", "Spaying/Neutering", "Emergency Care"],
+    "consultationFee": 500,
+    "lastCheckup": "2025-06-20",
+    "healthRecordLink": "https://pawfect-adoption.vercel.app/health-records/vet001",
+    "averageRating": 4.5,
+    "totalReviews": 2,
+    "reviews": [
+      {
+        "userId": "user001",
+        "userName": "Saria Khatun",
+        "rating": 5,
+        "comment": "Very professional and caring. My dog recovered quickly.",
+        "date": "2025-07-01"
+      },
+      {
+        "userId": "user002",
+        "userName": "Elora Akter",
+        "rating": 4,
+        "comment": "Helpful vet, explained everything clearly.",
+        "date": "2025-08-15"
+      }
+    ],
+    "createdAt": "2025-06-01",
+    "updatedAt": "2025-08-20"
+  },
+  {
+    "id": "vet002",
+    "name": "Dr. Nasima Akhter",
+    "photo": "https://example.com/images/vets/dr-nasima.jpg",
+    "specialties": ["Dermatology", "Pet Nutrition"],
+    "organization": "Happy Pets Clinic, Dhaka",
+    "contact": {
+      "phone": "+8801911223345",
+      "email": "dr.nasima@happypets.com",
+      "address": "45 Gulshan Avenue, Dhaka, Bangladesh"
+    },
+    "availability": "Tue-Sat, 9AM - 5PM",
+    "licenseNumber": "BD-VET-2018-112",
+    "education": "DVM, Chittagong Veterinary University",
+    "experienceYears": 10,
+    "servicesOffered": ["Vaccination", "Skin Treatments", "General Checkups"],
+    "consultationFee": 400,
+    "lastCheckup": "2025-07-05",
+    "healthRecordLink": "https://pawfect-adoption.vercel.app/health-records/vet002",
+    "averageRating": 4.0,
+    "totalReviews": 3,
+    "reviews": [
+      {
+        "userId": "user003",
+        "userName": "Rana Das",
+        "rating": 4,
+        "comment": "Good vet, friendly staff.",
+        "date": "2025-06-10"
+      },
+      {
+        "userId": "user004",
+        "userName": "Tania Islam",
+        "rating": 5,
+        "comment": "My cat's skin allergy improved significantly.",
+        "date": "2025-07-02"
+      },
+      {
+        "userId": "user005",
+        "userName": "Sabbir Khan",
+        "rating": 3,
+        "comment": "Average experience, could be more punctual.",
+        "date": "2025-08-01"
+      }
+    ],
+    "createdAt": "2025-05-10",
+    "updatedAt": "2025-08-15"
+  },
+  {
+    "id": "vet003",
+    "name": "Dr. Imran Hossain",
+    "photo": "https://example.com/images/vets/dr-imran.jpg",
+    "specialties": ["Orthopedics", "Small Animal Surgery"],
+    "organization": "Dhaka Pet Hospital",
+    "contact": {
+      "phone": "+8801911223346",
+      "email": "dr.imran@dhakapethospital.com",
+      "address": "12 Dhanmondi, Dhaka, Bangladesh"
+    },
+    "availability": "Mon-Fri, 10AM - 7PM",
+    "licenseNumber": "BD-VET-2016-789",
+    "education": "DVM, Bangladesh Agricultural University",
+    "experienceYears": 15,
+    "servicesOffered": ["Surgery", "Emergency Care", "Vaccination"],
+    "consultationFee": 600,
+    "lastCheckup": "2025-06-25",
+    "healthRecordLink": "https://pawfect-adoption.vercel.app/health-records/vet003",
+    "averageRating": 4.3,
+    "totalReviews": 2,
+    "reviews": [
+      {
+        "userId": "user006",
+        "userName": "Farhana Sultana",
+        "rating": 4,
+        "comment": "Efficient and professional.",
+        "date": "2025-07-10"
+      },
+      {
+        "userId": "user007",
+        "userName": "Rafiq Islam",
+        "rating": 4,
+        "comment": "My dog’s leg injury healed perfectly.",
+        "date": "2025-07-20"
+      }
+    ],
+    "createdAt": "2025-04-20",
+    "updatedAt": "2025-08-18"
+  },
+  {
+    "id": "vet004",
+    "name": "Dr. Leena Chowdhury",
+    "photo": "https://example.com/images/vets/dr-leena.jpg",
+    "specialties": ["Pet Nutrition", "General Checkups"],
+    "organization": "Pet Health Hub, Dhaka",
+    "contact": {
+      "phone": "+8801911223347",
+      "email": "dr.leena@pethealthhub.com",
+      "address": "89 Uttara, Dhaka, Bangladesh"
+    },
+    "availability": "Mon-Sat, 9AM - 6PM",
+    "licenseNumber": "BD-VET-2019-321",
+    "education": "DVM, Chittagong Veterinary University",
+    "experienceYears": 8,
+    "servicesOffered": ["Vaccination", "Diet Consultation", "Checkups"],
+    "consultationFee": 450,
+    "lastCheckup": "2025-06-30",
+    "healthRecordLink": "https://pawfect-adoption.vercel.app/health-records/vet004",
+    "averageRating": 4.7,
+    "totalReviews": 4,
+    "reviews": [
+      {
+        "userId": "user008",
+        "userName": "Arif Hossain",
+        "rating": 5,
+        "comment": "Very knowledgeable about pet nutrition.",
+        "date": "2025-06-05"
+      },
+      {
+        "userId": "user009",
+        "userName": "Sabrina Akter",
+        "rating": 5,
+        "comment": "Helped my cat gain weight safely.",
+        "date": "2025-06-10"
+      },
+      {
+        "userId": "user010",
+        "userName": "Shahriar Khan",
+        "rating": 4,
+        "comment": "Good advice, friendly staff.",
+        "date": "2025-06-15"
+      },
+      {
+        "userId": "user011",
+        "userName": "Nabila Rahman",
+        "rating": 4,
+        "comment": "Professional and patient.",
+        "date": "2025-06-20"
+      }
+    ],
+    "createdAt": "2025-03-15",
+    "updatedAt": "2025-08-10"
+  },
+  {
+    "id": "vet005",
+    "name": "Dr. Shafiq Ahmed",
+    "photo": "https://example.com/images/vets/dr-shafiq.jpg",
+    "specialties": ["Emergency Care", "Surgery"],
+    "organization": "Safe Pets Clinic, Dhaka",
+    "contact": {
+      "phone": "+8801911223348",
+      "email": "dr.shafiq@safepets.com",
+      "address": "34 Mirpur Road, Dhaka, Bangladesh"
+    },
+    "availability": "Mon-Fri, 9AM - 6PM",
+    "licenseNumber": "BD-VET-2015-654",
+    "education": "DVM, Bangladesh Agricultural University",
+    "experienceYears": 14,
+    "servicesOffered": ["Emergency Care", "Surgery", "Vaccination"],
+    "consultationFee": 550,
+    "lastCheckup": "2025-07-05",
+    "healthRecordLink": "https://pawfect-adoption.vercel.app/health-records/vet005",
+    "averageRating": 4.2,
+    "totalReviews": 3,
+    "reviews": [
+      {
+        "userId": "user012",
+        "userName": "Raisa Akter",
+        "rating": 4,
+        "comment": "Handled my pet’s emergency very well.",
+        "date": "2025-07-01"
+      },
+      {
+        "userId": "user013",
+        "userName": "Aminul Islam",
+        "rating": 5,
+        "comment": "Surgery was successful, very caring.",
+        "date": "2025-07-08"
+      },
+      {
+        "userId": "user014",
+        "userName": "Samira Khan",
+        "rating": 3,
+        "comment": "Good vet, but long waiting time.",
+        "date": "2025-07-12"
+      }
+    ],
+    "createdAt": "2025-02-10",
+    "updatedAt": "2025-08-12"
+  },
+  {
+    "id": "vet006",
+    "name": "Dr. Farhana Sultana",
+    "photo": "https://example.com/images/vets/dr-farhana.jpg",
+    "specialties": ["Small Animal Surgery", "General Checkups"],
+    "organization": "Healthy Paws Clinic, Dhaka",
+    "contact": {
+      "phone": "+8801911223349",
+      "email": "dr.farhana@healthypaws.com",
+      "address": "78 Dhanmondi, Dhaka, Bangladesh"
+    },
+    "availability": "Tue-Sat, 10AM - 6PM",
+    "licenseNumber": "BD-VET-2017-221",
+    "education": "DVM, Chittagong Veterinary University",
+    "experienceYears": 9,
+    "servicesOffered": ["Vaccination", "Surgery", "Checkups"],
+    "consultationFee": 480,
+    "lastCheckup": "2025-06-28",
+    "healthRecordLink": "https://pawfect-adoption.vercel.app/health-records/vet006",
+    "averageRating": 4.5,
+    "totalReviews": 2,
+    "reviews": [
+      {
+        "userId": "user015",
+        "userName": "Rafi Ahmed",
+        "rating": 5,
+        "comment": "Very caring, explained every detail.",
+        "date": "2025-06-05"
+      },
+      {
+        "userId": "user016",
+        "userName": "Tasnima Akter",
+        "rating": 4,
+        "comment": "Good experience, friendly staff.",
+        "date": "2025-06-12"
+      }
+    ],
+    "createdAt": "2025-03-01",
+    "updatedAt": "2025-08-05"
+  },
+  {
+    "id": "vet007",
+    "name": "Dr. Imtiaz Hossain",
+    "photo": "https://example.com/images/vets/dr-imtiaz.jpg",
+    "specialties": ["Pet Nutrition", "Dermatology"],
+    "organization": "Pet Wellness Center, Dhaka",
+    "contact": {
+      "phone": "+8801911223350",
+      "email": "dr.imtiaz@petwellness.com",
+      "address": "56 Gulshan, Dhaka, Bangladesh"
+    },
+    "availability": "Mon-Fri, 9AM - 5PM",
+    "licenseNumber": "BD-VET-2019-334",
+    "education": "DVM, Bangladesh Agricultural University",
+    "experienceYears": 7,
+    "servicesOffered": ["Diet Consultation", "Vaccination", "Skin Treatment"],
+    "consultationFee": 420,
+    "lastCheckup": "2025-07-01",
+    "healthRecordLink": "https://pawfect-adoption.vercel.app/health-records/vet007",
+    "averageRating": 4.2,
+    "totalReviews": 3,
+    "reviews": [
+      {
+        "userId": "user017",
+        "userName": "Nusrat Jahan",
+        "rating": 4,
+        "comment": "Helpful and polite vet.",
+        "date": "2025-06-10"
+      },
+      {
+        "userId": "user018",
+        "userName": "Rafiq Talukder",
+        "rating": 5,
+        "comment": "Good advice on my cat’s diet.",
+        "date": "2025-06-15"
+      },
+      {
+        "userId": "user019",
+        "userName": "Lina Chowdhury",
+        "rating": 4,
+        "comment": "Friendly staff, smooth consultation.",
+        "date": "2025-06-20"
+      }
+    ],
+    "createdAt": "2025-04-01",
+    "updatedAt": "2025-08-07"
+  },
+  {
+    "id": "vet008",
+    "name": "Dr. Sabrina Akter",
+    "photo": "https://example.com/images/vets/dr-sabrina.jpg",
+    "specialties": ["Emergency Care", "Small Animal Surgery"],
+    "organization": "City Pet Clinic, Dhaka",
+    "contact": {
+      "phone": "+8801911223351",
+      "email": "dr.sabrina@citypet.com",
+      "address": "22 Banani, Dhaka, Bangladesh"
+    },
+    "availability": "Mon-Sat, 10AM - 7PM",
+    "licenseNumber": "BD-VET-2018-445",
+    "education": "DVM, Chittagong Veterinary University",
+    "experienceYears": 11,
+    "servicesOffered": ["Surgery", "Emergency Care", "Vaccination"],
+    "consultationFee": 520,
+    "lastCheckup": "2025-07-10",
+    "healthRecordLink": "https://pawfect-adoption.vercel.app/health-records/vet008",
+    "averageRating": 4.6,
+    "totalReviews": 2,
+    "reviews": [
+      {
+        "userId": "user020",
+        "userName": "Sabbir Hossain",
+        "rating": 5,
+        "comment": "Handled my dog’s emergency excellently.",
+        "date": "2025-06-20"
+      },
+      {
+        "userId": "user021",
+        "userName": "Shaila Rahman",
+        "rating": 4,
+        "comment": "Good vet, friendly and professional.",
+        "date": "2025-07-01"
+      }
+    ],
+    "createdAt": "2025-03-05",
+    "updatedAt": "2025-08-08"
+  },
+  {
+    "id": "vet009",
+    "name": "Dr. Kamal Uddin",
+    "photo": "https://example.com/images/vets/dr-kamal.jpg",
+    "specialties": ["Orthopedics", "Emergency Care"],
+    "organization": "Healthy Paws Hospital, Dhaka",
+    "contact": {
+      "phone": "+8801911223352",
+      "email": "dr.kamal@healthypaws.com",
+      "address": "90 Dhanmondi, Dhaka, Bangladesh"
+    },
+    "availability": "Tue-Sat, 9AM - 5PM",
+    "licenseNumber": "BD-VET-2017-556",
+    "education": "DVM, Bangladesh Agricultural University",
+    "experienceYears": 12,
+    "servicesOffered": ["Surgery", "Emergency Care", "Checkups"],
+    "consultationFee": 580,
+    "lastCheckup": "2025-06-15",
+    "healthRecordLink": "https://pawfect-adoption.vercel.app/health-records/vet009",
+    "averageRating": 4.3,
+    "totalReviews": 3,
+    "reviews": [
+      {
+        "userId": "user022",
+        "userName": "Farid Ahmed",
+        "rating": 4,
+        "comment": "Professional and reliable vet.",
+        "date": "2025-06-05"
+      },
+      {
+        "userId": "user023",
+        "userName": "Sania Akter",
+        "rating": 5,
+        "comment": "Successful surgery for my cat, very happy.",
+        "date": "2025-06-12"
+      },
+      {
+        "userId": "user024",
+        "userName": "Rafi Hossain",
+        "rating": 4,
+        "comment": "Good advice on post-surgery care.",
+        "date": "2025-06-18"
+      }
+    ],
+    "createdAt": "2025-02-20",
+    "updatedAt": "2025-08-05"
+  },
+  {
+    "id": "vet010",
+    "name": "Dr. Nabila Rahman",
+    "photo": "https://example.com/images/vets/dr-nabila.jpg",
+    "specialties": ["Dermatology", "Pet Nutrition"],
+    "organization": "Pet Health Clinic, Dhaka",
+    "contact": {
+      "phone": "+8801911223353",
+      "email": "dr.nabila@pethealth.com",
+      "address": "67 Gulshan, Dhaka, Bangladesh"
+    },
+    "availability": "Mon-Fri, 9AM - 5PM",
+    "licenseNumber": "BD-VET-2016-667",
+    "education": "DVM, Chittagong Veterinary University",
+    "experienceYears": 13,
+    "servicesOffered": ["Skin Treatments", "Diet Consultation", "Vaccination"],
+    "consultationFee": 450,
+    "lastCheckup": "2025-07-05",
+    "healthRecordLink": "https://pawfect-adoption.vercel.app/health-records/vet010",
+    "averageRating": 4.4,
+    "totalReviews": 2,
+    "reviews": [
+      {
+        "userId": "user025",
+        "userName": "Anika Hossain",
+        "rating": 5,
+        "comment": "Helped my dog’s skin allergy.",
+        "date": "2025-06-15"
+      },
+      {
+        "userId": "user026",
+        "userName": "Rasheda Akter",
+        "rating": 4,
+        "comment": "Very knowledgeable and friendly.",
+        "date": "2025-06-22"
+      }
+    ],
+    "createdAt": "2025-03-12",
+    "updatedAt": "2025-08-06"
+  },
+  {
+    "id": "vet011",
+    "name": "Dr. Tanvir Hossain",
+    "photo": "https://example.com/images/vets/dr-tanvir.jpg",
+    "specialties": ["Small Animal Surgery", "Emergency Care"],
+    "organization": "Urban Pet Clinic, Dhaka",
+    "contact": {
+      "phone": "+8801911223354",
+      "email": "dr.tanvir@urbanpet.com",
+      "address": "34 Banani, Dhaka, Bangladesh"
+    },
+    "availability": "Mon-Sat, 10AM - 6PM",
+    "licenseNumber": "BD-VET-2015-778",
+    "education": "DVM, Bangladesh Agricultural University",
+    "experienceYears": 14,
+    "servicesOffered": ["Surgery", "Emergency Care", "Vaccination"],
+    "consultationFee": 550,
+    "lastCheckup": "2025-07-12",
+    "healthRecordLink": "https://pawfect-adoption.vercel.app/health-records/vet011",
+    "averageRating": 4.6,
+    "totalReviews": 3,
+    "reviews": [
+      {
+        "userId": "user027",
+        "userName": "Raihan Ahmed",
+        "rating": 5,
+        "comment": "Very skilled and patient with pets.",
+        "date": "2025-06-10"
+      },
+      {
+        "userId": "user028",
+        "userName": "Lina Akter",
+        "rating": 4,
+        "comment": "Handled emergency efficiently.",
+        "date": "2025-06-18"
+      },
+      {
+        "userId": "user029",
+        "userName": "Sami Chowdhury",
+        "rating": 5,
+        "comment": "Highly recommended for surgery.",
+        "date": "2025-06-22"
+      }
+    ],
+    "createdAt": "2025-03-18",
+    "updatedAt": "2025-08-10"
+  },
+  {
+    "id": "vet012",
+    "name": "Dr. Farid Ahmed",
+    "photo": "https://example.com/images/vets/dr-farid.jpg",
+    "specialties": ["Dermatology", "Pet Nutrition"],
+    "organization": "Pet Wellness Center, Dhaka",
+    "contact": {
+      "phone": "+8801911223355",
+      "email": "dr.farid@petwellness.com",
+      "address": "45 Gulshan, Dhaka, Bangladesh"
+    },
+    "availability": "Mon-Fri, 9AM - 5PM",
+    "licenseNumber": "BD-VET-2014-889",
+    "education": "DVM, Chittagong Veterinary University",
+    "experienceYears": 15,
+    "servicesOffered": ["Skin Treatments", "Diet Consultation", "Vaccination"],
+    "consultationFee": 470,
+    "lastCheckup": "2025-07-15",
+    "healthRecordLink": "https://pawfect-adoption.vercel.app/health-records/vet012",
+    "averageRating": 4.5,
+    "totalReviews": 2,
+    "reviews": [
+      {
+        "userId": "user030",
+        "userName": "Nabila Rahman",
+        "rating": 5,
+        "comment": "Excellent advice on my cat’s diet.",
+        "date": "2025-06-12"
+      },
+      {
+        "userId": "user031",
+        "userName": "Rafi Talukder",
+        "rating": 4,
+        "comment": "Friendly and professional service.",
+        "date": "2025-06-20"
+      }
+    ],
+    "createdAt": "2025-03-20",
+    "updatedAt": "2025-08-12"
+  },
+  {
+    "id": "vet013",
+    "name": "Dr. Mahfuz Alam",
+    "photo": "https://example.com/images/vets/dr-mahfuz.jpg",
+    "specialties": ["Small Animal Surgery", "Orthopedics"],
+    "organization": "City Pet Hospital, Dhaka",
+    "contact": {
+      "phone": "+8801911223356",
+      "email": "dr.mahfuz@citypet.com",
+      "address": "12 Dhanmondi, Dhaka, Bangladesh"
+    },
+    "availability": "Tue-Sat, 10AM - 6PM",
+    "licenseNumber": "BD-VET-2013-990",
+    "education": "DVM, Bangladesh Agricultural University",
+    "experienceYears": 16,
+    "servicesOffered": ["Surgery", "Checkups", "Emergency Care"],
+    "consultationFee": 600,
+    "lastCheckup": "2025-07-18",
+    "healthRecordLink": "https://pawfect-adoption.vercel.app/health-records/vet013",
+    "averageRating": 4.7,
+    "totalReviews": 3,
+    "reviews": [
+      {
+        "userId": "user032",
+        "userName": "Shaila Rahman",
+        "rating": 5,
+        "comment": "Excellent surgeon, highly professional.",
+        "date": "2025-06-15"
+      },
+      {
+        "userId": "user033",
+        "userName": "Rashid Hossain",
+        "rating": 4,
+        "comment": "Handled my dog’s broken leg well.",
+        "date": "2025-06-20"
+      },
+      {
+        "userId": "user034",
+        "userName": "Tasnima Akter",
+        "rating": 5,
+        "comment": "Very caring and skilled.",
+        "date": "2025-06-25"
+      }
+    ],
+    "createdAt": "2025-03-25",
+    "updatedAt": "2025-08-14"
+  },
+  {
+    "id": "vet014",
+    "name": "Dr. Rubina Akhter",
+    "photo": "https://example.com/images/vets/dr-rubina.jpg",
+    "specialties": ["Pet Nutrition", "Dermatology"],
+    "organization": "Healthy Pets Clinic, Dhaka",
+    "contact": {
+      "phone": "+8801911223357",
+      "email": "dr.rubina@healthypets.com",
+      "address": "89 Banani, Dhaka, Bangladesh"
+    },
+    "availability": "Mon-Fri, 9AM - 5PM",
+    "licenseNumber": "BD-VET-2012-101",
+    "education": "DVM, Chittagong Veterinary University",
+    "experienceYears": 17,
+    "servicesOffered": ["Diet Consultation", "Skin Treatments", "Vaccination"],
+    "consultationFee": 460,
+    "lastCheckup": "2025-07-20",
+    "healthRecordLink": "https://pawfect-adoption.vercel.app/health-records/vet014",
+    "averageRating": 4.4,
+    "totalReviews": 2,
+    "reviews": [
+      {
+        "userId": "user035",
+        "userName": "Lina Chowdhury",
+        "rating": 4,
+        "comment": "Good advice for my cat’s skin allergy.",
+        "date": "2025-06-12"
+      },
+      {
+        "userId": "user036",
+        "userName": "Rafiq Talukder",
+        "rating": 5,
+        "comment": "Very friendly and professional.",
+        "date": "2025-06-18"
+      }
+    ],
+    "createdAt": "2025-03-28",
+    "updatedAt": "2025-08-16"
+  },
+  {
+    "id": "vet015",
+    "name": "Dr. Saifullah Khan",
+    "photo": "https://example.com/images/vets/dr-saifullah.jpg",
+    "specialties": ["Emergency Care", "Small Animal Surgery"],
+    "organization": "City Pet Hospital, Dhaka",
+    "contact": {
+      "phone": "+8801911223358",
+      "email": "dr.saifullah@citypet.com",
+      "address": "14 Dhanmondi, Dhaka, Bangladesh"
+    },
+    "availability": "Tue-Sat, 10AM - 6PM",
+    "licenseNumber": "BD-VET-2011-112",
+    "education": "DVM, Bangladesh Agricultural University",
+    "experienceYears": 18,
+    "servicesOffered": ["Emergency Care", "Surgery", "Vaccination"],
+    "consultationFee": 580,
+    "lastCheckup": "2025-07-22",
+    "healthRecordLink": "https://pawfect-adoption.vercel.app/health-records/vet015",
+    "averageRating": 4.7,
+    "totalReviews": 3,
+    "reviews": [
+      {
+        "userId": "user037",
+        "userName": "Anika Hossain",
+        "rating": 5,
+        "comment": "Saved my dog in an emergency.",
+        "date": "2025-06-15"
+      },
+      {
+        "userId": "user038",
+        "userName": "Farid Ahmed",
+        "rating": 5,
+        "comment": "Excellent surgical skills.",
+        "date": "2025-06-18"
+      },
+      {
+        "userId": "user039",
+        "userName": "Sabbir Hossain",
+        "rating": 4,
+        "comment": "Very professional and polite.",
+        "date": "2025-06-22"
+      }
+    ],
+    "createdAt": "2025-03-30",
+    "updatedAt": "2025-08-18"
+  },
+  {
+    "id": "vet016",
+    "name": "Dr. Noshin Akter",
+    "photo": "https://example.com/images/vets/dr-noshin.jpg",
+    "specialties": ["Pet Nutrition", "Dermatology"],
+    "organization": "Pet Wellness Center, Dhaka",
+    "contact": {
+      "phone": "+8801911223359",
+      "email": "dr.noshin@petwellness.com",
+      "address": "50 Gulshan, Dhaka, Bangladesh"
+    },
+    "availability": "Mon-Fri, 9AM - 5PM",
+    "licenseNumber": "BD-VET-2010-223",
+    "education": "DVM, Chittagong Veterinary University",
+    "experienceYears": 19,
+    "servicesOffered": ["Diet Consultation", "Skin Treatments", "Vaccination"],
+    "consultationFee": 450,
+    "lastCheckup": "2025-07-25",
+    "healthRecordLink": "https://pawfect-adoption.vercel.app/health-records/vet016",
+    "averageRating": 4.5,
+    "totalReviews": 2,
+    "reviews": [
+      {
+        "userId": "user040",
+        "userName": "Rasheda Akter",
+        "rating": 5,
+        "comment": "Very helpful with my dog’s diet.",
+        "date": "2025-06-20"
+      },
+      {
+        "userId": "user041",
+        "userName": "Tasnima Akter",
+        "rating": 4,
+        "comment": "Good vet, clear explanations.",
+        "date": "2025-06-28"
+      }
+    ],
+    "createdAt": "2025-04-01",
+    "updatedAt": "2025-08-19"
+  },
+  {
+    "id": "vet017",
+    "name": "Dr. Imran Hossain",
+    "photo": "https://example.com/images/vets/dr-imran.jpg",
+    "specialties": ["Small Animal Surgery", "Orthopedics"],
+    "organization": "Healthy Paws Clinic, Dhaka",
+    "contact": {
+      "phone": "+8801911223360",
+      "email": "dr.imran@healthypaws.com",
+      "address": "78 Dhanmondi, Dhaka, Bangladesh"
+    },
+    "availability": "Tue-Sat, 10AM - 6PM",
+    "licenseNumber": "BD-VET-2009-334",
+    "education": "DVM, Bangladesh Agricultural University",
+    "experienceYears": 20,
+    "servicesOffered": ["Surgery", "Checkups", "Emergency Care"],
+    "consultationFee": 600,
+    "lastCheckup": "2025-07-28",
+    "healthRecordLink": "https://pawfect-adoption.vercel.app/health-records/vet017",
+    "averageRating": 4.6,
+    "totalReviews": 3,
+    "reviews": [
+      {
+        "userId": "user042",
+        "userName": "Sami Chowdhury",
+        "rating": 5,
+        "comment": "Very professional surgeon.",
+        "date": "2025-06-22"
+      },
+      {
+        "userId": "user043",
+        "userName": "Raihan Ahmed",
+        "rating": 4,
+        "comment": "Handled my cat’s surgery well.",
+        "date": "2025-06-25"
+      },
+      {
+        "userId": "user044",
+        "userName": "Lina Akter",
+        "rating": 5,
+        "comment": "Friendly and highly skilled.",
+        "date": "2025-06-28"
+      }
+    ],
+    "createdAt": "2025-04-03",
+    "updatedAt": "2025-08-20"
+  },
+  {
+    "id": "vet018",
+    "name": "Dr. Sabrina Hossain",
+    "photo": "https://example.com/images/vets/dr-sabrina2.jpg",
+    "specialties": ["Dermatology", "Pet Nutrition"],
+    "organization": "City Pet Clinic, Dhaka",
+    "contact": {
+      "phone": "+8801911223361",
+      "email": "dr.sabrina2@citypet.com",
+      "address": "22 Banani, Dhaka, Bangladesh"
+    },
+    "availability": "Mon-Fri, 9AM - 5PM",
+    "licenseNumber": "BD-VET-2008-445",
+    "education": "DVM, Chittagong Veterinary University",
+    "experienceYears": 21,
+    "servicesOffered": ["Diet Consultation", "Skin Treatments", "Vaccination"],
+    "consultationFee": 470,
+    "lastCheckup": "2025-07-30",
+    "healthRecordLink": "https://pawfect-adoption.vercel.app/health-records/vet018",
+    "averageRating": 4.5,
+    "totalReviews": 2,
+    "reviews": [
+      {
+        "userId": "user045",
+        "userName": "Rashid Hossain",
+        "rating": 5,
+        "comment": "Very helpful with skin treatments.",
+        "date": "2025-06-25"
+      },
+      {
+        "userId": "user046",
+        "userName": "Shaila Rahman",
+        "rating": 4,
+        "comment": "Friendly and knowledgeable.",
+        "date": "2025-06-28"
+      }
+    ],
+    "createdAt": "2025-04-05",
+    "updatedAt": "2025-08-21"
+  },
+  {
+    "id": "vet019",
+    "name": "Dr. Kamrul Hasan",
+    "photo": "https://example.com/images/vets/dr-kamrul.jpg",
+    "specialties": ["Small Animal Surgery", "Emergency Care"],
+    "organization": "Urban Pet Hospital, Dhaka",
+    "contact": {
+      "phone": "+8801911223362",
+      "email": "dr.kamrul@urbanpet.com",
+      "address": "34 Banani, Dhaka, Bangladesh"
+    },
+    "availability": "Tue-Sat, 10AM - 6PM",
+    "licenseNumber": "BD-VET-2007-556",
+    "education": "DVM, Bangladesh Agricultural University",
+    "experienceYears": 22,
+    "servicesOffered": ["Surgery", "Emergency Care", "Vaccination"],
+    "consultationFee": 620,
+    "lastCheckup": "2025-08-02",
+    "healthRecordLink": "https://pawfect-adoption.vercel.app/health-records/vet019",
+    "averageRating": 4.7,
+    "totalReviews": 3,
+    "reviews": [
+      {
+        "userId": "user047",
+        "userName": "Anika Hossain",
+        "rating": 5,
+        "comment": "Saved my dog in an emergency.",
+        "date": "2025-06-28"
+      },
+      {
+        "userId": "user048",
+        "userName": "Farid Ahmed",
+        "rating": 5,
+        "comment": "Highly skilled and caring.",
+        "date": "2025-07-01"
+      },
+      {
+        "userId": "user049",
+        "userName": "Sabbir Hossain",
+        "rating": 4,
+        "comment": "Very professional.",
+        "date": "2025-07-05"
+      }
+    ],
+    "createdAt": "2025-04-08",
+    "updatedAt": "2025-08-22"
+  },
+  {
+    "id": "vet020",
+    "name": "Dr. Nabila Hossain",
+    "photo": "https://example.com/images/vets/dr-nabila2.jpg",
+    "specialties": ["Dermatology", "Pet Nutrition"],
+    "organization": "Healthy Paws Clinic, Dhaka",
+    "contact": {
+      "phone": "+8801911223363",
+      "email": "dr.nabila2@healthypaws.com",
+      "address": "90 Dhanmondi, Dhaka, Bangladesh"
+    },
+    "availability": "Mon-Fri, 9AM - 5PM",
+    "licenseNumber": "BD-VET-2006-667",
+    "education": "DVM, Chittagong Veterinary University",
+    "experienceYears": 23,
+    "servicesOffered": ["Diet Consultation", "Skin Treatments", "Vaccination"],
+    "consultationFee": 480,
+    "lastCheckup": "2025-08-05",
+    "healthRecordLink": "https://pawfect-adoption.vercel.app/health-records/vet020",
+    "averageRating": 4.6,
+    "totalReviews": 2,
+    "reviews": [
+      {
+        "userId": "user050",
+        "userName": "Lina Chowdhury",
+        "rating": 5,
+        "comment": "Very helpful with my cat’s skin issues.",
+        "date": "2025-07-01"
+      },
+      {
+        "userId": "user051",
+        "userName": "Rafi Talukder",
+        "rating": 4,
+        "comment": "Friendly and professional.",
+        "date": "2025-07-05"
+      }
+    ],
+    "createdAt": "2025-04-10",
+    "updatedAt": "2025-08-23"
+  }
+
+
+  
+]
