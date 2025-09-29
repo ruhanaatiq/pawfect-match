@@ -52,6 +52,7 @@ export default function Navbar() {
           <Link href="/" className="hover:text-emerald-400">Home</Link>
           <Link href="/pets" className="hover:text-emerald-400">Pet Listings</Link>
           <Link href="/adopt" className="hover:text-emerald-400">Adopt</Link>
+          <Link href="/vets" className="hover:text-emerald-400">Vet Details</Link>
 
           <Link href="/profile" className="hover:text-emerald-400">Profile</Link>
            
@@ -161,6 +162,7 @@ export default function Navbar() {
             <Link href="/" onClick={() => setMenuOpen(false)}>Home</Link>
             <Link href="/pets" onClick={() => setMenuOpen(false)}>Pet Listings</Link>
             <Link href="/adopt" onClick={() => setMenuOpen(false)}>Adopt</Link>
+            <Link href="/vets" onClick={() => setMenuOpen(false)}>Vet Details</Link>
             
             <Link href="/profile" onClick={() => setMenuOpen(false)}>Profile</Link>
 
