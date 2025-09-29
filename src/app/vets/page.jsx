@@ -1,5 +1,7 @@
 "use client"
-import vets from '../../../public/vets.json'
+// import vets from '../../../public/vets.json'
+import vets from '../../data/vets.json'
+
 import Link from 'next/link'
 import React, { useState } from 'react'
 

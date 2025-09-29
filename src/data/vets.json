@@ -2,7 +2,7 @@
   {
     "id": "vet001",
     "name": "Dr. Rahman",
-    "photo": "https://example.com/images/vets/dr-rahman.jpg",
+    "photo": "https://i.ibb.co.com/vx2xwGxx/dr-rahman.jpg",
     "specialties": ["Small Animal Surgery", "Pet Nutrition", "General Checkups"],
     "organization": "Pet Care Clinic, Dhaka",
     "contact": {
@@ -89,7 +89,7 @@
   {
     "id": "vet003",
     "name": "Dr. Imran Hossain",
-    "photo": "https://example.com/images/vets/dr-imran.jpg",
+    "photo": "https://i.ibb.co.com/B2MvKWDR/Fahad.jpg",
     "specialties": ["Orthopedics", "Small Animal Surgery"],
     "organization": "Dhaka Pet Hospital",
     "contact": {

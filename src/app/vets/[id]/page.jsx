@@ -1,6 +1,8 @@
 "use client";
 import React from "react";
-import vets from "../../../../public/vets.json";
+//import vets from "../../../../public/vets.json";
+import vets from '../../../data/vets.json'
+
 import { FaPhone, FaEnvelope, FaCalendarAlt, FaStar, FaLink } from "react-icons/fa";
 
 export default function VetDetail({ params }) {
