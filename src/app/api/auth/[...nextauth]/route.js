@@ -9,11 +9,14 @@ import User from "@/models/User";
 
 export const runtime = "nodejs"; // required for DB work (not Edge)
 
+
 const handler = NextAuth({
   session: { strategy: "jwt" },
 
   providers: [
+
     // Email + password
+
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -25,11 +28,20 @@ const handler = NextAuth({
         const { email, password } = credentials || {};
         if (!email || !password) return null;
 
+
         const user = await User.findOne({ email }).lean();
         if (!user || !user.passwordHash) return null;
 
         // Block unverified accounts (OTP flow)
         if (!user.emailVerifiedAt) {
+
+        const user = await User.findOne({ email });
+        if (!user || !user.passwordHash) return null;
+
+        // Block unverified accounts (since you added OTP)
+        if (!user.emailVerifiedAt) {
+          // Throwing error lets you show "Email not verified" in the UI
+
           throw new Error("Email not verified");
         }
 
@@ -46,20 +58,31 @@ const handler = NextAuth({
       },
     }),
 
+
     // Google (optional)
+
+    // Optional social providers
+
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
     }),
 
+
     // GitHub
     GitHubProvider({
       clientId: process.env.GITHUB_CLIENT_ID || process.env.GITHUB_ID || "",
       clientSecret: process.env.GITHUB_CLIENT_SECRET || process.env.GITHUB_SECRET || "",
+
+    GitHubProvider({
+      clientId: process.env.GITHUB_ID || "",
+      clientSecret: process.env.GITHUB_SECRET || "",
+
     }),
   ],
 
   callbacks: {
+
     // Create/link a User on first OAuth sign-in and mark verified
     async signIn({ user, account, profile }) {
       if (account?.provider === "github" || account?.provider === "google") {
@@ -98,6 +121,14 @@ const handler = NextAuth({
         token.role = user.role || token.role || "user";
         token.picture = user.image || token.picture || null;
       } else if (token?.email) {
+
+    async jwt({ token, user }) {
+      // On first login 'user' is present; afterwards only 'token'
+      if (user) {
+        token.role = user.role || "user";
+        token.picture = user.image || null;
+      } else if (token?.email) {
+        // optional: refresh from DB
         await connectDB();
         const dbUser = await User.findOne({ email: token.email }).lean();
         if (dbUser) {
@@ -117,7 +148,9 @@ const handler = NextAuth({
   },
 
   pages: {
-    signIn: "/login",
+
+    signIn: "/login", // use your custom login page
+
   },
 });
 

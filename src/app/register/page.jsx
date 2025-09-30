@@ -9,10 +9,14 @@ import { FiEye, FiEyeOff } from "react-icons/fi";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [form, setForm] = useState({ name: "", email: "", photoURL: "", password: "" });
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    photoURL: "",
+    password: "",
+  });
   const [pledge, setPledge] = useState(false);
   const [showPw, setShowPw] = useState(false);
-
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
   const [pending, setPending] = useState(false);
@@ -49,25 +53,29 @@ export default function RegisterPage() {
         body: JSON.stringify(form),
       });
       const data = await res.json().catch(() => ({}));
+
       if (!res.ok) {
         setError(data.error || "Registration failed");
         setPending(false);
         return;
       }
 
-      // 2) Auto-send OTP
+      // 2) Auto-send OTP email (non-fatal if it fails)
       const otpRes = await fetch("/api/auth/otp/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: form.email, reason: "verify_email" }),
       });
-      setInfo(
-        otpRes.ok
-          ? "Account created. We’ve sent a verification code to your email."
-          : "Account created. If you don’t see an email, request a code on the next page."
-      );
 
-      // 3) Go to verify page
+      if (!otpRes.ok) {
+        setInfo(
+          "Account created. We couldn't send the code automatically, but you can request it on the next page."
+        );
+      } else {
+        setInfo("Account created. We've sent a verification code to your email.");
+      }
+
+      // 3) Redirect to verify page
       router.push(`/verify-otp?email=${encodeURIComponent(form.email)}`);
     } catch {
       setError("Something went wrong. Try again.");
@@ -94,7 +102,8 @@ export default function RegisterPage() {
             Create your adopter account
           </h1>
           <p className="mb-6 text-center text-sm text-gray-600">
-            Join the community. <span className="text-emerald-700 font-medium">Adopt love.</span>
+            Join the community.{" "}
+            <span className="text-emerald-700 font-medium">Adopt love.</span>
           </p>
 
           {info && (
@@ -110,7 +119,9 @@ export default function RegisterPage() {
 
           <form onSubmit={onSubmit} className="space-y-5">
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Full Name</label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                Full Name
+              </label>
               <div className="relative">
                 <FaUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
@@ -125,7 +136,9 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Email</label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                Email
+              </label>
               <div className="relative">
                 <FaEnvelope className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
@@ -141,7 +154,9 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Photo URL</label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                Photo URL
+              </label>
               <div className="relative">
                 <FaLink className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
@@ -155,7 +170,9 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Password</label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                Password
+              </label>
               <div className="relative">
                 <FaLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
@@ -178,7 +195,7 @@ export default function RegisterPage() {
                 </button>
               </div>
 
-              {/* strength */}
+              {/* Strength meter */}
               <div className="mt-2 h-1.5 w-full bg-gray-200 rounded">
                 <div
                   className={`h-full rounded transition-all ${
