@@ -1,27 +1,24 @@
-// src/lib/mongoose.js  (server-only)
+// src/lib/mongoose.js
+import "server-only";
 import mongoose from "mongoose";
 
-const { MONGODB_URI, DB_NAME } = process.env;
-if (!MONGODB_URI) {
-  throw new Error("Missing MONGODB_URI. Add it to .env.local (and Vercel envs).");
-}
-
-// Reuse the connection across HMR/Turbopack reloads
-let cached = global._mongoose;
-if (!cached) {
-  cached = global._mongoose = { conn: null, promise: null };
-}
+// cache across HMR / lambda re-use
+let cached = global._mongoose || { conn: null, promise: null };
+global._mongoose = cached;
 
 export async function connectDB() {
   if (cached.conn) return cached.conn;
 
+  const uri = process.env.MONGODB_URI; // ✅ server-only
+  if (!uri) throw new Error("Set MONGODB_URI in .env.local (and Vercel envs)");
+
   if (!cached.promise) {
     cached.promise = mongoose
-      .connect(MONGODB_URI, {
-        dbName: DB_NAME || "pawfectMatch",
+      .connect(uri, {
+        dbName: process.env.MONGODB_DB || "pawfectMatch", // ✅ consistent name
         bufferCommands: false,
       })
-      .then((m) => m);
+      .then((m) => m.connection);
   }
 
   cached.conn = await cached.promise;
