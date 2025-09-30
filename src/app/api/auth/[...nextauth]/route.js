@@ -55,6 +55,7 @@ const handler = NextAuth({
           image: user.photoURL || null,
           role: user.role || "user",
         };
+        
       },
     }),
 
@@ -72,7 +73,7 @@ const handler = NextAuth({
     // GitHub
     GitHubProvider({
       clientId: process.env.GITHUB_CLIENT_ID || process.env.GITHUB_ID || "",
-      clientSecret: process.env.GITHUB_CLIENT_SECRET || process.env.GITHUB_SECRET || "",
+      clientSecret: process.env.GITHUB_CLIENT_SECRET || process.env.GITHUB_SECRET || ""}),
 
     GitHubProvider({
       clientId: process.env.GITHUB_ID || "",
