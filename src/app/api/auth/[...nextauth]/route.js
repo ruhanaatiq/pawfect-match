@@ -1,3 +1,4 @@
+// src/app/api/auth/[...nextauth]/route.js
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
@@ -7,41 +8,32 @@ import bcrypt from "bcryptjs";
 import { connectDB } from "@/lib/mongoose";
 import User from "@/models/User";
 
-export const runtime = "nodejs"; // required for DB work (not Edge)
+export const runtime = "nodejs";              // ✅ NextAuth needs Node runtime
+export const dynamic = "force-dynamic";       // ✅ avoid caching the auth route in dev/prod
 
+function defined(str) {
+  return typeof str === "string" && str.trim().length > 0;
+}
 
-const handler = NextAuth({
-  session: { strategy: "jwt" },
-
-  providers: [
-
-    // Email + password
-
-    CredentialsProvider({
-      name: "Credentials",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
-      },
-      authorize: async (credentials) => {
+// Build providers defensively to avoid init-time crashes
+const providers = [
+  CredentialsProvider({
+    name: "Credentials",
+    credentials: {
+      email: { label: "Email", type: "email" },
+      password: { label: "Password", type: "password" },
+    },
+    authorize: async (credentials) => {
+      try {
         await connectDB();
-        const { email, password } = credentials || {};
+        const { email, password } = credentials ?? {};
         if (!email || !password) return null;
 
-
-        const user = await User.findOne({ email }).lean();
+        const user = await User.findOne({ email: String(email).toLowerCase() }).lean();
         if (!user || !user.passwordHash) return null;
 
-        // Block unverified accounts (OTP flow)
         if (!user.emailVerifiedAt) {
-
-        const user = await User.findOne({ email });
-        if (!user || !user.passwordHash) return null;
-
-        // Block unverified accounts (since you added OTP)
-        if (!user.emailVerifiedAt) {
-          // Throwing error lets you show "Email not verified" in the UI
-
+          // Bubble a clean error (NextAuth turns this into JSON, not HTML)
           throw new Error("Email not verified");
         }
 
@@ -55,103 +47,124 @@ const handler = NextAuth({
           image: user.photoURL || null,
           role: user.role || "user",
         };
-        
-      },
-    }),
+      } catch (err) {
+        console.error("[authorize] error:", err);
+        // Returning null → 401 JSON, not an HTML error page
+        return null;
+      }
+    },
+  }),
+];
 
-
-    // Google (optional)
-
-    // Optional social providers
-
+// Only push Google/GitHub if envs are present; empty strings can crash init
+if (defined(process.env.GOOGLE_CLIENT_ID) && defined(process.env.GOOGLE_CLIENT_SECRET)) {
+  providers.push(
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-    }),
-
-
-    // GitHub
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      allowDangerousEmailAccountLinking: true,
+    })
+  );
+}
+if (
+  defined(process.env.GITHUB_ID || process.env.GITHUB_CLIENT_ID) &&
+  defined(process.env.GITHUB_SECRET || process.env.GITHUB_CLIENT_SECRET)
+) {
+  providers.push(
     GitHubProvider({
-      clientId: process.env.GITHUB_CLIENT_ID || process.env.GITHUB_ID || "",
-      clientSecret: process.env.GITHUB_CLIENT_SECRET || process.env.GITHUB_SECRET || ""}),
+      clientId: process.env.GITHUB_ID || process.env.GITHUB_CLIENT_ID,
+      clientSecret: process.env.GITHUB_SECRET || process.env.GITHUB_CLIENT_SECRET,
+      allowDangerousEmailAccountLinking: true,
+    })
+  );
+}
 
-    GitHubProvider({
-      clientId: process.env.GITHUB_ID || "",
-      clientSecret: process.env.GITHUB_SECRET || "",
+const handler = NextAuth({
+  debug: process.env.NODE_ENV !== "production",
 
-    }),
-  ],
+  // Auth.js v5 honors NEXTAUTH_URL/AUTH_TRUST_HOST
+  session: { strategy: "jwt" },
+  providers,
+
+  pages: {
+    signIn: "/login",
+  },
 
   callbacks: {
-
-    // Create/link a User on first OAuth sign-in and mark verified
     async signIn({ user, account, profile }) {
-      if (account?.provider === "github" || account?.provider === "google") {
-        await connectDB();
-        const email = (user?.email || "").toLowerCase();
-        if (!email) return false; // need an email to proceed
+      // Wrap DB work to prevent HTML error pages
+      try {
+        if (account?.provider === "google" || account?.provider === "github") {
+          await connectDB();
+          const email = (user?.email || "").toLowerCase();
+          if (!email) return false;
 
-        const existing = await User.findOne({ email });
-        if (!existing) {
-          await User.create({
-            name: user.name || profile?.name || "User",
-            email,
-            photoURL:
-              user.image ||
-              (account.provider === "github" ? profile?.avatar_url : profile?.picture) ||
-              null,
-            emailVerifiedAt: new Date(), // OAuth email is verified by provider
-            role: "user",
-          });
-        } else {
-          const update = {};
-          if (!existing.emailVerifiedAt) update.emailVerifiedAt = new Date();
-          if (user.name && user.name !== existing.name) update.name = user.name;
-          if (user.image && user.image !== existing.photoURL) update.photoURL = user.image;
-          if (Object.keys(update).length) {
-            await User.updateOne({ _id: existing._id }, { $set: update });
+          const existing = await User.findOne({ email });
+          if (!existing) {
+            await User.create({
+              name: user.name || profile?.name || "User",
+              email,
+              photoURL:
+                user.image ||
+                (account.provider === "github" ? profile?.avatar_url : profile?.picture) ||
+                null,
+              emailVerifiedAt: new Date(),
+              role: "user",
+            });
+          } else {
+            const update = {};
+            if (!existing.emailVerifiedAt) update.emailVerifiedAt = new Date();
+            if (user.name && user.name !== existing.name) update.name = user.name;
+            if (user.image && user.image !== existing.photoURL) update.photoURL = user.image;
+            if (Object.keys(update).length) {
+              await User.updateOne({ _id: existing._id }, { $set: update });
+            }
           }
         }
+        return true;
+      } catch (err) {
+        console.error("[signIn cb] error:", err);
+        return false; // → JSON error, not HTML
       }
-      return true;
     },
 
     async jwt({ token, user }) {
-      // On first login, 'user' exists; afterwards we refresh from DB
-      if (user) {
-        token.role = user.role || token.role || "user";
-        token.picture = user.image || token.picture || null;
-      } else if (token?.email) {
-
-    async jwt({ token, user }) {
-      // On first login 'user' is present; afterwards only 'token'
-      if (user) {
-        token.role = user.role || "user";
-        token.picture = user.image || null;
-      } else if (token?.email) {
-        // optional: refresh from DB
-        await connectDB();
-        const dbUser = await User.findOne({ email: token.email }).lean();
-        if (dbUser) {
-          token.role = dbUser.role || "user";
-          token.picture = dbUser.photoURL || token.picture || null;
-          token.name = dbUser.name || token.name;
+      try {
+        if (user) {
+          token.email = user.email ?? token.email;
+          token.name = user.name ?? token.name;
+          token.picture = user.image ?? token.picture ?? null;
+          token.role = user.role ?? token.role ?? "user";
+          return token;
         }
+        if (token?.email) {
+          await connectDB();
+          const dbUser = await User.findOne({ email: token.email }).lean();
+          if (dbUser) {
+            token.role = dbUser.role || "user";
+            token.picture = dbUser.photoURL ?? token.picture ?? null;
+            token.name = dbUser.name ?? token.name;
+          }
+        }
+        return token;
+      } catch (err) {
+        console.error("[jwt cb] error:", err);
+        return token; // keep token; don’t crash the route
       }
-      return token;
     },
 
     async session({ session, token }) {
-      if (token?.role) session.user.role = token.role;
-      if (token?.picture) session.user.image = token.picture;
-      return session;
+      try {
+        if (session?.user) {
+          session.user.role = token?.role || "user";
+          if (token?.picture) session.user.image = token.picture;
+        }
+        return session;
+      } catch (err) {
+        console.error("[session cb] error:", err);
+        return session;
+      }
     },
-  },
-
-  pages: {
-
-    signIn: "/login", // use your custom login page
-
   },
 });
 
