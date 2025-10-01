@@ -107,7 +107,7 @@ export default function Footer() {
                   <Icon.phone /><a href="tel:+8801700000000">+880 1700 000 000</a>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Icon.mail /><a href="mailto:hello@pawfectmatch.com">hello@pawfectmatch.com</a>
+                  <Icon.mail /><a href="mailto:hello@pawfectmatch.com">pawfectmatchofficiall11.com</a>
                 </li>
                 <li className="flex items-start gap-2">
                   <Icon.map /><span> Dhaka, Bangladesh</span>

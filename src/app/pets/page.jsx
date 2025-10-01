@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
 export default function AllPets() {
@@ -10,40 +10,52 @@ export default function AllPets() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchPets();
+    const ac = new AbortController();
+    (async () => {
+      try {
+        setLoading(true);
+        const res = await fetch("/api/pets", { cache: "no-store", signal: ac.signal });
+        const result = await res.json().catch(() => ({}));
+
+        if (!res.ok || result.success === false) {
+          throw new Error(result?.error || `HTTP ${res.status}`);
+        }
+
+        // Prefer canonical 'items', fallback to legacy 'data'
+        const list = Array.isArray(result.items)
+          ? result.items
+          : Array.isArray(result.data)
+          ? result.data
+          : [];
+
+        const shaped = list.map((p) => {
+          const mainImage = Array.isArray(p.images)
+            ? p.images[0] || "/placeholder-pet.jpg"
+            : p.image || p.images || "/placeholder-pet.jpg";
+
+          return {
+            id: p._id?.toString?.() ?? p.id ?? "",
+            petName: p.petName ?? p.name ?? "Unnamed",
+            petAge: p.petAge ?? p.age ?? "Unknown",
+            petLocation: p.petLocation ?? p.location ?? {},
+            image: mainImage,
+          };
+        });
+
+        setPets(shaped);
+        setError(null);
+      } catch (err) {
+        if (err.name !== "AbortError") setError(err.message || "Failed to fetch pets");
+      } finally {
+        setLoading(false);
+      }
+    })();
+    return () => ac.abort();
   }, []);
 
-  const fetchPets = async () => {
-    try {
-      const response = await fetch("/api/pets");
-      const result = await response.json();
-
-      if (result.success) {
-        // Normalize MongoDB docs
-        const shaped = result.data.map((p) => ({
-          id: p._id?.toString() ?? p.id, // use _id as id
-          petName: p.petName ?? "Unnamed",
-          petAge: p.petAge ?? "Unknown",
-          petLocation: p.petLocation ?? {},
-          images: Array.isArray(p.images)
-            ? p.images[0] ?? "/placeholder-pet.jpg"
-            : p.images ?? "/placeholder-pet.jpg",
-        }));
-        setPets(shaped);
-      } else {
-        setError(result.error);
-      }
-    } catch (err) {
-      setError("Failed to fetch pets");
-      console.error("Error:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Filter pets by name (case-insensitive)
-  const filteredPets = pets.filter((pet) =>
-    pet.petName.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredPets = useMemo(
+    () => pets.filter((pet) => pet.petName.toLowerCase().includes(searchTerm.toLowerCase())),
+    [pets, searchTerm]
   );
 
   if (loading) return <div>Loading pets...</div>;
@@ -55,7 +67,6 @@ export default function AllPets() {
         All Pets: {filteredPets.length}
       </h1>
 
-      {/* Search Bar */}
       <div className="flex justify-center mb-6">
         <input
           type="text"
@@ -73,28 +84,18 @@ export default function AllPets() {
               key={pet.id}
               className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition duration-300"
             >
-              {/* Pet Image */}
               <div className="relative w-full h-80">
-                <img
-                  src={pet.images}
-                  alt={pet.petName}
-                  className="h-80 w-full object-cover"
-                />
+                <img src={pet.image} alt={pet.petName} className="h-80 w-full object-cover" />
               </div>
 
-              {/* Card Content */}
               <div className="p-4">
-                <h2 className="text-lg font-semibold text-gray-800">
-                  {pet.petName}
-                </h2>
+                <h2 className="text-lg font-semibold text-gray-800">{pet.petName}</h2>
                 <p className="text-sm text-gray-600">Age: {pet.petAge}</p>
                 <p className="text-sm text-gray-600">
-                  Location:{" "}
-                  {pet.petLocation?.city ?? "Unknown"},{" "}
-                  {pet.petLocation?.area ?? ""}
+                  Location: {pet.petLocation?.city ?? "Unknown"}
+                  {pet.petLocation?.area ? `, ${pet.petLocation.area}` : ""}
                 </p>
 
-                {/* View Details Button */}
                 <div className="mt-3">
                   <Link
                     href={`/pets/${pet.id}`}

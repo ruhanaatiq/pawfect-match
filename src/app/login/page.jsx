@@ -40,11 +40,6 @@ export default function LoginPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (isLocked) {
-      setError(`Too many failed attempts. Try again in ${lockTime}s.`);
-      return;
-    }
-
     setError(""); setInfo(""); setPending(true);
 
     const result = await signIn("credentials", {
@@ -68,8 +63,6 @@ export default function LoginPage() {
       });
       return;
     }
-
-    setAttempts(0);
     router.push("/");
   }
 
