@@ -1,17 +1,18 @@
 // src/app/dashboard/shelter/page.jsx
 export const dynamic = "force-dynamic";
+import { absoluteUrl } from "@/lib/absolute-url";
+
 async function fetchOverview() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/shelter/overview`, { cache: "no-store" });
+  const res = await fetch(absoluteUrl("/api/shelter/overview"), { cache: "no-store" });
   if (!res.ok) return { cards: [], pending: [], upcoming: [] };
   return res.json();
 }
+
 export default async function ShelterOverview() {
   const { cards, pending, upcoming } = await fetchOverview();
   return (
     <div className="mx-auto max-w-6xl p-6 space-y-6">
       <h1 className="text-xl font-semibold">Shelter Overview</h1>
-
-      {/* Stat cards */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {cards.map(c => (
           <div key={c.key} className="card bg-white shadow rounded-2xl p-4">
@@ -21,8 +22,6 @@ export default async function ShelterOverview() {
           </div>
         ))}
       </div>
-
-      {/* Two-panel: pending requests & upcoming appointments */}
       <div className="grid lg:grid-cols-2 gap-4">
         <div className="bg-white rounded-2xl shadow p-4">
           <div className="font-medium mb-3">Pending Requests</div>
@@ -31,7 +30,9 @@ export default async function ShelterOverview() {
               <li key={r.id} className="py-3 flex items-center justify-between">
                 <div>
                   <div className="font-medium">{r.petName}</div>
-                  <div className="text-xs text-gray-500">{r.applicant.fullName} • {new Date(r.createdAt).toLocaleDateString()}</div>
+                  <div className="text-xs text-gray-500">
+                    {r.applicant.fullName} • {new Date(r.createdAt).toLocaleDateString()}
+                  </div>
                 </div>
                 <a href={`/dashboard/shelter/requests?focus=${r.id}`} className="btn btn-sm">Review</a>
               </li>
