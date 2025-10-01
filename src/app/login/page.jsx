@@ -39,32 +39,58 @@ export default function LoginPage() {
   }, [isLocked, lockTime]);
 
   async function handleSubmit(e) {
-    e.preventDefault();
-    setError(""); setInfo(""); setPending(true);
+  e.preventDefault();
+  if (isLocked) {
+    setError(`Too many failed attempts. Try again in ${lockTime}s.`);
+    return;
+  }
 
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
+  setError("");
+  setInfo("");
+  setPending(true);
+
+  try {
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
     });
 
+    const data = await res.json();
     setPending(false);
 
-    if (result?.error) {
-      setError(result.error);
-      setAttempts((prev) => {
-        const newAttempts = prev + 1;
-        if (newAttempts >= 3) {
-          setIsLocked(true);
-          setLockTime(60); // start countdown
-          setError("Too many failed attempts. Locked for 1 minute.");
-        }
-        return newAttempts;
-      });
+    if (!res.ok) {
+      setError(data.error || "Login failed");
+
+      if (res.status === 403 && data.lockTime) {
+        setIsLocked(true);
+        setLockTime(data.lockTime);
+      } else {
+        setAttempts((prev) => {
+          const newAttempts = prev + 1;
+          if (newAttempts >= 3) {
+            setIsLocked(true);
+            setLockTime(60);
+          }
+          return newAttempts;
+        });
+      }
+
       return;
     }
+
+    // Success
+    setAttempts(0);
+    setIsLocked(false);
+    setLockTime(0);
+    setError("");
+    setInfo("Login successful! Redirecting...");
     router.push("/");
+  } catch (err) {
+    setPending(false);
+    setError("Something went wrong. Please try again.");
   }
+}
 
   async function resendCode() {
     if (!email) { setError("Enter your email first."); return; }
