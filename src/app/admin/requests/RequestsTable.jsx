@@ -86,36 +86,37 @@ export default function RequestsTable() {
 
       {/* Table wrapper */}
       <div className="overflow-x-auto rounded-2xl shadow bg-white">
-        <table className="table w-full min-w-[1000px] table-zebra">
-          {/* Define column widths so headers don't collapse */}
-          <colgroup>
-            <col className="w-10" />          {/* checkbox */}
-            <col className="w-48" />         {/* Request */}
-            <col className="w-56" />         {/* Pet */}
-            <col className="w-64" />         {/* Adopter */}
-            <col className="w-28" />         {/* Status */}
-            <col className="w-40" />         {/* Requested */}
-            <col className="w-56" />         {/* Actions */}
-          </colgroup>
-          <thead className="bg-emerald-50 sticky top-0 z-10">
-            <tr>
-              <th>
-                <input
-                  type="checkbox"
-                  className="checkbox checkbox-sm"
-                  checked={rows.length>0 && selected.size===rows.length}
-                  onChange={(e)=>toggleAll(e.target.checked)}
-                  aria-label="Select all"
-                />
-              </th>
-              <th className="whitespace-nowrap px-4 py-3">Request</th>
-              <th className="whitespace-nowrap px-4 py-3">Pet</th>
-              <th className="whitespace-nowrap px-4 py-3">Adopter</th>
-              <th className="whitespace-nowrap px-4 py-3">Status</th>
-              <th className="whitespace-nowrap px-4 py-3">Requested</th>
-              <th className="whitespace-nowrap px-4 py-3 text-right">Actions</th>
-            </tr>
-          </thead>
+  <table className="table w-full min-w-[1000px] table-zebra">
+    {/* Define column widths so headers don't collapse (comments OUTSIDE colgroup) */}
+    <colgroup>
+      <col className="w-10" />
+      <col className="w-48" />
+      <col className="w-56" />
+      <col className="w-64" />
+      <col className="w-28" />
+      <col className="w-40" />
+      <col className="w-56" />
+    </colgroup>
+
+    <thead className="bg-emerald-50 sticky top-0 z-10">
+      <tr>
+        <th>
+          <input
+            type="checkbox"
+            className="checkbox checkbox-sm"
+            checked={rows.length>0 && selected.size===rows.length}
+            onChange={(e)=>toggleAll(e.target.checked)}
+            aria-label="Select all"
+          />
+        </th>
+        <th className="whitespace-nowrap px-4 py-3">Request</th>
+        <th className="whitespace-nowrap px-4 py-3">Pet</th>
+        <th className="whitespace-nowrap px-4 py-3">Adopter</th>
+        <th className="whitespace-nowrap px-4 py-3">Status</th>
+        <th className="whitespace-nowrap px-4 py-3">Requested</th>
+        <th className="whitespace-nowrap px-4 py-3 text-right">Actions</th>
+      </tr>
+    </thead>
 
           <tbody>
             {rows.map(r => {
