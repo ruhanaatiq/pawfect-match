@@ -38,7 +38,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex h-screen w-screen bg-[url('/paws-bg.png')] bg-repeat bg-emerald-50/60 overflow-hidden">
-      {/* Sidebar */}
+    
       <aside
   className={`md:flex top-16 left-0 h-[calc(100%-4rem)] w-56 lg:w-60 bg-white shadow-lg p-6  flex-col transform transition-transform duration-300 ease-in-out z-40
     ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}
