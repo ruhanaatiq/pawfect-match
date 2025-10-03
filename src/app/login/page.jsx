@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -14,49 +14,92 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
+
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
   const [pending, setPending] = useState(false);
 
+  const [attempts, setAttempts] = useState(0);
+  const [isLocked, setIsLocked] = useState(false);
+  const [lockTime, setLockTime] = useState(0);
+
   const notVerified = error?.toLowerCase().includes("email not verified");
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setError("");
-    setInfo("");
-    setPending(true);
-
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false, // we'll redirect manually
-    });
-
-    setPending(false);
-
-    if (result?.error) {
-      // e.g., "Email not verified"
-      setError(result.error);
-      return;
+  useEffect(() => {
+    let timer;
+    if (isLocked && lockTime > 0) {
+      timer = setInterval(() => {
+        setLockTime((t) => t - 1);
+      }, 1000);
+    } else if (lockTime === 0 && isLocked) {
+      setIsLocked(false);
+      setAttempts(0);
     }
+    return () => clearInterval(timer);
+  }, [isLocked, lockTime]);
 
-    router.push("/");
+  async function handleSubmit(e) {
+  e.preventDefault();
+  if (isLocked) {
+    setError(`Too many failed attempts. Try again in ${lockTime}s.`);
+    return;
   }
 
-  async function resendCode() {
-    if (!email) {
-      setError("Enter your email first.");
+  setError("");
+  setInfo("");
+  setPending(true);
+
+  try {
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await res.json();
+    setPending(false);
+
+    if (!res.ok) {
+      setError(data.error || "Login failed");
+
+      if (res.status === 403 && data.lockTime) {
+        setIsLocked(true);
+        setLockTime(data.lockTime);
+      } else {
+        setAttempts((prev) => {
+          const newAttempts = prev + 1;
+          if (newAttempts >= 3) {
+            setIsLocked(true);
+            setLockTime(60);
+          }
+          return newAttempts;
+        });
+      }
+
       return;
     }
-    setError("");
-    setInfo("");
 
+    // Success
+    setAttempts(0);
+    setIsLocked(false);
+    setLockTime(0);
+    setError("");
+    setInfo("Login successful! Redirecting...");
+    router.push("/");
+  } catch (err) {
+    setPending(false);
+    setError("Something went wrong. Please try again.");
+  }
+}
+
+  async function resendCode() {
+    if (!email) { setError("Enter your email first."); return; }
+    setError(""); setInfo("");
     const res = await fetch("/api/auth/otp/request", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, reason: "verify_email" }),
     });
-
     const j = await res.json().catch(() => ({}));
     if (!res.ok) setError(j.error || "Failed to send code");
     else setInfo("Verification code sent. Check your inbox.");
@@ -77,10 +120,7 @@ export default function LoginPage() {
               Pawfect Match
             </span>
           </div>
-
-          <h1 className="mb-2 text-center text-3xl font-extrabold text-[#4C3D3D]">
-            Welcome back
-          </h1>
+          <h1 className="mb-2 text-center text-3xl font-extrabold text-[#4C3D3D]">Welcome back</h1>
           <p className="mb-6 text-center text-sm text-gray-600">
             Log in to continue your adoption journey.
           </p>
@@ -119,9 +159,7 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
-                Email
-              </label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">Email</label>
               <div className="relative">
                 <FaEnvelope className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
@@ -136,9 +174,7 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
-                Password
-              </label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">Password</label>
               <div className="relative">
                 <FaLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
@@ -159,28 +195,23 @@ export default function LoginPage() {
                 </button>
               </div>
               <div className="mt-2 text-right">
-                <Link
-                  href="/forgot-password"
-                  className="text-xs text-emerald-700 hover:underline"
-                >
+                <Link href="/forgot-password" className="text-xs text-emerald-700 hover:underline">
                   Forgot password?
                 </Link>
               </div>
             </div>
 
             <button
-              type="submit"
-              disabled={pending}
-              className="w-full rounded-lg bg-emerald-600 py-3 text-white font-semibold hover:bg-emerald-700 disabled:opacity-50 transition"
+            type="submit"
+            disabled={pending || isLocked}
+            className="w-full rounded-lg bg-emerald-600 py-3 text-white font-semibold hover:bg-emerald-700 disabled:opacity-50 transition"
             >
-              {pending ? "Logging in…" : "Log in"}
+            {isLocked? `Locked (${lockTime}s)`: pending? "Logging in…": "Log in"}
             </button>
-          </form>
+            </form>
 
           <div className="mt-6">
-            <p className="text-center text-sm text-gray-600 mb-3">
-              or continue with
-            </p>
+            <p className="text-center text-sm text-gray-600 mb-3">or continue with</p>
             <div className="grid grid-cols-1 gap-3">
               <button
                 type="button"
@@ -203,10 +234,7 @@ export default function LoginPage() {
 
           <p className="mt-6 text-center text-sm text-gray-600">
             Don’t have an account?{" "}
-            <Link
-              href="/register"
-              className="text-emerald-700 font-medium hover:underline"
-            >
+            <Link href="/register" className="text-emerald-700 font-medium hover:underline">
               Create one
             </Link>
           </p>
