@@ -99,7 +99,7 @@ const ContactForm = () => {
             <ul className="space-y-5 text-gray-500">
               <li className="flex items-center gap-3">
                 <FaEnvelope className="text-emerald-600" />
-                <span>hello@pawfectmatch.com</span>
+                <span>pawfectmatchofficial11@gmail.com</span>
               </li>
               <li className="flex items-center gap-3">
                 <FaPhoneAlt className="text-emerald-600" />
