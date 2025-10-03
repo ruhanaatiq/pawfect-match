@@ -173,9 +173,11 @@ export default async function AdminHome() {
             <a className="rounded-xl border px-3 py-2 hover:bg-emerald-50" href="/admin/pets">
               Manage Pets
             </a>
-            <a className="rounded-xl border px-3 py-2 hover:bg-emerald-50" href="/admin/staff">
-              Invite / Manage Staff
-            </a>
+            <a className="rounded-md border px-3 py-2 hover:bg-emerald-50"
+   href="/dashboard/shelter/staff">
+  Invite / Manage Staff
+</a>
+
             <a className="rounded-xl border px-3 py-2 hover:bg-emerald-50" href="/admin/shelters">Manage Shelters</a>
 <a className="rounded-xl border px-3 py-2 hover:bg-emerald-50" href="/admin/shelters/new">Add Shelter</a>
 <a className="rounded-xl border px-3 py-2 hover:bg-emerald-50" href="/admin/users">Manage Users</a>
