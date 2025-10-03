@@ -1,16 +1,9 @@
-<<<<<<< HEAD
-import { Suspense } from "react";
-import ResetPasswordClient from "./ResetPasswordClient";
-
-export default function Page() {
-  return <Suspense><ResetPasswordClient /></Suspense>;
-=======
 "use client";
 
 import { useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 
-export default function ResetPasswordPage() {
+export default function ResetPasswordClient() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token"); // from email link
   const router = useRouter();
@@ -23,7 +16,13 @@ export default function ResetPasswordPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(""); setMessage("");
+    setError("");
+    setMessage("");
+
+    if (!token) {
+      setError("Invalid or missing reset token.");
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError("Passwords do not match");
@@ -39,9 +38,7 @@ export default function ResetPasswordPage() {
         body: JSON.stringify({ token, password }),
       });
 
-      const data = await res.json();
-      setPending(false);
-
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setError(data.message || "Something went wrong");
         return;
@@ -49,9 +46,10 @@ export default function ResetPasswordPage() {
 
       setMessage("Password updated successfully! Redirecting to login...");
       setTimeout(() => router.push("/login"), 3000);
-    } catch (err) {
-      setPending(false);
+    } catch {
       setError("Something went wrong");
+    } finally {
+      setPending(false);
     }
   };
 
@@ -63,12 +61,22 @@ export default function ResetPasswordPage() {
             Reset Password
           </h1>
 
-          {error && <div className="mb-4 rounded-md bg-red-100 p-3 text-sm text-red-700 text-center">{error}</div>}
-          {message && <div className="mb-4 rounded-md bg-green-100 p-3 text-sm text-green-700 text-center">{message}</div>}
+          {error && (
+            <div className="mb-4 rounded-md bg-red-100 p-3 text-sm text-red-700 text-center">
+              {error}
+            </div>
+          )}
+          {message && (
+            <div className="mb-4 rounded-md bg-green-100 p-3 text-sm text-green-700 text-center">
+              {message}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">New Password</label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                New Password
+              </label>
               <input
                 type="password"
                 value={password}
@@ -80,7 +88,9 @@ export default function ResetPasswordPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Confirm Password</label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                Confirm Password
+              </label>
               <input
                 type="password"
                 value={confirmPassword}
@@ -103,5 +113,4 @@ export default function ResetPasswordPage() {
       </div>
     </div>
   );
->>>>>>> 30b4ee4e99da753c68cf1718d704bcfbd1410510
 }
