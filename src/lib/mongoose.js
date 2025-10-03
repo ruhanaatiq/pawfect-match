@@ -1,13 +1,31 @@
-// src/lib/mongoose.js (server-only)
+// src/lib/mongoose.js
 import mongoose from "mongoose";
 
-const MONGODB_URI = process.env.MONGODB_URI;
-if (!MONGODB_URI) throw new Error("Add MONGODB_URI to .env.local");
+// Don't throw at import time — NextAuth imports this on /api/auth/session
+const DB_NAME = process.env.MONGODB_DB || process.env.DB_NAME || "pawfectMatch";
 
-let isConnected = false;
+// Reuse connection across reloads
+let cached = global._mongoose;
+if (!cached) {
+  cached = global._mongoose = { conn: null, promise: null, uri: null };
+}
 
 export async function connectDB() {
-  if (isConnected) return;
-  await mongoose.connect(MONGODB_URI, { dbName: "pawfectMatch" });
-  isConnected = true;
+  const uri = process.env.MONGODB_URI || process.env.NEXT_PUBLIC_MONGODB_URI;
+  if (!uri) {
+    // Throw *inside* the function so callers can catch it; never at top level
+    throw new Error("Missing MONGODB_URI (set it in .env.local / Vercel env).");
+  }
+
+  if (cached.conn && cached.uri === uri) return cached.conn;
+
+  if (!cached.promise || cached.uri !== uri) {
+    cached.uri = uri;
+    cached.promise = mongoose
+      .connect(uri, { dbName: DB_NAME, bufferCommands: false })
+      .then((m) => m);
+  }
+
+  cached.conn = await cached.promise;
+  return cached.conn;
 }

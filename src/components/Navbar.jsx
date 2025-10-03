@@ -67,6 +67,7 @@ export default function Navbar() {
           <Link href="/" className="hover:text-emerald-400">Home</Link>
           <Link href="/pets" className="hover:text-emerald-400">Pet Listings</Link>
           <Link href="/adopt" className="hover:text-emerald-400">Adopt</Link>
+          <Link href="/vets" className="hover:text-emerald-400">Vet Details</Link>
           <Link href="/profile" className="hover:text-emerald-400">Profile</Link>
           {role === "admin" && (
             <Link href="/admin" className="hover:text-emerald-400">Dashboard</Link>
@@ -204,7 +205,10 @@ export default function Navbar() {
             ) : (
               <button
                 type="button"
-                onClick={() => { setMenuOpen(false); signOut(); }}
+                onClick={() => {
+                  setMenuOpen(false);
+                  signOut();
+                }}
                 className="mt-3 w-full text-center px-4 py-2 rounded-md border border-red-500 text-red-600 hover:bg-red-50 transition"
               >
                 Logout
