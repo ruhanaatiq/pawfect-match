@@ -182,7 +182,7 @@ export default function Navbar() {
             )}
 
             <Link href="/profile" onClick={() => setMenuOpen(false)}>Profile</Link>
-            {role === "admin" && <Link href="/admin" onClick={() => setMenuOpen(false)}>Dashboard</Link>}
+            {role === "admin" && <Link href="/admin" onClick={() => setMenuOpen(false)}> Dashboard</Link>}
 
 
             {!session ? (

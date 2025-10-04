@@ -23,7 +23,7 @@ export default function EditShelterForm({ shelter }) {
       });
       const j = await res.json().catch(() => ({}));
       if (!res.ok || j.ok === false) throw new Error(j.error || `Failed (${res.status})`);
-      router.refresh(); // show updated data
+      router.refresh();
     } catch (err) {
       setError(err.message || "Failed");
     } finally {
