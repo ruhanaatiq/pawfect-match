@@ -1,108 +1,156 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
-export default function EditShelterForm({ shelter }) {
+export default function EditShelterForm({ id, shelter }) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
+  const [info, setInfo] = useState("");
   const [error, setError] = useState("");
+  const [isPending, startTransition] = useTransition();
+
+  if (!id) return <p className="text-red-600">Missing shelter id.</p>;
+  if (!shelter) return <p className="text-red-600">Shelter not found.</p>;
 
   async function onSubmit(e) {
     e.preventDefault();
-    const fd = new FormData(e.currentTarget);
-    const body = Object.fromEntries(fd.entries());
+    setError("");
+    setInfo("");
+    setSaving(true);
+
+    const form = new FormData(e.currentTarget);
+    const payload = {
+      name: String(form.get("name") || "").trim(),
+      country: String(form.get("country") || "").trim(),
+      description: String(form.get("description") || "").trim(),
+    };
 
     try {
-      setSaving(true);
-      setError("");
-      const res = await fetch(`/api/admin/shelters/${shelter._id || shelter.id}`, {
+      // ✅ assign fetch to res
+      const res = await fetch(`/api/admin/shelters/${id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload),
       });
-      const j = await res.json().catch(() => ({}));
-      if (!res.ok || j.ok === false) throw new Error(j.error || `Failed (${res.status})`);
-      router.refresh();
+
+      const j = await safeJson(res);
+      if (!res.ok) throw new Error(j?.error || `Save failed (${res.status})`);
+
+      // ✅ redirect to Manage Shelters after saving
+      startTransition(() => {
+        router.push("/admin/shelters");
+        router.refresh();
+      });
     } catch (err) {
-      setError(err.message || "Failed");
+      setError(err.message || "Something went wrong while saving.");
     } finally {
       setSaving(false);
     }
   }
 
   async function onDelete() {
-    if (!confirm("Delete this shelter?")) return;
-    const res = await fetch(`/api/admin/shelters/${shelter._id || shelter.id}`, { method: "DELETE" });
-    const j = await res.json().catch(() => ({}));
-    if (res.ok && j.ok !== false) router.push("/admin/shelters");
-    else alert(j.error || "Delete failed");
+    if (!confirm("Delete this shelter? This cannot be undone.")) return;
+
+    setError("");
+    setInfo("");
+    setSaving(true);
+
+    try {
+      const res = await fetch(`/api/admin/shelters/${id}`, { method: "DELETE" });
+      const j = await safeJson(res);
+      if (!res.ok) throw new Error(j?.error || `Delete failed (${res.status})`);
+
+      router.push("/admin/shelters");
+      startTransition(() => router.refresh());
+    } catch (err) {
+      setError(err.message || "Something went wrong while deleting.");
+      setSaving(false);
+    }
   }
 
+  const disabled = saving || isPending;
+
   return (
-    <form onSubmit={onSubmit} className="grid grid-cols-1 gap-4 rounded-2xl bg-white/90 p-6 shadow-sm ring-1 ring-black/5">
-      {error && <div className="rounded-lg bg-red-50 text-red-700 px-3 py-2 text-sm">{error}</div>}
+    <form
+      onSubmit={onSubmit}
+      className="grid grid-cols-1 gap-4 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5"
+      noValidate
+    >
+      {info && (
+        <p className="rounded-lg bg-emerald-50 px-3 py-2 text-emerald-700">
+          {info}
+        </p>
+      )}
+      {error && (
+        <p className="rounded-lg bg-red-50 px-3 py-2 text-red-700">
+          {error}
+        </p>
+      )}
 
       <label className="grid gap-1">
         <span className="text-sm text-gray-600">Name *</span>
-        <input name="name" defaultValue={shelter.name} required className="rounded-xl border px-3 py-2" />
+        <input
+          name="name"
+          defaultValue={shelter.name ?? ""}
+          required
+          className="rounded-xl border px-3 py-2"
+          aria-required="true"
+        />
       </label>
-
-      <div className="grid sm:grid-cols-2 gap-4">
-        <label className="grid gap-1">
-          <span className="text-sm text-gray-600">Email</span>
-          <input name="email" defaultValue={shelter.email ?? ""} className="rounded-xl border px-3 py-2" />
-        </label>
-        <label className="grid gap-1">
-          <span className="text-sm text-gray-600">Phone</span>
-          <input name="phone" defaultValue={shelter.phone ?? ""} className="rounded-xl border px-3 py-2" />
-        </label>
-      </div>
-
-      <label className="grid gap-1">
-        <span className="text-sm text-gray-600">Website</span>
-        <input name="website" defaultValue={shelter.website ?? ""} className="rounded-xl border px-3 py-2" />
-      </label>
-
-      <label className="grid gap-1">
-        <span className="text-sm text-gray-600">Address</span>
-        <input name="address" defaultValue={shelter.address ?? ""} className="rounded-xl border px-3 py-2" />
-      </label>
-
-      <div className="grid sm:grid-cols-3 gap-4">
-        <label className="grid gap-1">
-          <span className="text-sm text-gray-600">City</span>
-          <input name="city" defaultValue={shelter.city ?? ""} className="rounded-xl border px-3 py-2" />
-        </label>
-        <label className="grid gap-1">
-          <span className="text-sm text-gray-600">State</span>
-          <input name="state" defaultValue={shelter.state ?? ""} className="rounded-xl border px-3 py-2" />
-        </label>
-        <label className="grid gap-1">
-          <span className="text-sm text-gray-600">Postal Code</span>
-          <input name="postalCode" defaultValue={shelter.postalCode ?? shelter.zip ?? ""} className="rounded-xl border px-3 py-2" />
-        </label>
-      </div>
 
       <label className="grid gap-1">
         <span className="text-sm text-gray-600">Country</span>
-        <input name="country" defaultValue={shelter.country ?? ""} className="rounded-xl border px-3 py-2" />
+        <input
+          name="country"
+          defaultValue={shelter.country ?? ""}
+          className="rounded-xl border px-3 py-2"
+        />
       </label>
 
       <label className="grid gap-1">
         <span className="text-sm text-gray-600">Description</span>
-        <textarea name="description" rows={4} defaultValue={shelter.description ?? ""} className="rounded-xl border px-3 py-2" />
+        <textarea
+          name="description"
+          rows={4}
+          defaultValue={shelter.description ?? ""}
+          className="rounded-xl border px-3 py-2"
+        />
       </label>
 
-      <div className="flex gap-3">
-        <button disabled={saving} className="rounded-xl bg-emerald-600 text-white px-4 py-2 hover:bg-emerald-700 disabled:opacity-50">
-          {saving ? "Saving…" : "Save"}
+      <div className="mt-2 flex gap-3">
+        <button
+          disabled={disabled}
+          className="rounded-xl bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700 disabled:opacity-60"
+        >
+          {saving ? "Saving..." : "Save"}
         </button>
-        <a href="/admin/shelters" className="rounded-xl border px-4 py-2 hover:bg-emerald-50">Back</a>
-        <button type="button" onClick={onDelete} className="ml-auto rounded-xl bg-red-600 text-white px-4 py-2 hover:bg-red-700">
+
+        <a
+          href="/admin/shelters"
+          className="rounded-xl border px-4 py-2 hover:bg-emerald-50"
+        >
+          Back
+        </a>
+
+        <button
+          type="button"
+          onClick={onDelete}
+          disabled={disabled}
+          className="ml-auto rounded-xl bg-red-600 px-4 py-2 text-white hover:bg-red-700 disabled:opacity-60"
+        >
           Delete
         </button>
       </div>
     </form>
   );
+}
+
+// Safely parse JSON (handles empty bodies)
+async function safeJson(res) {
+  try {
+    return await res.json();
+  } catch {
+    return null;
+  }
 }

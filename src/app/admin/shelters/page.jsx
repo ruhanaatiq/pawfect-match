@@ -3,41 +3,57 @@ export const dynamic = "force-dynamic";
 
 import { auth } from "@/auth";
 import { absoluteUrl } from "@/lib/absolute-url";
+import { headers } from "next/headers";
+import DeleteShelterButton from "./_components/DeleteShelterButton.client";
 
 export default async function SheltersList({ searchParams }) {
+  // Auth gate
   const session = await auth();
   const isAdmin = ["admin", "superadmin"].includes(session?.user?.role);
   if (!isAdmin) return <div className="p-6">Forbidden</div>;
 
-  const q = (searchParams?.q ?? "").toString();
-  const page = Math.max(1, Number(searchParams?.page ?? 1) || 1);
+  // Next 15: await searchParams
+  const sp = await searchParams;
+  const q = String(sp?.q ?? "");
+  const page = Math.max(1, Number(sp?.page ?? 1) || 1);
 
-  // Build absolute API URL (IMPORTANT: absoluteUrl is async in Next 15)
+  // Build absolute API URL
   const qs = new URLSearchParams({ q, page: String(page) }).toString();
   const url = await absoluteUrl(`/api/admin/shelters?${qs}`);
+
+  // Forward cookies for auth-protected API
+  const h = await headers();
+  const cookie = h.get("cookie") ?? "";
 
   let items = [];
   let total = 0;
   let pageSize = 20;
 
   try {
-    const res = await fetch(url, { cache: "no-store" });
+    const res = await fetch(url, { cache: "no-store", headers: { cookie } });
     if (res.ok) {
       const data = await res.json();
-      items = Array.isArray(data.items) ? data.items : [];
-      total = Number(data.total ?? 0) || 0;
-      pageSize = Number(data.pageSize ?? data.limit ?? 20) || 20;
+      if (Array.isArray(data)) {
+        items = data;
+        total = data.length;
+      } else {
+        items = Array.isArray(data.items) ? data.items : [];
+        total = Number(data.total ?? items.length ?? 0) || 0;
+        pageSize = Number(data.pageSize ?? data.limit ?? 20) || 20;
+      }
     }
   } catch {
-    // ignore; show empty state
+    // show empty state
   }
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const prevHref = `/admin/shelters?${new URLSearchParams({
-    q, page: String(Math.max(1, page - 1)),
+    q,
+    page: String(Math.max(1, page - 1)),
   })}`;
   const nextHref = `/admin/shelters?${new URLSearchParams({
-    q, page: String(page + 1),
+    q,
+    page: String(page + 1),
   })}`;
 
   return (
@@ -73,7 +89,7 @@ export default async function SheltersList({ searchParams }) {
               <th className="px-4 py-3 text-left">Name</th>
               <th className="px-4 py-3 text-left">Location</th>
               <th className="px-4 py-3 text-left">Contact</th>
-              <th className="px-4 py-3"></th>
+              <th className="px-4 py-3 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y">
@@ -84,7 +100,6 @@ export default async function SheltersList({ searchParams }) {
                 const city = s.city ?? loc.city;
                 const state = s.state ?? loc.state;
                 const country = s.country ?? loc.country;
-
                 return (
                   <tr key={id} className="hover:bg-gray-50">
                     <td className="px-4 py-3 font-medium text-gray-900">{s.name}</td>
@@ -97,10 +112,11 @@ export default async function SheltersList({ searchParams }) {
                     <td className="px-4 py-3 text-right">
                       <a
                         href={`/admin/shelters/${id}`}
-                        className="text-emerald-700 hover:underline"
+                        className="rounded-lg border px-3 py-1.5 text-emerald-700 hover:bg-emerald-50"
                       >
                         Edit
                       </a>
+                      <DeleteShelterButton id={id} />
                     </td>
                   </tr>
                 );
