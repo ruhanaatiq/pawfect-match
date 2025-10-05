@@ -3,8 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { connectDB } from "@/lib/mongoose";
 import Shelter from "@/models/Shelter";
-import Pet from "@/models/Pet"; // assume { name, photos[0], status, species, age, vaccinated, shelter }
-import Reviews from "./Reviews"; // stub component (see below)
+import Pet from "@/models/Pets"; 
+import Reviews from "./Reviews"; 
 
 export const dynamic = "force-dynamic";
 export async function generateMetadata({ params }) {
