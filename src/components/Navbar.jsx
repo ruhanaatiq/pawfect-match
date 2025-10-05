@@ -68,7 +68,11 @@ export default function Navbar() {
           <Link href="/pets" className="hover:text-emerald-400">Pet Listings</Link>
           <Link href="/adopt" className="hover:text-emerald-400">Adopt</Link>
           <Link href="/vets" className="hover:text-emerald-400">Vet Details</Link>
+          <Link href="/pet-care" className="hover:text-emerald-400">Pet Care</Link>
+          <Link href="/profile" className="hover:text-emerald-400">Profile</Link>
+
           <Link href="/shelters">Shelters</Link>
+
           {role === "admin" && (
             <Link href="/admin" className="hover:text-emerald-400">Admin Dashboard</Link>
           )}
@@ -95,6 +99,20 @@ export default function Navbar() {
                 onClick={() => setProfileOpen((v) => !v)}
                 className="flex items-center gap-2 focus:outline-none"
               >
+                {userImage ? (
+                  <Image
+                    src={userImage}
+                    alt={userName}
+                    width={36}
+                    height={36}
+                     unoptimized 
+                    className="rounded-full cursor-pointer border-2 border-emerald-500"
+                  />
+                ) : (
+                  <div className="w-9 h-9 flex items-center justify-center rounded-full bg-emerald-600 text-white font-bold cursor-pointer">
+                    {userName.charAt(0).toUpperCase()}
+                  </div>
+                )}
                 <Image
                   src={userImage}
                   alt={userName}
@@ -174,6 +192,9 @@ export default function Navbar() {
             <Link href="/" onClick={() => setMenuOpen(false)}>Home</Link>
             <Link href="/pets" onClick={() => setMenuOpen(false)}>Pet Listings</Link>
             <Link href="/adopt" onClick={() => setMenuOpen(false)}>Adopt</Link>
+            <Link href="/vets" onClick={() => setMenuOpen(false)}>Vet Details</Link>
+          <Link href="/pet-care" className="hover:text-emerald-400">Pet Care</Link>
+            <Link href="/profile" onClick={() => setMenuOpen(false)}>Profile</Link>
 
             <Link href="/dashboard" onClick={() => setMenuOpen(false)}>User Dashboard</Link>
 

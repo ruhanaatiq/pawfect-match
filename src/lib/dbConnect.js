@@ -1,5 +1,7 @@
 // src/lib/dbConnect.js
+
 import "server-only";
+
 import { MongoClient, ServerApiVersion } from "mongodb";
 
 // Cache across hot reloads (dev) / lambda reuses (prod)
@@ -51,4 +53,5 @@ export async function getCollection(collectionName, name = getDbName()) {
 export const collectionNamesObj = {
   petCollection: "pets",
   vetCollection: "vets",
+dev
 };
