@@ -53,6 +53,7 @@ export default function Navbar() {
           <Link href="/pets" className="hover:text-emerald-400">Pet Listings</Link>
           <Link href="/adopt" className="hover:text-emerald-400">Adopt</Link>
           <Link href="/vets" className="hover:text-emerald-400">Vet Details</Link>
+          <Link href="/pet-care" className="hover:text-emerald-400">Pet Care</Link>
           <Link href="/profile" className="hover:text-emerald-400">Profile</Link>
 
           {role === "admin" && (
@@ -90,6 +91,7 @@ export default function Navbar() {
                     alt={userName}
                     width={36}
                     height={36}
+                     unoptimized 
                     className="rounded-full cursor-pointer border-2 border-emerald-500"
                   />
                 ) : (
@@ -160,6 +162,7 @@ export default function Navbar() {
             <Link href="/pets" onClick={() => setMenuOpen(false)}>Pet Listings</Link>
             <Link href="/adopt" onClick={() => setMenuOpen(false)}>Adopt</Link>
             <Link href="/vets" onClick={() => setMenuOpen(false)}>Vet Details</Link>
+          <Link href="/pet-care" className="hover:text-emerald-400">Pet Care</Link>
             <Link href="/profile" onClick={() => setMenuOpen(false)}>Profile</Link>
 
             {role === "admin" && (

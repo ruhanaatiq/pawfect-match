@@ -19,7 +19,7 @@ export default function VetDetail({ params }) {
       {/* Vet Card */}
       <div className="bg-white shadow-lg rounded-2xl overflow-hidden flex flex-col md:flex-row gap-6">
         {/* Left: Photo */}
-        <div className="flex-shrink-0 w-full md:w-1/2 p-4 md:p-0">
+        <div className="flex-shrink-0 w-full md:w-1/2 p-4 md:p-0 h-[600px]">
           <img
             src={vet.photo}
             alt={vet.name}
