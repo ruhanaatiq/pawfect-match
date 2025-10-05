@@ -2,12 +2,27 @@ import mongoose, { Schema } from "mongoose";
 
 const UserSchema = new Schema(
   {
-    name: { type: String, required: true },
+    fullName: { type: String, required: true }, // clearer than just 'name'
     email: { type: String, required: true, unique: true, index: true },
-    passwordHash: { type: String }, // optional for social-only accounts
+    passwordHash: { type: String }, // optional for social accounts
     photoURL: { type: String },
-    role: { type: String, enum: ["user", "admin", "shelter"], default: "user" },
-    emailVerifiedAt: { type: Date, default: null }, // ✅ verification flag
+
+    role: {
+      type: String,
+      enum: ["user", "shelter", "admin", "superadmin"],
+      default: "user",
+      index: true,
+    },
+
+    status: {
+      type: String,
+      enum: ["active", "suspended", "pending"],
+      default: "active",
+      index: true,
+    },
+
+    emailVerifiedAt: { type: Date, default: null },
+    lastLoginAt: { type: Date },
   },
   { timestamps: true }
 );
