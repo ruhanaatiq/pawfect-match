@@ -9,7 +9,8 @@ import Newsletter from "@/components/Newsletter";
 import CalltoAction from "@/components/CalltoAction";
 import ContactForm from "@/components/ContactForm";
 
-export default function HomePage() {
+export default async function HomePage() {
+   
   return (
     <>
       <Hero />

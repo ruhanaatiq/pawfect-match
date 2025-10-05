@@ -2,27 +2,32 @@
 import "server-only";
 import { MongoClient, ServerApiVersion } from "mongodb";
 
-// cache across hot reloads in dev / lambda reuses
-let cached = global._mongo || { client: null, promise: null };
-global._mongo = cached;
+// Cache across HMR (dev) / lambda re-use (prod)
+let cached = globalThis._mongo || { client: null, promise: null };
+globalThis._mongo = cached;
 
 function getUri() {
-  // ✅ server-only env (never NEXT_PUBLIC_)
-  const uri = process.env.MONGODB_URI;
+  const uri = process.env.MONGODB_URI; // server-only
   if (!uri) throw new Error("Set MONGODB_URI in .env.local");
   return uri;
 }
 
 function getDbName() {
-  return process.env.MONGODB_DB || "pawfectMatch";
+  // Keep a single source of truth for DB name
+  return process.env.MONGODB_DB || process.env.DB_NAME || "pawfectMatch";
 }
 
 /** Get a connected MongoClient (memoized) */
 async function getClient() {
   if (cached.client) return cached.client;
+
   if (!cached.promise) {
     const client = new MongoClient(getUri(), {
-      serverApi: { version: ServerApiVersion.v1, strict: true, deprecationErrors: true },
+      serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
+      },
     });
     cached.promise = client.connect().then((c) => (cached.client = c));
   }
@@ -41,7 +46,13 @@ export async function getCollection(collectionName, name = getDbName()) {
   return db.collection(collectionName);
 }
 
-// (optional) centralize collection names
+/** Centralized collection names */
 export const collectionNamesObj = {
-  petCollection: "pets",
+  pets: "pets",
+  vets: "vets",
+  shelters: "shelters",
+  users: "users",
+    petCollection: "pets",
+  vetCollection: "vets",
+
 };
