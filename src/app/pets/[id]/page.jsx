@@ -26,7 +26,7 @@ function NextArrow(props) {
       style={{
         ...style,
         display: "block",
-        background: "#FFB22C",
+        background: "#00bc7d",
         borderRadius: "50%",
         right: "-25px",
         zIndex: 1,
@@ -44,7 +44,7 @@ function PrevArrow(props) {
       style={{
         ...style,
         display: "block",
-        background: "#FFB22C",
+        background: "#00bc7d",
         borderRadius: "50%",
         left: "-25px",
         zIndex: 1,
@@ -110,9 +110,9 @@ export default function PetDetail() {
   const settings = {
     dots: false,
     infinite: true,
-    speed: 500,
+    speed: 800,
     slidesToShow: 3,
-    slidesToScroll: 1,
+    slidesToScroll: 3,
     arrows: true,
     adaptiveHeight: false,
     nextArrow: <NextArrow />,
@@ -122,12 +122,14 @@ export default function PetDetail() {
         breakpoint: 1024,
         settings: {
           slidesToShow: 2,
+          slidesToScroll: 2,
         },
       },
       {
         breakpoint: 640,
         settings: {
           slidesToShow: 1,
+          slidesToScroll: 1,
         },
       },
     ],
@@ -149,7 +151,7 @@ export default function PetDetail() {
       <div className="my-10">
          <button 
         onClick={() => router.back()} 
-        className="mb-4 px-4 py-2 rounded bg-yellow-400 hover:bg-yellow-500 text-white cursor-pointer "
+        className="mb-4 px-4 py-2 rounded bg-emerald-500 hover:bg-emerald-600 text-white cursor-pointer "
       >
         ← Back
       </button>
@@ -179,7 +181,7 @@ export default function PetDetail() {
                 Meet{" "}
                 <span className="relative">
                   {pet.petName}
-                  <span className="absolute left-0 -bottom-1 w-full h-[3px] bg-[#fccc49] rounded-full"></span>
+                  <span className="absolute left-0 -bottom-1 w-full h-[3px] xl:h-1 bg-emerald-500 rounded-full"></span>
                 </span>
               </h2>
               <div className="grid md:grid-cols-2 gap-y-2 mb-6 md:mb-8 text-gray-700 icons">
@@ -203,7 +205,7 @@ export default function PetDetail() {
                   <strong>Vaccinated:</strong> {pet.vaccinated || 'Yes'}
                 </p>
                 <p className="flex items-center gap-2">
-                  <FaClock /> <strong>Age:</strong> {pet.age} years
+                  <FaClock /> <strong>Age:</strong> {pet.petAge}
                 </p>
                 <p className="flex items-center gap-2">
                   <FaRulerCombined /> <strong>Size:</strong> {pet.size || 'Medium'}
@@ -211,7 +213,7 @@ export default function PetDetail() {
               </div>
 
               <div className="flex items-center text-sm text-gray-500 mb-4">
-                <FaMapMarkerAlt className="mr-2 text-[#FFB22C]" />
+                <FaMapMarkerAlt className="mr-2 text-emerald-600" />
                 {pet.location || 'Location not specified'}
               </div>
 
@@ -220,13 +222,13 @@ export default function PetDetail() {
               {pet.status === 'Available' ? (
                 <button 
                   // onClick={handleAdopt}
-                  className="bg-[#FFB22C] hover:bg-orange-400 text-white font-semibold px-6 py-2 rounded-lg shadow-md w-fit transition-all duration-300 cursor-pointer"
+                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-6 py-2 rounded-lg shadow-md w-fit transition-all duration-300 cursor-pointer"
                 >
                   Adopt Today →
                 </button>
               ) : (
-                <div className="bg-gray-100 px-6 py-2 rounded-lg w-fit">
-                  <span className="text-gray-600 font-semibold">Already Adopted 🎉</span>
+                <div className="bg-yellow-500 px-6 py-2 rounded-lg w-fit">
+                  <span className="text-white font-semibold">Already Adopted </span>
                 </div>
               )}
             </div>
@@ -241,7 +243,7 @@ export default function PetDetail() {
             </h3>
             <div className=" bg-white rounded-2xl shadow p-6 md:p-8 md:px-12 ">
               <table className="table-auto w-full text-left text-gray-700 text-sm md:text-base">
-                <tbody className="divide-y divide-orange-100 ">
+                <tbody className="divide-y divide-emerald-100 ">
                   {pet.shelterInfo?.name && (
                     <tr>
                       <th className="py-2 pr-4 font-semibold">Shelter Name</th>
@@ -295,12 +297,11 @@ export default function PetDetail() {
       {otherPets.length > 0 &&  (
         <div className="max-w-4xl mx-auto px-4 my-16 ">
           <div className="flex items-start">
-            <span className="w-14 mt-2 h-[3px] bg-[#fccc49] rounded-full"></span>
+            <span className="w-14 mt-2 h-[3px] bg-emerald-500 rounded-full"></span>
             <h3 className="text-lg font-bold mb-3"> Available Pets</h3>
           </div>
           <h2 className="text-3xl font-bold mb-8">More Pets For Adoption</h2>
           <div className="grid grid-cols-1 gap-6">
-            <div className="">
               <Slider {...settings}>
                 {otherPets.map((pet) => (
                   <div key={pet.id} className="p-2">
@@ -310,7 +311,6 @@ export default function PetDetail() {
                   </div>
                 ))}
               </Slider>
-            </div>
           </div>
         </div>
       )}
