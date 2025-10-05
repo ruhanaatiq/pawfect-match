@@ -1,0 +1,60 @@
+[33mff167e5[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m added login page and google login
+[33mae84b3b[m[33m ([m[1;31morigin/dev-naiba[m[33m, [m[1;32mdev-naiba[m[33m)[m fixed fetching issues
+[33ma3dcc06[m resolved merged conflicts
+[33meacb707[m local changes to dependencies
+[33m9f06778[m Merge pull request #20 from ruhanaatiq/dev
+[33m9fd6845[m Merge pull request #19 from ruhanaatiq/feature/pet-categories
+[33m5e62d53[m Call to Action CTA
+[33m006c493[m Merge pull request #18 from ruhanaatiq/petdetail
+[33md56c79e[m added pets api
+[33m1295599[m MongoDB connected
+[33mf3dc551[m filtering added to adoption page
+[33m627d89b[m added login and register button in the navbar
+[33m09989e4[m Merge branch 'main' of https://github.com/ruhanaatiq/pawfect-match # Please enter a commit message to explain why this merge is necessary, # especially if it merges an updated upstream into a topic branch. # # Lines starting with '#' will be ignored, and an empty message aborts # the commit.
+[33m68db8b9[m footer section added with links
+[33m8646e56[m Merge pull request #17 from ruhanaatiq/dev
+[33m06248cd[m Merge pull request #16 from ruhanaatiq/petdetail
+[33m7f44402[m modified pet details page
+[33m6bc36c6[m Merge pull request #15 from ruhanaatiq/petdetail
+[33m88e6b77[m added more image in pets json file
+[33m3e5df30[m deleted blog
+[33mbc6e353[m Merge pull request #13 from ruhanaatiq/dev
+[33ma80840e[m Merge branch 'main' into dev
+[33m7490e9f[m Merge pull request #12 from ruhanaatiq/dev-naiba
+[33m55fb682[m added blogsecttion
+[33m65850f3[m Merge pull request #11 from ruhanaatiq/petdetail
+[33m59e1fa4[m added newsletter section in homepage
+[33m64ec8cb[m added others info in details page
+[33mc2bc620[m add icons in details page
+[33m1aca515[m added pets image in mock data
+[33mcddd36d[m Merge pull request #10 from ruhanaatiq/dev-saria
+[33mdb45ce3[m added blog section
+[33ma600a51[m[33m ([m[1;31morigin/dev-saria[m[33m)[m latest version of testimonial section
+[33m3061fdd[m testimonial section updated
+[33m1d9cd22[m testimonials section added
+[33m2cd99d4[m added about us section
+[33mf0790bd[m[33m ([m[1;31morigin/dev[m[33m)[m Merge pull request #9 from ruhanaatiq/dev-saria
+[33m469d3b0[m search bar implemented
+[33ma079d21[m switch to npm
+[33m3f3fe3d[m Merge pull request #8 from ruhanaatiq/dev
+[33m52c333b[m Merge pull request #7 from ruhanaatiq/petdetail
+[33ma31e023[m Merge pull request #4 from ruhanaatiq/feature/pet-categories
+[33me1d8206[m Merge pull request #6 from ruhanaatiq/petdetail
+[33mf42f5e5[m Merge pull request #5 from ruhanaatiq/feature/pet-categories
+[33m18489af[m[33m ([m[1;31morigin/petdetail[m[33m)[m added available pets section
+[33m729c254[m[33m ([m[1;31morigin/feature/pet-categories[m[33m)[m PetCategories
+[33m705a23b[m Merge pull request #3 from ruhanaatiq/petdetail
+[33md4c9972[m create available pets section
+[33m0bfe526[m Merge pull request #2 from ruhanaatiq/petdetail
+[33m90c4475[m added pet image and description
+[33m7e10f65[m Merge pull request #1 from ruhanaatiq/dev-saria
+[33m678169e[m fetching data from json file and added card
+[33md1b6fc4[m petlisting page created
+[33mb100146[m json file added with dummy info
+[33ma3e781e[m updated bg image
+[33mc61a4c1[m removed bg from services section
+[33mc2fab67[m added our services section
+[33m15dab82[m added hero section image
+[33m53bee44[m updated bg and text color
+[33m7ef6838[m first commit
+[33m535c9a5[m Initial commit from Create Next App

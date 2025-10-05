@@ -2,8 +2,10 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+//import dbConnect from "@/lib/dbConnect";
 
 export default function AllPets() {
+  
   const [pets, setPets] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);

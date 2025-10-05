@@ -1,8 +1,10 @@
 // src/lib/dbConnect.js
+
 import "server-only";
+
 import { MongoClient, ServerApiVersion } from "mongodb";
 
-// cache across hot reloads in dev / lambda reuses
+// Cache across hot reloads (dev) / lambda reuses (prod)
 let cached = global._mongo || { client: null, promise: null };
 global._mongo = cached;
 
@@ -20,12 +22,18 @@ function getDbName() {
 /** Get a connected MongoClient (memoized) */
 async function getClient() {
   if (cached.client) return cached.client;
+
   if (!cached.promise) {
     const client = new MongoClient(getUri(), {
-      serverApi: { version: ServerApiVersion.v1, strict: true, deprecationErrors: true },
+      serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
+      },
     });
     cached.promise = client.connect().then((c) => (cached.client = c));
   }
+
   return cached.promise;
 }
 
@@ -41,7 +49,9 @@ export async function getCollection(collectionName, name = getDbName()) {
   return db.collection(collectionName);
 }
 
-// (optional) centralize collection names
+/** Centralized collection names (add as you grow) */
 export const collectionNamesObj = {
   petCollection: "pets",
+  vetCollection: "vets",
+dev
 };

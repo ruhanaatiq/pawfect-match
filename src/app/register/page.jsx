@@ -25,13 +25,14 @@ export default function RegisterPage() {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
   }
 
+  // password strength: 0–3
   const pwScore = useMemo(() => {
     const p = form.password || "";
     let s = 0;
     if (p.length >= 8) s++;
     if (/[0-9]/.test(p)) s++;
     if (/[!@#$%^&*()_\-+=\[\]{};:'",.<>/?\\|]/.test(p)) s++;
-    return s; // 0–3
+    return s;
   }, [form.password]);
 
   async function onSubmit(e) {
@@ -46,7 +47,7 @@ export default function RegisterPage() {
 
     setPending(true);
     try {
-      // 1) Register
+      // 1) Register user
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -55,30 +56,36 @@ export default function RegisterPage() {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        setError(data.error || "Registration failed");
-        setPending(false);
+        if (res.status === 409) setError("Email is already registered.");
+        else setError(data.error || "Registration failed.");
         return;
       }
 
-      // 2) Auto-send OTP email (non-fatal if it fails)
+      // 2) Auto-send OTP (non-fatal)
       const otpRes = await fetch("/api/auth/otp/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: form.email, reason: "verify_email" }),
       });
+      const otpData = await otpRes.json().catch(() => ({}));
 
-      if (!otpRes.ok) {
+      if (!otpRes.ok || otpData.sent === false) {
         setInfo(
-          "Account created. We couldn't send the code automatically, but you can request it on the next page."
+          "Account created. OTP could not be sent automatically. You can request it on the verification page."
         );
       } else {
-        setInfo("Account created. We've sent a verification code to your email.");
+        setInfo("Account created. A verification code has been sent to your email.");
       }
 
-      // 3) Redirect to verify page
+      // Clear password in UI for safety
+      setForm((f) => ({ ...f, password: "" }));
+
+      // 3) Redirect to OTP verification
       router.push(`/verify-otp?email=${encodeURIComponent(form.email)}`);
-    } catch {
+    } catch (err) {
+      console.error("Registration error:", err);
       setError("Something went wrong. Try again.");
+    } finally {
       setPending(false);
     }
   }
@@ -102,8 +109,7 @@ export default function RegisterPage() {
             Create your adopter account
           </h1>
           <p className="mb-6 text-center text-sm text-gray-600">
-            Join the community.{" "}
-            <span className="text-emerald-700 font-medium">Adopt love.</span>
+            Join the community. <span className="text-emerald-700 font-medium">Adopt love.</span>
           </p>
 
           {info && (
@@ -119,9 +125,7 @@ export default function RegisterPage() {
 
           <form onSubmit={onSubmit} className="space-y-5">
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
-                Full Name
-              </label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">Full Name</label>
               <div className="relative">
                 <FaUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
@@ -136,9 +140,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
-                Email
-              </label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">Email</label>
               <div className="relative">
                 <FaEnvelope className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
@@ -154,9 +156,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
-                Photo URL
-              </label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">Photo URL</label>
               <div className="relative">
                 <FaLink className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
@@ -170,9 +170,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
-                Password
-              </label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">Password</label>
               <div className="relative">
                 <FaLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
