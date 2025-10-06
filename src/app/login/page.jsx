@@ -1,16 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { FaPaw, FaEnvelope, FaLock, FaGithub } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
@@ -19,6 +20,11 @@ export default function LoginPage() {
   const [pending, setPending] = useState(false);
 
   const notVerified = error?.toLowerCase().includes("email not verified");
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (status === "authenticated") router.push("/");
+  }, [status, router]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -43,13 +49,13 @@ export default function LoginPage() {
     router.push("/");
   }
 
+  async function handleSocialLogin(provider) {
+    await signIn(provider, { callbackUrl: "/" });
+  }
+
   async function resendCode() {
-    if (!email) {
-      setError("Enter your email first.");
-      return;
-    }
-    setError("");
-    setInfo("");
+    if (!email) { setError("Enter your email first."); return; }
+    setError(""); setInfo("");
 
     const res = await fetch("/api/auth/otp/request", {
       method: "POST",
@@ -78,9 +84,7 @@ export default function LoginPage() {
             </span>
           </div>
 
-          <h1 className="mb-2 text-center text-3xl font-extrabold text-[#4C3D3D]">
-            Welcome back
-          </h1>
+          <h1 className="mb-2 text-center text-3xl font-extrabold text-[#4C3D3D]">Welcome back</h1>
           <p className="mb-6 text-center text-sm text-gray-600">
             Log in to continue your adoption journey.
           </p>
@@ -158,14 +162,6 @@ export default function LoginPage() {
                   {showPw ? <FiEyeOff /> : <FiEye />}
                 </button>
               </div>
-              <div className="mt-2 text-right">
-                <Link
-                  href="/forgot-password"
-                  className="text-xs text-emerald-700 hover:underline"
-                >
-                  Forgot password?
-                </Link>
-              </div>
             </div>
 
             <button
@@ -184,7 +180,7 @@ export default function LoginPage() {
             <div className="grid grid-cols-1 gap-3">
               <button
                 type="button"
-                onClick={() => signIn("google", { callbackUrl: "/" })}
+                onClick={() => handleSocialLogin("google")}
                 className="flex items-center justify-center gap-3 w-full rounded-lg border border-gray-300 py-3 font-medium hover:bg-gray-50 transition"
               >
                 <FcGoogle size={22} />
@@ -192,7 +188,7 @@ export default function LoginPage() {
               </button>
               <button
                 type="button"
-                onClick={() => signIn("github", { callbackUrl: "/" })}
+                onClick={() => handleSocialLogin("github")}
                 className="flex items-center justify-center gap-3 w-full rounded-lg border border-gray-300 py-3 font-medium hover:bg-gray-50 transition"
               >
                 <FaGithub size={22} className="text-gray-800" />
