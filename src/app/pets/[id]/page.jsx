@@ -17,6 +17,8 @@ import { GiDogBowl } from "react-icons/gi";
 import AvailablePetsCard from "@/components/AvailablePetsCard";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
+import UpdateHealthForm from "@/components/UpdateHealthRecords";
+import Link from "next/link";
 
 function NextArrow(props) {
   const { className, style, onClick } = props;
@@ -220,12 +222,14 @@ export default function PetDetail() {
               <p className="text-gray-600 mb-4">{pet.longDescription}</p>
 
               {pet.status === 'Available' ? (
-                <button 
-                  // onClick={handleAdopt}
-                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-6 py-2 rounded-lg shadow-md w-fit transition-all duration-300 cursor-pointer"
-                >
-                  Adopt Today →
-                </button>
+
+                 <Link
+                 href={`/adopt/request/${pet._id}`}
+                 className="bg-[#FFB22C] hover:bg-orange-400 text-white font-semibold px-6 py-2 rounded-lg shadow-md w-fit transition-all duration-300 inline-block"
+                 >
+                 Adopt Today →
+                </Link> 
+
               ) : (
                 <div className="bg-yellow-500 px-6 py-2 rounded-lg w-fit">
                   <span className="text-white font-semibold">Already Adopted </span>
@@ -235,6 +239,35 @@ export default function PetDetail() {
           </div>
         </div>
          
+
+         {/* Health Records Section */}
+<section className="my-10 md:mt-2 md:mb-26 max-w-5xl mx-auto">
+  <h3 className="text-3xl font-bold mb-4 relative">Health Records</h3>
+  <div className=" bg-white rounded-2xl shadow p-6 md:p-8 md:px-12 ">
+    <table className="table-auto w-full text-left text-gray-700 text-sm md:text-base">
+      <tbody className="divide-y divide-orange-100 ">
+        <tr>
+          <th className="py-2 pr-4 font-semibold">Health Condition</th>
+          <td className="py-2">{pet.healthCondition || 'N/A'}</td>
+        </tr>
+        <tr>
+          <th className="py-2 pr-4 font-semibold">Vaccination Status</th>
+          <td className="py-2">{pet.vaccinationStatus || 'N/A'}</td>
+        </tr>
+        <tr>
+          <th className="py-2 pr-4 font-semibold">Last Vet Checkup</th>
+          <td className="py-2">{pet.vetDetails?.lastCheckup || 'N/A'}</td>
+        </tr>
+        <tr>
+        <th className="py-2 pr-4 font-semibold">Temperament</th>
+        <td className="py-2">{pet.temperament || 'N/A'}</td>
+        </tr>
+      </tbody>
+    </table>
+    {/* <UpdateHealthForm petId={pet._id} existing={pet}></UpdateHealthForm> */}
+  </div>
+</section>
+
         {/* Additional Info Table */}
         {(pet.shelterInfo || pet.vetDetails) && (
           <section className="my-10 md:mt-2 md:mb-26 max-w-5xl mx-auto">
