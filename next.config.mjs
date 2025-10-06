@@ -2,9 +2,11 @@
 const nextConfig = {
   images: {
 
+
     domains: ["i.ibb.co", "i.ibb.co.com", "api.dicebear.com"], 
 
     domains: ["i.ibb.co"], // "i.ibb.co.com" is invalid, see note below
+
 
     remotePatterns: [
       {
