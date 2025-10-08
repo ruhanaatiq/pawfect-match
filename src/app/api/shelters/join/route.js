@@ -1,6 +1,7 @@
 import { connectDB } from "@/lib/mongoose";
 import Shelter from "@/models/Shelter";
-import { requireSession, json } from "@/lib/guard";
+import { requireSession } from "@/lib/guard";
+import { NextResponse } from "next/server";
 
 export async function POST(req) {
   const session = await requireSession();
