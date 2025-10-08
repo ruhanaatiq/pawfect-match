@@ -54,5 +54,4 @@ export const collectionNamesObj = {
   users: "users",
     petCollection: "pets",
   vetCollection: "vets",
-
 };
