@@ -69,9 +69,7 @@ export default function Navbar() {
           <Link href="/adopt" className="hover:text-emerald-400">Adopt</Link>
           <Link href="/vets" className="hover:text-emerald-400">Vet Details</Link>
           <Link href="/pet-care" className="hover:text-emerald-400">Pet Care</Link>
-          <Link href="/profile" className="hover:text-emerald-400">Profile</Link>
-
-          <Link href="/shelters">Shelters</Link>
+          <Link href="/shelters" className="hover:text-emerald-400">Shelters</Link>
 
           {role === "admin" && (
             <Link href="/admin" className="hover:text-emerald-400">Admin Dashboard</Link>
@@ -99,13 +97,14 @@ export default function Navbar() {
                 onClick={() => setProfileOpen((v) => !v)}
                 className="flex items-center gap-2 focus:outline-none"
               >
+                {/* SINGLE avatar (image or initial) */}
                 {userImage ? (
                   <Image
                     src={userImage}
                     alt={userName}
                     width={36}
                     height={36}
-                     unoptimized 
+                    unoptimized
                     className="rounded-full cursor-pointer border-2 border-emerald-500"
                   />
                 ) : (
@@ -113,15 +112,8 @@ export default function Navbar() {
                     {userName.charAt(0).toUpperCase()}
                   </div>
                 )}
-                <Image
-                  src={userImage}
-                  alt={userName}
-                  width={36}
-                  height={36}
-                  className="rounded-full cursor-pointer border-2 border-emerald-500"
-                  unoptimized
-                />
               </button>
+
               {profileOpen && (
                 <div className="absolute right-0 mt-2 w-44 rounded-lg bg-white text-gray-800 shadow-lg border p-2 z-50">
                   <div className="px-3 py-2 text-sm text-gray-700 border-b truncate">
@@ -130,13 +122,10 @@ export default function Navbar() {
                   <Link
                     href="/dashboard"
                     role="menuitem"
-
-                  
-
                     className="block px-3 py-2 text-sm rounded hover:bg-emerald-50"
                     onClick={() => setProfileOpen(false)}
                   >
-                   User Dashboard
+                    User Dashboard
                   </Link>
                   {role === "admin" && (
                     <Link
@@ -189,22 +178,22 @@ export default function Navbar() {
                 <div className="text-gray-800 font-medium truncate">{userName}</div>
               </div>
             )}
+
             <Link href="/" onClick={() => setMenuOpen(false)}>Home</Link>
             <Link href="/pets" onClick={() => setMenuOpen(false)}>Pet Listings</Link>
             <Link href="/adopt" onClick={() => setMenuOpen(false)}>Adopt</Link>
             <Link href="/vets" onClick={() => setMenuOpen(false)}>Vet Details</Link>
-          <Link href="/pet-care" className="hover:text-emerald-400">Pet Care</Link>
-            <Link href="/profile" onClick={() => setMenuOpen(false)}>Profile</Link>
+            <Link href="/pet-care" onClick={() => setMenuOpen(false)}>Pet Care</Link>
+            <Link href="/shelters" onClick={() => setMenuOpen(false)}>Shelters</Link>
 
-            <Link href="/dashboard" onClick={() => setMenuOpen(false)}>User Dashboard</Link>
-
-            {role === "admin" && (
-              <Link href="/admin" onClick={() => setMenuOpen(false)}> Admin Dashboard</Link>
+            {session && (
+              <>
+                <Link href="/dashboard" onClick={() => setMenuOpen(false)}>User Dashboard</Link>
+                {role === "admin" && (
+                  <Link href="/admin" onClick={() => setMenuOpen(false)}>Admin Dashboard</Link>
+                )}
+              </>
             )}
-
-            <Link href="/profile" onClick={() => setMenuOpen(false)}>Profile</Link>
-            {role === "admin" && <Link href="/admin" onClick={() => setMenuOpen(false)}> Dashboard</Link>}
-
 
             {!session ? (
               <>
