@@ -1,11 +1,59 @@
 "use client";
 import React from "react";
-import { FaPhone, FaEnvelope, FaCalendarAlt, FaStar, FaLink } from "react-icons/fa";
-
+import {
+  FaPhone,
+  FaEnvelope,
+  FaCalendarAlt,
+  FaStar,
+  FaLink,
+} from "react-icons/fa";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import toast from "react-hot-toast";
 export default function VetDetailClient({ vet }) {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
+  const handleBookAppointment = async () => {
+    if (!session) {
+      toast.error("Please login first.");
+      router.push("/login");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const bookingData = {
+        vetId: vet._id,
+        vetName: vet.name,
+        vetPhoto: vet.photo,
+        specialty: vet.specialties?.join(", "),
+        consultationFee: vet.consultationFee,
+        userEmail: session.user.email,
+        userName: session.user.name,
+      };
+
+      const res = await fetch("/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bookingData),
+      });
+
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || "Failed to book");
+
+      toast.success("Appointment booked!");
+      router.push("/dashboard?tab=my-bookings");
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="px-4 py-8 max-w-5xl mx-auto space-y-10">
-
       {/* Vet Card */}
       <div className="bg-white shadow-lg rounded-2xl overflow-hidden flex flex-col md:flex-row gap-6">
         {/* Left: Photo */}
@@ -21,39 +69,86 @@ export default function VetDetailClient({ vet }) {
         <div className="flex-1 p-6 flex flex-col justify-start space-y-2">
           <h2 className="text-2xl sm:text-3xl font-bold">{vet.name}</h2>
 
-          <p className="text-gray-700"><strong>Specialties:</strong> {vet.specialties?.join(", ")}</p>
-          <p className="text-gray-700"><strong>Organization:</strong> {vet.organization}</p>
-          <p className="text-gray-700"><strong>Education:</strong> {vet.education}</p>
-          <p className="text-gray-700"><strong>Experience:</strong> {vet.experienceYears} years</p>
-          <p className="text-gray-700"><strong>Services Offered:</strong> {vet.servicesOffered?.join(", ")}</p>
-          <p className="text-gray-700"><strong>Consultation Fee:</strong> {vet.consultationFee} BDT</p>
-          <p className="text-gray-700 flex items-center gap-2"><FaCalendarAlt /> <strong>Availability:</strong> {vet.availability}</p>
-          <p className="text-gray-700"><strong>License Number:</strong> {vet.licenseNumber}</p>
-          <p className="text-gray-700"><strong>Last Checkup:</strong> {vet.lastCheckup}</p>
+          <p className="text-gray-700">
+            <strong>Specialties:</strong> {vet.specialties?.join(", ")}
+          </p>
+          <p className="text-gray-700">
+            <strong>Organization:</strong> {vet.organization}
+          </p>
+          <p className="text-gray-700">
+            <strong>Education:</strong> {vet.education}
+          </p>
+          <p className="text-gray-700">
+            <strong>Experience:</strong> {vet.experienceYears} years
+          </p>
+          <p className="text-gray-700">
+            <strong>Services Offered:</strong> {vet.servicesOffered?.join(", ")}
+          </p>
+          <p className="text-gray-700">
+            <strong>Consultation Fee:</strong> {vet.consultationFee} BDT
+          </p>
           <p className="text-gray-700 flex items-center gap-2">
-            <FaLink /> <strong>Health Record:</strong> 
-            <a href={vet.healthRecordLink} target="_blank" className="text-blue-500 hover:underline ml-1">View Record</a>
+            <FaCalendarAlt /> <strong>Availability:</strong> {vet.availability}
+          </p>
+          <p className="text-gray-700">
+            <strong>License Number:</strong> {vet.licenseNumber}
+          </p>
+          <p className="text-gray-700">
+            <strong>Last Checkup:</strong> {vet.lastCheckup}
+          </p>
+          <p className="text-gray-700 flex items-center gap-2">
+            <FaLink /> <strong>Health Record:</strong>
+            <a
+              href={vet.healthRecordLink}
+              target="_blank"
+              className="text-blue-500 hover:underline ml-1"
+            >
+              View Record
+            </a>
           </p>
 
           <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3 mt-4">
-            <a href={`tel:${vet.contact?.phone}`} className="flex items-center gap-2 text-blue-500 hover:underline">
+            <a
+              href={`tel:${vet.contact?.phone}`}
+              className="flex items-center gap-2 text-blue-500 hover:underline"
+            >
               <FaPhone /> {vet.contact?.phone}
             </a>
-            <a href={`mailto:${vet.contact?.email}`} className="flex items-center gap-2 text-blue-500 hover:underline">
+            <a
+              href={`mailto:${vet.contact?.email}`}
+              className="flex items-center gap-2 text-blue-500 hover:underline"
+            >
               <FaEnvelope /> {vet.contact?.email}
             </a>
-            <p className="text-gray-700"><strong>Address:</strong> {vet.contact?.address}</p>
+            <p className="text-gray-700">
+              <strong>Address:</strong> {vet.contact?.address}
+            </p>
           </div>
 
-          <button className="bg-[#f9d66f] hover:bg-[#f9d66f]  font-semibold px-6 py-2 rounded-lg shadow-md w-fit transition-all duration-300 cursor-pointer mt-4">
+          {/* <button className="bg-[#f9d66f] hover:bg-[#f9d66f]  font-semibold px-6 py-2 rounded-lg shadow-md w-fit transition-all duration-300 cursor-pointer mt-4">
             Book Appointment
+          </button> */}
+          <button
+            onClick={handleBookAppointment}
+            disabled={loading || vet.status === "booked"}
+            className={`bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-6 py-2 rounded-lg shadow-md transition-all ${
+              loading ? "opacity-70 cursor-not-allowed" : ""
+            }`}
+          >
+            {loading
+              ? "Booking..."
+              : vet.status === "booked"
+              ? "Booked"
+              : "Book Appointment"}
           </button>
         </div>
       </div>
 
       {/* Reviews */}
       <section className="space-y-4">
-        <h3 className="text-xl sm:text-2xl font-bold">Reviews ({vet.totalReviews})</h3>
+        <h3 className="text-xl sm:text-2xl font-bold">
+          Reviews ({vet.totalReviews})
+        </h3>
         {vet.reviews?.length > 0 ? (
           <div className="space-y-4">
             {vet.reviews.map((review, index) => (
@@ -78,9 +173,15 @@ export default function VetDetailClient({ vet }) {
 
       {/* Metadata */}
       <section className="bg-white shadow rounded-xl p-6 flex flex-col sm:flex-row gap-4 sm:gap-12 text-gray-700 text-sm sm:text-base">
-        <p><strong>Created At:</strong> {vet.createdAt}</p>
-        <p><strong>Last Updated:</strong> {vet.updatedAt}</p>
-        <p><strong>Average Rating:</strong> {vet.averageRating} ⭐</p>
+        <p>
+          <strong>Created At:</strong> {vet.createdAt}
+        </p>
+        <p>
+          <strong>Last Updated:</strong> {vet.updatedAt}
+        </p>
+        <p>
+          <strong>Average Rating:</strong> {vet.averageRating} ⭐
+        </p>
       </section>
     </div>
   );
