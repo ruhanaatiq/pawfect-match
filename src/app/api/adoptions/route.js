@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/mongoose";
 import AdoptionRequest from "@/models/AdoptionRequest";
 import Pet from "@/models/Pets";
 
+// ✅ POST — Submit an adoption request
 export async function POST(req) {
   try {
     await connectDB();
@@ -18,7 +19,9 @@ export async function POST(req) {
     }
 
     const pet = await Pet.findById(petId).lean();
-    if (!pet) return NextResponse.json({ error: "Pet not found" }, { status: 404 });
+    if (!pet) {
+      return NextResponse.json({ error: "Pet not found" }, { status: 404 });
+    }
 
     const doc = await AdoptionRequest.create({
       petId,
@@ -32,6 +35,28 @@ export async function POST(req) {
     return NextResponse.json({ ok: true, id: String(doc._id) }, { status: 201 });
   } catch (err) {
     console.error("Adoption POST error:", err);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
+}
+
+// ✅ GET — Get all adoption requests for a specific user
+export async function GET(req) {
+  try {
+    await connectDB();
+
+    const { searchParams } = new URL(req.url);
+    const email = searchParams.get("email");
+
+    if (!email) {
+      return NextResponse.json({ error: "Email is required" }, { status: 400 });
+    }
+
+    const requests = await AdoptionRequest.find({ "applicant.email": email })
+      .sort({ createdAt: -1 });
+
+    return NextResponse.json(requests, { status: 200 });
+  } catch (err) {
+    console.error("Adoption GET error:", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
