@@ -2,12 +2,26 @@
 import { auth } from "@/auth";
 import { connectDB } from "@/lib/mongoose";
 import Shelter from "@/models/Shelter";
+import User from "@/models/User";                 // ⬅ add this
 import { NextResponse } from "next/server";
 
 export async function requireSession() {
   const session = await auth();
+
+  // If _id missing but we have email, fetch from DB once
+  if (!session?.user?._id && session?.user?.email) {
+    await connectDB();
+    const u = await User.findOne({ email: session.user.email })
+      .select("_id role")
+      .lean();
+
+    if (u) {
+      session.user._id = String(u._id);
+      if (!session.user.role && u.role) session.user.role = u.role;
+    }
+  }
+
   if (!session?.user?._id) {
-    // Always JSON
     throw NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   return session;

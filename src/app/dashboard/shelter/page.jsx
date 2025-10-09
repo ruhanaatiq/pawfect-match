@@ -1,59 +1,55 @@
-// src/app/dashboard/shelter/page.jsx
-export const dynamic = "force-dynamic";
-import { absoluteUrl } from "@/lib/absolute-url";
+// app/dashboard/shelter/page.jsx
+import EditMyShelterForm from "./EditMyShelterForm.client";
+import { headers } from "next/headers";
 
-async function fetchOverview() {
-  const res = await fetch(absoluteUrl("/api/shelter/overview"), { cache: "no-store" });
-  if (!res.ok) return { cards: [], pending: [], upcoming: [] };
-  return res.json();
+export const dynamic = "force-dynamic";
+
+function absoluteUrl(path = "/") {
+  // Prefer explicit base if you set it in env
+  const envBase = process.env.NEXT_PUBLIC_BASE_URL;
+  if (envBase) return new URL(path, envBase).toString();
+
+  // Infer from incoming request (works on Vercel/proxy)
+  const hdrs = headers();
+  const proto = hdrs.get("x-forwarded-proto") || "http";
+  const host  = hdrs.get("x-forwarded-host") || hdrs.get("host") || "localhost:3000";
+  return new URL(path, `${proto}://${host}`).toString();
 }
 
-export default async function ShelterOverview() {
-  const { cards, pending, upcoming } = await fetchOverview();
-  return (
-    <div className="mx-auto max-w-6xl p-6 space-y-6">
-      <h1 className="text-xl font-semibold">Shelter Overview</h1>
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {cards.map(c => (
-          <div key={c.key} className="card bg-white shadow rounded-2xl p-4">
-            <div className="text-sm text-gray-500">{c.label}</div>
-            <div className="text-2xl font-bold">{c.value}</div>
-            <div className="text-xs text-gray-400">{c.delta}</div>
-          </div>
-        ))}
-      </div>
-      <div className="grid lg:grid-cols-2 gap-4">
-        <div className="bg-white rounded-2xl shadow p-4">
-          <div className="font-medium mb-3">Pending Requests</div>
-          <ul className="divide-y">
-            {pending.map(r => (
-              <li key={r.id} className="py-3 flex items-center justify-between">
-                <div>
-                  <div className="font-medium">{r.petName}</div>
-                  <div className="text-xs text-gray-500">
-                    {r.applicant.fullName} • {new Date(r.createdAt).toLocaleDateString()}
-                  </div>
-                </div>
-                <a href={`/dashboard/shelter/requests?focus=${r.id}`} className="btn btn-sm">Review</a>
-              </li>
-            ))}
-            {!pending.length && <div className="text-gray-500 text-sm py-8 text-center">No pending requests</div>}
-          </ul>
-        </div>
+async function getMyShelter() {
+  const url = absoluteUrl("/api/shelters/mine");
+  const res = await fetch(url, { cache: "no-store" });
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data?.shelter ?? data;
+}
 
-        <div className="bg-white rounded-2xl shadow p-4">
-          <div className="font-medium mb-3">Upcoming Appointments</div>
-          <ul className="divide-y">
-            {upcoming.map(a => (
-              <li key={a.id} className="py-3">
-                <div className="font-medium">{a.petName} — {new Date(a.at).toLocaleString()}</div>
-                <div className="text-xs text-gray-500">{a.applicant.fullName} • {a.location}</div>
-              </li>
-            ))}
-            {!upcoming.length && <div className="text-gray-500 text-sm py-8 text-center">Nothing scheduled</div>}
-          </ul>
+export default async function ShelterDashboardPage() {
+  const shelter = await getMyShelter();
+
+  if (!shelter) {
+    return (
+      <main className="mx-auto max-w-3xl p-6">
+        <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5">
+          <h1 className="mb-2 text-2xl font-semibold">Your Shelter</h1>
+          <p className="text-gray-700">You don’t have a shelter profile yet.</p>
+          <div className="mt-4 flex gap-3">
+            <a href="/dashboard/shelter/new" className="rounded-xl bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700">
+              Create Shelter
+            </a>
+            <a href="/dashboard" className="rounded-xl border px-4 py-2 hover:bg-emerald-50">
+              Back to Dashboard
+            </a>
+          </div>
         </div>
-      </div>
-    </div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="mx-auto max-w-3xl p-6">
+      <h1 className="mb-4 text-2xl font-semibold">Edit Shelter</h1>
+      <EditMyShelterForm shelter={shelter} />
+    </main>
   );
 }

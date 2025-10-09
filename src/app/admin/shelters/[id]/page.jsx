@@ -4,24 +4,26 @@ import EditShelterForm from "./EditShelterForm.client";
 
 export const dynamic = "force-dynamic";
 
-async function getBaseUrl() {
+// Keep sync (no async/await here)
+function getBaseUrl() {
   if (process.env.NEXT_PUBLIC_BASE_URL) return process.env.NEXT_PUBLIC_BASE_URL;
 
-  const hdrs = await headers();  // must await
+  const hdrs = headers();
   const host = hdrs.get("x-forwarded-host") || hdrs.get("host");
   const proto = hdrs.get("x-forwarded-proto") || (process.env.VERCEL ? "https" : "http");
   return host ? `${proto}://${host}` : "";
 }
 
 async function getShelter(id) {
-  const base = await getBaseUrl();
-  const res = await fetch(`${base}/api/shelters/${id}`, { cache: "no-store" });
+  const base = getBaseUrl();              // string, not Promise
+  const res  = await fetch(`${base}/api/shelters/${id}`, { cache: "no-store" });
   if (!res.ok) return null;
-  return res.json();
+  const data = await res.json();          // ✅ IMPORTANT
+  return data.shelter ?? data;            // works for either shape
 }
 
 export default async function Page({ params }) {
-  const { id } = await params; // await params
+  const { id } = params;                  // ❌ no await
   const shelter = await getShelter(id);
   if (!shelter) notFound();
 

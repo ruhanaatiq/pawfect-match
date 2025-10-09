@@ -1,4 +1,3 @@
-// src/app/api/shelters/route.js
 import { connectDB } from "@/lib/mongoose";
 import Shelter from "@/models/Shelter";
 import { requireSession } from "@/lib/guard";
@@ -13,13 +12,13 @@ export async function GET() {
     const session = await requireSession();
     await connectDB();
     const shelters = await Shelter.find({ "members.userId": session.user._id })
-      .select("_id name verifiedAt members inviteCode")
+      .select("_id name verifiedAt members inviteCode email phone address")
       .lean();
     return NextResponse.json({ shelters });
   } catch (err) {
-    const status = err?.status || 500;
-    const message = err?.message || "Unexpected error";
-    return NextResponse.json({ error: message }, { status });
+    if (err instanceof Response) return err;
+    console.error(err);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
 
@@ -28,6 +27,7 @@ export async function POST(req) {
     const session = await requireSession();
     const body = await req.json();
     await connectDB();
+
     const inviteCode = crypto.randomBytes(6).toString("hex");
     const shelter = await Shelter.create({
       name: body.name,
@@ -37,13 +37,14 @@ export async function POST(req) {
       inviteCode,
       members: [{ userId: session.user._id, role: "owner" }],
     });
+
     return NextResponse.json(
       { shelter: { ...shelter.toObject(), _id: String(shelter._id) } },
       { status: 201 }
     );
   } catch (err) {
-    const status = err?.status || 500;
-    const message = err?.message || "Unexpected error";
-    return NextResponse.json({ error: message }, { status });
+    if (err instanceof Response) return err;
+    console.error(err);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
