@@ -3,6 +3,7 @@ import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import "./globals.css";
 import { NextAuthProvider } from "./providers";
+import { Toaster } from "react-hot-toast";
 
 export const metadata = {
   title: "PawfectMatch",
@@ -27,6 +28,8 @@ export default function RootLayout({ children }) {
           <main className="mx-auto max-w-6xl px-4">{children}</main>
           <Footer />
         </NextAuthProvider>
+                <Toaster position="top-center" reverseOrder={false} />
+
       </body>
     </html>
   );
