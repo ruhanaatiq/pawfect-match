@@ -152,7 +152,7 @@ export default function UsersTable() {
                     <button
                       className="rounded-lg border px-2 py-1 hover:bg-emerald-50"
                       onClick={async () => {
-                        const next = prompt("Set role (user, seller, admin):", u.role);
+                        const next = prompt("Set role (user, shelter, admin):", u.role);
                         if (!next || next === u.role) return;
                         try { await updateUser(u._id, { role: next }); } catch (e) { alert(e.message); }
                       }}

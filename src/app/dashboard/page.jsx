@@ -4,9 +4,8 @@ import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "react-hot-toast"; // ✅ use hot-toast
 import MyBookings from "@/components/MyBookings";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import {
   FaHeart,
   FaPaw,
@@ -126,10 +125,10 @@ export default function DashboardPage() {
       const res = await fetch(`/api/favorites/${favId}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to remove favorite");
       setFavorites((prev) => prev.filter((f) => f._id !== favId));
-      toast.success("Removed from favorites");
+      toast.success("Removed from favorites"); // ✅ hot-toast
     } catch (e) {
       console.error(e);
-      toast.error("Failed to remove favorite");
+      toast.error("Failed to remove favorite"); // ✅ hot-toast
     }
   }
 
@@ -139,10 +138,10 @@ export default function DashboardPage() {
       const res = await fetch(`/api/adoptions/${selectedApp}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to cancel application");
       setApplications((prev) => prev.filter((a) => a._id !== selectedApp));
-      toast.success("Application canceled successfully!");
+      toast.success("Application canceled successfully!"); // ✅ hot-toast
     } catch (e) {
       console.error(e);
-      toast.error("Failed to cancel application.");
+      toast.error("Failed to cancel application."); // ✅ hot-toast
     } finally {
       setModalOpen(false);
       setSelectedApp(null);
@@ -378,7 +377,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <ToastContainer position="top-right" autoClose={3000} theme="colored" />
+      {/* ❌ Removed <ToastContainer /> – global <Toaster /> in layout handles it */}
     </div>
   );
 }
