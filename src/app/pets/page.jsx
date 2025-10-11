@@ -1,5 +1,6 @@
 // app/dashboard/shelter/pets/page.jsx
 import { headers } from "next/headers";
+import ShelterPetsClient from "./ShelterPets.client"; // ✅ direct import of client component
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +35,10 @@ export default async function ShelterPetsPage() {
         <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5">
           <h1 className="text-2xl font-semibold mb-2">No shelter found</h1>
           <p className="text-gray-700">Join or create a shelter to manage pets.</p>
-          <a href="/dashboard/shelter" className="mt-4 inline-block rounded-xl border px-4 py-2 hover:bg-emerald-50">
+          <a
+            href="/dashboard/shelter"
+            className="mt-4 inline-block rounded-xl border px-4 py-2 hover:bg-emerald-50"
+          >
             Back to Shelter
           </a>
         </div>
@@ -55,21 +59,18 @@ export default async function ShelterPetsPage() {
       </div>
 
       <nav className="flex gap-2 text-sm">
-        <a className="rounded-lg border px-3 py-1.5 hover:bg-emerald-50" href="/dashboard/shelter">Overview</a>
+        <a className="rounded-lg border px-3 py-1.5 hover:bg-emerald-50" href="/dashboard/shelter">
+          Overview
+        </a>
         <span className="rounded-lg border px-3 py-1.5 bg-emerald-50">Pets</span>
-        <a className="rounded-lg border px-3 py-1.5 hover:bg-emerald-50" href="/dashboard/shelter/requests">Requests</a>
+        <a className="rounded-lg border px-3 py-1.5 hover:bg-emerald-50" href="/dashboard/shelter/requests">
+          Requests
+        </a>
       </nav>
 
-      {/* Client list (shelter-only) */}
       <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5">
-        <div suppressHydrationWarning>
-          <ShelterPetsClient shelterId={String(shelter._id)} />
-        </div>
+        <ShelterPetsClient shelterId={String(shelter._id)} />
       </section>
     </main>
   );
 }
-
-// Lazy client import to keep this file server-only
-import dynamic from "next/dynamic";
-const ShelterPetsClient = dynamic(() => import("./ShelterPets.client"), { ssr: false });

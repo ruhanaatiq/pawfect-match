@@ -1,31 +1,43 @@
+// src/app/api/shelters/mine/route.js
 import { NextResponse } from "next/server";
+import { auth } from "@/auth";                  // your NextAuth handler
 import { connectDB } from "@/lib/mongoose";
-import { requireSession } from "@/lib/guard";
 import Shelter from "@/models/Shelter";
 
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const session = await requireSession(); // throws 401 if not signed in
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // In some setups user id can be id/_id/sub
+    const userId =
+      session.user.id || session.user._id || session.user.sub || null;
+    if (!userId) {
+      return NextResponse.json({ error: "No user id on session" }, { status: 401 });
+    }
+
     await connectDB();
 
-    const userId = String(session.user._id);
-    const shelter = await Shelter.findOne({ "members.userId": userId }).lean();
-    if (!shelter) return NextResponse.json({ error: "no shelter" }, { status: 404 });
+    // Find the shelter owned by this user
+    const s = await Shelter.findOne({ ownerId: userId }).lean();
+    if (!s) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
 
-    // Optional: include the caller's role for UI decisions
-    const m = (shelter.members || []).find(m => String(m.userId) === userId);
+    // Serialize _id for the client
     return NextResponse.json({
-      shelter: {
-        ...shelter,
-        _id: String(shelter._id),
-        myRole: m?.role || null,
-      },
+      shelter: { ...s, _id: String(s._id) },
     });
-  } catch (e) {
-    console.error("[GET /api/shelters/mine]", e);
-    // requireSession() may already have thrown a 401 NextResponse
-    return NextResponse.json({ error: "Internal Error" }, { status: 500 });
+  } catch (err) {
+    console.error("GET /api/shelters/mine failed:", err);
+    return NextResponse.json(
+      { error: "Server error", details: String(err?.message || err) },
+      { status: 500 }
+    );
   }
 }
