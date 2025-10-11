@@ -78,3 +78,43 @@ export async function sendOtpEmail(to, code, minutes = 10) {
   console.log("Message sent:", info.messageId);
   return info;
 }
+// Generic mail sender for app features (invites, notifications, etc.)
+export async function sendMail({ to, subject, html, text }) {
+  const t = getTransport();
+  const from = MAIL_FROM || SMTP_USER || "Pawfect Match <no-reply@pawfectmatch.app>";
+
+  const info = await t.sendMail({
+    from,
+    to,
+    subject,
+    html,
+    text,
+  });
+
+  // In dev (streamTransport) this prints the whole email so you can preview it
+  if (info?.message) console.log("\n[mail preview]\n" + info.message.toString());
+  return info;
+}
+
+// Nice convenience for shelter invites (optional)
+export async function sendInviteEmail({ to, shelterName, role, inviteUrl, expiresAt }) {
+  const subject = `You're invited to join ${shelterName} on Pawfect Match`;
+  const text =
+    `You have been invited to join ${shelterName} as ${role}.\n` +
+    `Accept: ${inviteUrl}\n` +
+    (expiresAt ? `This link expires on ${new Date(expiresAt).toLocaleString()}.` : "");
+
+  const html = `
+    <p>You have been invited to join <b>${shelterName}</b> as <b>${role}</b>.</p>
+    <p>
+      <a href="${inviteUrl}"
+         style="display:inline-block;background:#059669;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none">
+        Accept Invitation
+      </a>
+    </p>
+    ${expiresAt ? `<p>This link expires on <b>${new Date(expiresAt).toLocaleString()}</b>.</p>` : ""}
+    <p style="font-size:12px;color:#666">${inviteUrl}</p>
+  `;
+
+  return sendMail({ to, subject, html, text });
+}
