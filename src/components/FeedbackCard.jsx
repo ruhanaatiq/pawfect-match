@@ -9,6 +9,7 @@ export default function FeedbackCards({
   limit = null,
   showHeader = true,
   showReviews = true,
+  grid = 3
 }) {
   const [feedbacks, setFeedbacks] = useState([]);
   const [stats, setStats] = useState({ count: 0, averageRating: 0 });
@@ -110,7 +111,7 @@ export default function FeedbackCards({
       )}
 
       {/* Feedback Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className={`grid grid-cols-1 md:grid-cols-2 ${grid == 3 ? 'lg:grid-cols-3' : 'lg:grid-cols-2'} gap-6`}>
         {feedbacks.map((feedback) => (
           <div
             key={feedback._id}
