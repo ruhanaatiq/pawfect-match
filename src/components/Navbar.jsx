@@ -8,7 +8,8 @@ import { useSession, signOut } from "next-auth/react";
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const { data: session } = useSession();
+  const [isShelterMember, setIsShelterMember] = useState(false); // ← NEW
+  const { data: session, status } = useSession();
   const role = session?.user?.role;
 
   const userName = session?.user?.name || "User";
@@ -20,6 +21,28 @@ export default function Navbar() {
     )}&size=128`;
 
   const dropdownRef = useRef(null);
+
+  // Detect shelter membership once user is authenticated
+  useEffect(() => {
+    let abort = false;
+    async function checkMembership() {
+      try {
+        if (status !== "authenticated") {
+          setIsShelterMember(false);
+          return;
+        }
+        const res = await fetch("/api/shelters/mine", {
+          cache: "no-store",
+          credentials: "same-origin",
+        });
+        if (!abort) setIsShelterMember(res.ok); // 200 => member, 404/401 => not
+      } catch {
+        if (!abort) setIsShelterMember(false);
+      }
+    }
+    checkMembership();
+    return () => { abort = true; };
+  }, [status]);
 
   // Close avatar dropdown on outside click
   useEffect(() => {
@@ -45,21 +68,10 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 border-b bg-[#4C3D3D] text-[#FFF7D4]">
       <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
         {/* Logo */}
-        <Link
-          href="/"
-          className="flex items-center gap-2 text-lg font-bold tracking-tight"
-        >
-          <Image
-            src="/paws.png"
-            alt="Paw Logo"
-            width={28}
-            height={28}
-            className="rounded-full"
-          />
+        <Link href="/" className="flex items-center gap-2 text-lg font-bold tracking-tight">
+          <Image src="/paws.png" alt="Paw Logo" width={28} height={28} className="rounded-full" />
           Pawfect
-          <span className="px-1 rounded bg-black text-white dark:bg-white dark:text-black">
-            Match
-          </span>
+          <span className="px-1 rounded bg-black text-white dark:bg-white dark:text-black">Match</span>
         </Link>
 
         {/* Desktop Menu */}
@@ -71,6 +83,12 @@ export default function Navbar() {
           <Link href="/pet-care" className="hover:text-emerald-400">Pet Care</Link>
           <Link href="/shelters" className="hover:text-emerald-400">Shelters</Link>
           <Link href="/give-feedback" className="hover:text-emerald-400">Give Feedback</Link>
+
+          {isShelterMember && (
+            <Link href="/dashboard/shelter" className="hover:text-emerald-400">
+              Shelter Dashboard
+            </Link>
+          )}
 
           {role === "admin" && (
             <Link href="/admin" className="hover:text-emerald-400">Admin Dashboard</Link>
@@ -98,7 +116,6 @@ export default function Navbar() {
                 onClick={() => setProfileOpen((v) => !v)}
                 className="flex items-center gap-2 focus:outline-none"
               >
-                {/* SINGLE avatar (image or initial) */}
                 {userImage ? (
                   <Image
                     src={userImage}
@@ -116,10 +133,9 @@ export default function Navbar() {
               </button>
 
               {profileOpen && (
-                <div className="absolute right-0 mt-2 w-44 rounded-lg bg-white text-gray-800 shadow-lg border p-2 z-50">
-                  <div className="px-3 py-2 text-sm text-gray-700 border-b truncate">
-                    {userName}
-                  </div>
+                <div className="absolute right-0 mt-2 w-48 rounded-lg bg-white text-gray-800 shadow-lg border p-2 z-50">
+                  <div className="px-3 py-2 text-sm text-gray-700 border-b truncate">{userName}</div>
+
                   <Link
                     href="/dashboard"
                     role="menuitem"
@@ -128,6 +144,17 @@ export default function Navbar() {
                   >
                     User Dashboard
                   </Link>
+
+                  {isShelterMember && (
+                    <Link
+                      href="/dashboard/shelter"
+                      className="block px-3 py-2 text-sm rounded hover:bg-emerald-50"
+                      onClick={() => setProfileOpen(false)}
+                    >
+                      Shelter Dashboard
+                    </Link>
+                  )}
+
                   {role === "admin" && (
                     <Link
                       href="/admin"
@@ -137,6 +164,7 @@ export default function Navbar() {
                       Admin Dashboard
                     </Link>
                   )}
+
                   <button
                     type="button"
                     onClick={() => signOut()}
@@ -191,6 +219,11 @@ export default function Navbar() {
             {session && (
               <>
                 <Link href="/dashboard" onClick={() => setMenuOpen(false)}>User Dashboard</Link>
+                {isShelterMember && (
+                  <Link href="/dashboard/shelter" onClick={() => setMenuOpen(false)}>
+                    Shelter Dashboard
+                  </Link>
+                )}
                 {role === "admin" && (
                   <Link href="/admin" onClick={() => setMenuOpen(false)}>Admin Dashboard</Link>
                 )}
