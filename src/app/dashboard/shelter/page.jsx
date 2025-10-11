@@ -1,59 +1,70 @@
 // src/app/dashboard/shelter/page.jsx
-export const dynamic = "force-dynamic";
-import { absoluteUrl } from "@/lib/absolute-url";
+import { getMyShelter } from "./_server";
+import EditMyShelterForm from "./EditMyShelterForm.client"; // keep your client form
 
-async function fetchOverview() {
-  const res = await fetch(absoluteUrl("/api/shelter/overview"), { cache: "no-store" });
-  if (!res.ok) return { cards: [], pending: [], upcoming: [] };
-  return res.json();
-}
+export const dynamic = "force-dynamic";
 
 export default async function ShelterOverview() {
-  const { cards, pending, upcoming } = await fetchOverview();
-  return (
-    <div className="mx-auto max-w-6xl p-6 space-y-6">
-      <h1 className="text-xl font-semibold">Shelter Overview</h1>
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {cards.map(c => (
-          <div key={c.key} className="card bg-white shadow rounded-2xl p-4">
-            <div className="text-sm text-gray-500">{c.label}</div>
-            <div className="text-2xl font-bold">{c.value}</div>
-            <div className="text-xs text-gray-400">{c.delta}</div>
-          </div>
-        ))}
-      </div>
-      <div className="grid lg:grid-cols-2 gap-4">
-        <div className="bg-white rounded-2xl shadow p-4">
-          <div className="font-medium mb-3">Pending Requests</div>
-          <ul className="divide-y">
-            {pending.map(r => (
-              <li key={r.id} className="py-3 flex items-center justify-between">
-                <div>
-                  <div className="font-medium">{r.petName}</div>
-                  <div className="text-xs text-gray-500">
-                    {r.applicant.fullName} • {new Date(r.createdAt).toLocaleDateString()}
-                  </div>
-                </div>
-                <a href={`/dashboard/shelter/requests?focus=${r.id}`} className="btn btn-sm">Review</a>
-              </li>
-            ))}
-            {!pending.length && <div className="text-gray-500 text-sm py-8 text-center">No pending requests</div>}
-          </ul>
-        </div>
+  const shelter = await getMyShelter();
 
-        <div className="bg-white rounded-2xl shadow p-4">
-          <div className="font-medium mb-3">Upcoming Appointments</div>
-          <ul className="divide-y">
-            {upcoming.map(a => (
-              <li key={a.id} className="py-3">
-                <div className="font-medium">{a.petName} — {new Date(a.at).toLocaleString()}</div>
-                <div className="text-xs text-gray-500">{a.applicant.fullName} • {a.location}</div>
-              </li>
-            ))}
-            {!upcoming.length && <div className="text-gray-500 text-sm py-8 text-center">Nothing scheduled</div>}
-          </ul>
+  if (!shelter) {
+    return (
+      <main>
+        <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5">
+          <h1 className="text-2xl font-semibold mb-2">No shelter found for your account</h1>
+          <p className="text-gray-700">
+            Ask an owner/manager to invite you — or create a shelter if you’re the owner.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <a href="/dashboard/shelter/new" className="rounded-xl bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700">
+              Add Shelter
+            </a>
+            <a href="/invite" className="rounded-xl border px-4 py-2 hover:bg-emerald-50">
+              I have an invite link
+            </a>
+            <a href="/dashboard" className="rounded-xl border px-4 py-2 hover:bg-emerald-50">
+              Back to Dashboard
+            </a>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  const myRole = (shelter.myRole || "").toLowerCase();
+  const canInvite = ["owner", "manager"].includes(myRole);
+
+  return (
+    <main className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-2xl font-semibold">
+          {shelter.name ? `Shelter · ${shelter.name}` : "Your Shelter"}
+        </h1>
+        <div className="flex gap-2">
+          {canInvite && shelter._id && (
+            <a
+              href={`/admin/shelters/${shelter._id}?tab=invites`}
+              className="rounded-xl bg-emerald-600 px-3 py-2 text-sm text-white hover:bg-emerald-700"
+            >
+              Invite / Manage Staff
+            </a>
+          )}
         </div>
       </div>
-    </div>
+
+      {/* Quick nav */}
+      <nav className="flex gap-2 text-sm">
+        <a className="rounded-lg border px-3 py-1.5 bg-emerald-50">Overview</a>
+        <a className="rounded-lg border px-3 py-1.5 hover:bg-emerald-50" href="/dashboard/shelter/pets">Pets</a>
+        <a className="rounded-lg border px-3 py-1.5 hover:bg-emerald-50" href="/dashboard/shelter/requests">Requests</a>
+      </nav>
+
+      {/* Edit form */}
+      <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5">
+        <h2 className="text-lg font-medium mb-4">Edit Shelter</h2>
+        <EditMyShelterForm shelter={shelter} />
+      </section>
+    </main>
   );
 }
