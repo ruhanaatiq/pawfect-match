@@ -1,10 +1,10 @@
 "use client";
 import React from "react";
-import { FaMapMarkerAlt, FaPhoneAlt, FaEnvelope, FaFacebookF, FaTwitter, FaInstagram } from "react-icons/fa";
-
+import { FaMapMarkerAlt, FaPhoneAlt, FaEnvelope, FaFacebookF, FaInstagram } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 const icons = [
   { Icon: FaFacebookF, href: "#" },
-  { Icon: FaTwitter, href: "#" },
+  { Icon: FaXTwitter, href: "#" },
   { Icon: FaInstagram, href: "#" },
 ];
 
@@ -90,8 +90,8 @@ const ContactForm = () => {
         </div>
 
         {/* Contact Info Section */}
-        <div className="hidden absolute  top-1/2 -translate-y-1/2 right-10 xl:right-1/14 bg-gray-100 p-5 rounded-tr-[150px] rounded-2xl lg:flex flex-col justify-center items-center">
-          <div className="bg-white rounded-2xl rounded-tr-[150px] shadow p-10 py-16 ">
+        <div className="hidden absolute  top-1/2 -translate-y-1/2 right-10 xl:right-1/14 bg-gray-100 p-5 rounded-tr-[150px] rounded-2xl lg:flex flex-col justify-center items-center ">
+          <div className="bg-white rounded-2xl rounded-tr-[150px] shadow p-5 py-16">
             <h3 className="text-3xl font-bold text-emerald-700 mb-5 flex items-center gap-2">
               <span className="w-3 h-3 bg-emerald-500 rounded-full"></span>
               Reach Us

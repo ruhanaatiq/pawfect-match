@@ -1,5 +1,7 @@
 "use client";
 
+import FeedbackCards from "@/components/FeedbackCard";
+import MyFeedback from "@/components/Feedbacks";
 import MyBookings from "@/components/MyBookings";
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
@@ -14,10 +16,13 @@ import {
   FaSignOutAlt,
   FaBars,
   FaCalendarAlt,
+  FaComments,
+  FaStar,
 } from "react-icons/fa";
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
+  // console.log(session , session.user)
   //const [activeTab, setActiveTab] = useState("applications");
   const searchParams = useSearchParams();
   const initialTab = searchParams.get("tab") || "applications";
@@ -127,6 +132,26 @@ export default function DashboardPage() {
             }`}
           >
             <FaCalendarCheck className="mr-2" /> My Bookings
+          </button>
+          <button
+            onClick={() => setActiveTab("my-feedback")}
+            className={`flex items-center w-full px-3 py-2 rounded-lg text-left transition ${
+              activeTab === "my-feedback"
+                ? "bg-emerald-600 text-white"
+                : "text-gray-700 hover:bg-emerald-100"
+            }`}
+          >
+            <FaComments className="mr-2" /> My Feedback
+          </button>
+          <button
+            onClick={() => setActiveTab("users-reviews")}
+            className={`flex items-center w-full px-3 py-2 rounded-lg text-left transition ${
+              activeTab === "users-reviews"
+                ? "bg-emerald-600 text-white"
+                : "text-gray-700 hover:bg-emerald-100"
+            }`}
+          >
+            <FaStar className="mr-2" /> Reviews
           </button>
         </nav>
 
@@ -245,6 +270,20 @@ export default function DashboardPage() {
             <section>
               <h3 className="text-xl font-semibold mb-4">My Bookings</h3>
               <MyBookings />
+            </section>
+          )}
+          {/* User Feedback */}
+          {activeTab === "my-feedback" && (
+                       <section>
+              <h3 className="text-xl font-semibold mb-4"> My Feedback</h3>
+              <MyFeedback/>
+            </section>
+          )}
+          {/* Reviews */}
+          {activeTab === "users-reviews" && (
+            <section>
+              <h3 className="text-xl font-semibold mb-4"> All Users Reviews</h3>
+             <FeedbackCards limit={null} showHeader={false}/>
             </section>
           )}
         </div>
