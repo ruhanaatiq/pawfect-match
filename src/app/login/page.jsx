@@ -25,6 +25,21 @@ export default function LoginPage() {
   const [lockTime, setLockTime] = useState(0);
 
   const notVerified = error?.toLowerCase().includes("email not verified");
+
+  // Redirect if already logged in
+  useEffect(() => {
+    let timer;
+    if (isLocked && lockTime > 0) {
+      timer = setInterval(() => {
+        setLockTime((t) => t - 1);
+      }, 1000);
+    } else if (lockTime === 0 && isLocked) {
+      setIsLocked(false);
+      setAttempts(0);
+    }
+    return () => clearInterval(timer);
+  }, [isLocked, lockTime]);
+
   async function handleSubmit(e) {
   e.preventDefault();
   if (isLocked) {
@@ -74,19 +89,14 @@ export default function LoginPage() {
     setInfo("Login successful! Redirecting...");
     router.push("/");
   } catch (err) {
-      setPending(false);
-      setError("Something went wrong. Try again.");
-    }
+    setPending(false);
+    setError("Something went wrong. Please try again.");
   }
-  
-  async function resendCode() {
-    if (!email) {
-      setError("Enter your email first.");
-      return;
-    }
-    setError("");
-    setInfo("");
+}
 
+  async function resendCode() {
+    if (!email) { setError("Enter your email first."); return; }
+    setError(""); setInfo("");
     const res = await fetch("/api/auth/otp/request", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -112,9 +122,7 @@ export default function LoginPage() {
               Pawfect Match
             </span>
           </div>
-          <h1 className="mb-2 text-center text-3xl font-extrabold text-[#4C3D3D]">
-            Welcome back
-          </h1>
+          <h1 className="mb-2 text-center text-3xl font-extrabold text-[#4C3D3D]">Welcome back</h1>
           <p className="mb-6 text-center text-sm text-gray-600">
             Log in to continue your adoption journey.
           </p>
@@ -188,11 +196,8 @@ export default function LoginPage() {
                   {showPw ? <FiEyeOff /> : <FiEye />}
                 </button>
               </div>
-                <div className="mt-2 text-right">
-                <Link
-                  href="/forgot-password"
-                  className="text-xs text-emerald-700 hover:underline"
-                >
+              <div className="mt-2 text-right">
+                <Link href="/forgot-password" className="text-xs text-emerald-700 hover:underline">
                   Forgot password?
                 </Link>
               </div>

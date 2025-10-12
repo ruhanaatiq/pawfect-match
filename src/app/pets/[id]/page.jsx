@@ -228,8 +228,7 @@ export default function PetDetail() {
                  className="bg-[#FFB22C] hover:bg-orange-400 text-white font-semibold px-6 py-2 rounded-lg shadow-md w-fit transition-all duration-300 inline-block"
                  >
                  Adopt Today →
-                </Link>
-                
+                </Link> 
 
               ) : (
                 <div className="bg-yellow-500 px-6 py-2 rounded-lg w-fit">
