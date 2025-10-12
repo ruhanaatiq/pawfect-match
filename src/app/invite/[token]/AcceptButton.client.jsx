@@ -1,45 +1,28 @@
 "use client";
-
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { signOut, signIn } from "next-auth/react";
 
-export default function AcceptButton({ token, invitedEmail }) {
-  const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState("");
-  const router = useRouter();
+export function AcceptInviteButton({ token, redirectTo = "/dashboard/shelter" }) {
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState("");
 
-  async function accept() {
-    setLoading(true);
-    setMsg("");
+  async function onAccept() {
+    setError(""); setPending(true);
     try {
       const res = await fetch(`/api/invites/${token}/accept`, { method: "POST" });
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        setMsg(data?.error || `Failed (${res.status})`);
-        setLoading(false);
-        return;
-      }
-
-      // success: send them to their shelter dashboard
-      router.push("/dashboard/shelter");
-      router.refresh();
-    } catch (e) {
-      setMsg(e.message || "Failed");
-      setLoading(false);
-    }
+      const data = await res.json();
+      if (!res.ok) { setError(data?.error || `Failed (${res.status})`); setPending(false); return; }
+      await signOut({ redirect: false });
+      await signIn(undefined, { callbackUrl: redirectTo });
+    } catch (e) { setError(String(e)); setPending(false); }
   }
 
   return (
-    <div>
-      <button
-        onClick={accept}
-        disabled={loading}
-        className="rounded-lg bg-black text-white px-4 py-2 disabled:opacity-60"
-      >
-        {loading ? "Accepting…" : "Accept Invitation"}
+    <div className="flex items-center gap-3">
+      <button className="btn btn-primary" onClick={onAccept} disabled={pending}>
+        {pending ? "Accepting..." : "Accept Invitation"}
       </button>
-      {msg && <p className="mt-2 text-sm text-red-600">{msg}</p>}
+      {error && <span className="text-red-600 text-sm">{error}</span>}
     </div>
   );
 }
