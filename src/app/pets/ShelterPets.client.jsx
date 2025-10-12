@@ -19,9 +19,6 @@ export default function ShelterPetsClient({ shelterId }) {
         setLoading(true);
         setError(null);
 
-        // Prefer your existing API. Options (pick the one you have):
-        // 1) GET /api/pets?shelter=<id>
-        // 2) GET /api/shelters/:id/pets
         const res = await fetch(`/api/pets?shelter=${encodeURIComponent(shelterId)}`, {
           cache: "no-store",
           signal: ac.signal,
@@ -67,7 +64,9 @@ export default function ShelterPetsClient({ shelterId }) {
   const filtered = useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
     if (!q) return pets;
-    return pets.filter((p) => p.name.toLowerCase().includes(q) || p.species.toLowerCase().includes(q));
+    return pets.filter(
+      (p) => p.name.toLowerCase().includes(q) || p.species.toLowerCase().includes(q)
+    );
   }, [pets, searchTerm]);
 
   async function onDelete(id) {
@@ -75,13 +74,12 @@ export default function ShelterPetsClient({ shelterId }) {
     if (!confirm("Delete this pet?")) return;
 
     setDeleting((d) => ({ ...d, [id]: true }));
-    const prev = pets;
+    const prev = pets.slice(); // ✅ snapshot
 
     try {
       // optimistic UI
       setPets((list) => list.filter((p) => p.id !== id));
 
-      // Call your API (adjust to your route)
       const res = await fetch(`/api/pets/${id}`, { method: "DELETE" });
       if (!res.ok) {
         const j = await res.json().catch(() => ({}));
@@ -108,7 +106,7 @@ export default function ShelterPetsClient({ shelterId }) {
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full md:w-80 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
         />
-        <div className="text-sm text-gray-600">Total: {filtered.length}</div>
+        <div className="text-sm text-gray-600">Total: {pets.length}</div>
       </div>
 
       {filtered.length === 0 ? (
