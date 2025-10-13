@@ -94,6 +94,17 @@ export default function LoginPage() {
   }
 }
 
+const handleSocialLogin = async (provider) => {
+  try {
+    setPending(true);
+    await signIn(provider, { callbackUrl: "/" });
+  } catch (err) {
+    setError("Social login failed. Please try again.");
+  } finally {
+    setPending(false);
+  }
+};
+
   async function resendCode() {
     if (!email) { setError("Enter your email first."); return; }
     setError(""); setInfo("");
