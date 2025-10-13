@@ -1,5 +1,5 @@
 import { connectDB } from "@/lib/mongoose";
-import Pet from "@/models/Pet";
+import Pet from "@/models/Pets";
 import { requireSession, requireShelterRole } from "@/lib/guard";
 import { NextResponse } from "next/server";
 
