@@ -1,9 +1,9 @@
-// src/app/dashboard/shelter/pets/page.jsx
 import Link from "next/link";
 import Image from "next/image";
 import { headers } from "next/headers";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 function absoluteUrl(path = "/") {
   const h = headers();
@@ -40,16 +40,17 @@ async function getMyShelter() {
   return data?.shelter ?? data;
 }
 
-async function getShelterPets(shelterId, { page = 1, species = "", vaccinated = "" }) {
+/* Owner-scoped listing */
+async function getMyPets({ page = 1, species = "", vaccinated = "" }) {
+  const cookie = headers().get("cookie") ?? "";
   const url = absoluteUrl(
-    `/api/public/shelters/${encodeURIComponent(shelterId)}/pets?${qs({
+    `/api/shelters/mine/pets?${qs({
       page,
       species,
       ...(vaccinated ? { vaccinated } : {}),
     })}`
   );
-  // public endpoint; no need to forward cookies
-  const res = await fetch(url, { cache: "no-store" });
+  const res = await fetch(url, { cache: "no-store", headers: { cookie } });
   if (!res.ok) return { items: [], total: 0, page, pageSize: 12 };
   return res.json();
 }
@@ -64,9 +65,7 @@ export default async function ShelterPetsDashboard({ searchParams }) {
     return (
       <div className="p-6">
         <h1 className="text-xl font-semibold">No shelter found</h1>
-        <p className="text-sm text-gray-600 mt-2">
-          Create your shelter profile first.
-        </p>
+        <p className="text-sm text-gray-600 mt-2">Create your shelter profile first.</p>
         <Link href="/dashboard/shelter" className="mt-3 inline-block rounded-lg bg-emerald-600 text-white px-3 py-2">
           Go to Shelter Overview
         </Link>
@@ -74,9 +73,7 @@ export default async function ShelterPetsDashboard({ searchParams }) {
     );
   }
 
-  const { items: pets, total, pageSize = 12 } = await getShelterPets(shelter._id || shelter.id, {
-    page, species, vaccinated,
-  });
+  const { items: pets = [], total, pageSize = 12 } = await getMyPets({ page, species, vaccinated });
   const totalPages = Math.max(1, Math.ceil((total || 0) / pageSize));
 
   return (
