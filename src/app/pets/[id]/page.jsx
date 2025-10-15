@@ -9,6 +9,8 @@ import { GiDogBowl } from "react-icons/gi";
 import AvailablePetsCard from "@/components/AvailablePetsCard";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
+import UpdateHealthForm from "@/components/UpdateHealthRecords";
 
 /* ---------- Slider arrows ---------- */
 function NextArrow({ className, style, onClick }) {
@@ -67,8 +69,8 @@ function normalizeOne(raw) {
       ? loc
       : "";
 
-  // status safe
-  const statusVal = raw.status == null ? "" : String(raw.status).toLowerCase();
+  // vet details
+  const vet = raw.vetDetails || {};
 
   return {
     id,
@@ -81,14 +83,23 @@ function normalizeOne(raw) {
     images: imagesArr,
     coverImage: cover,
     color: raw.color || "",
-    healthStatus: raw.healthStatus || "",
-    vaccinated: raw.vaccinated ?? null,
     longDescription: raw.longDescription || raw.description || "",
-    status: statusVal,
-    petLocation: loc,               // keep raw (object/string/null)
+    status: raw.status ? String(raw.status).toLowerCase() : "",
+    petLocation: loc,               // raw object or string
     petLocationLine: locationLine,  // display-ready string
     shelterInfo: raw.shelterInfo || null,
-    vetDetails: raw.vetDetails || null,
+
+    // --- health & vet info ---
+    healthCondition: raw.healthCondition || vet.healthCondition || "",
+    vaccinationStatus: raw.vaccinationStatus || vet.vaccinationStatus || "",
+    temperament: raw.temperament || vet.temperament || "",
+    vetDetails: {
+      name: vet.name || "",
+      clinic: vet.clinic || "",
+      contact: vet.contact || "",
+      lastCheckup: vet.lastCheckup || "",
+      notes: vet.notes || "",
+    },
   };
 }
 
@@ -115,40 +126,29 @@ export default function PetDetail() {
   }, [id]);
 
   async function fetchPetDetails(petId) {
-    try {
-      const res = await fetch(`/api/pets/${petId}`, { cache: "no-store" });
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setError(json?.error || `Failed to load (${res.status})`);
-        return;
-      }
-      const raw = json?.data || json?.pet || json;
-      const normalized = normalizeOne(raw);
-      if (!normalized?.id) {
-        setError("Pet not found");
-        return;
-      }
-      setPet(normalized);
-    } catch (e) {
-      console.error(e);
-      setError("Failed to fetch pet details");
+  try {
+    setLoading(true);
+    const res = await fetch(`/api/pets/${petId}`, { cache: "no-store" });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      setError(json?.error || `Failed to load (${res.status})`);
+      return;
     }
+    const raw = json?.data || json?.pet || json;
+    const normalized = normalizeOne(raw);
+    if (!normalized?.id) {
+      setError("Pet not found");
+      return;
+    }
+    setPet(normalized);
+  } catch (e) {
+    console.error(e);
+    setError("Failed to fetch pet details");
+  } finally {
+    setLoading(false);
   }
+}
 
-  async function fetchAllPets() {
-    try {
-      const res = await fetch("/api/pets", { cache: "no-store" });
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok) return;
-      const arr = json?.data || json?.items || json;
-      const list = Array.isArray(arr)
-        ? arr.map(normalizeOne).filter(Boolean)
-        : [];
-      setAllPets(list);
-    } catch (e) {
-      console.error("Error fetching all pets:", e);
-    }
-  }
 
   const settings = {
     dots: false,
@@ -245,9 +245,10 @@ export default function PetDetail() {
               </p>
 
               {pet.status === "available" ? (
-                <button className="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-6 py-2 rounded-lg shadow-md w-fit transition-all duration-300 cursor-pointer">
+                <Link  href={`/adopt/request/${pet.id}`}
+                 className="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-6 py-2 rounded-lg shadow-md w-fit transition-all duration-300 cursor-pointer">
                   Adopt Today →
-                </button>
+                </Link>
               ) : (
                 <div className="bg-yellow-500 px-6 py-2 rounded-lg w-fit">
                   <span className="text-white font-semibold">Already Adopted</span>
@@ -256,6 +257,43 @@ export default function PetDetail() {
             </div>
           </div>
         </div>
+         
+        {/* Health Records Section */}
+<section className="my-10 md:mt-2 md:mb-24 max-w-5xl mx-auto">
+  <h3 className="text-3xl font-bold mb-4 relative">Health Records</h3>
+
+  <div className="bg-white rounded-2xl shadow p-6 md:p-8 md:px-12">
+    <table className="table-auto w-full text-left text-gray-700 text-sm md:text-base">
+      <tbody className="divide-y divide-orange-100">
+        <tr>
+          <th className="py-2 pr-4 font-semibold">Health Condition</th>
+          <td className="py-2">{pet.healthCondition ?? "N/A"}</td>
+        </tr>
+        <tr>
+          <th className="py-2 pr-4 font-semibold">Vaccination Status</th>
+          <td className="py-2">{pet.vaccinationStatus ?? "N/A"}</td>
+        </tr>
+        <tr>
+          <th className="py-2 pr-4 font-semibold">Temperament</th>
+          <td className="py-2">{pet.temperament ?? "N/A"}</td>
+        </tr>
+        <tr>
+          <th className="py-2 pr-4 font-semibold">Last Vet Checkup</th>
+          <td className="py-2">{pet.vetDetails?.lastCheckup ?? "N/A"}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  {/* <UpdateHealthForm
+  petId={pet.id}
+  existing={pet}
+  onUpdated={() => fetchPetDetails(pet.id)} // <-- pass this callback
+/> */}
+
+</section>
+
+
 
         {/* Additional Info Table */}
         {(pet.shelterInfo || pet.vetDetails) && (
@@ -309,6 +347,7 @@ export default function PetDetail() {
                 </tbody>
               </table>
             </div>
+            
           </section>
         )}
       </div>

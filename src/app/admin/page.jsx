@@ -227,6 +227,9 @@ export default async function AdminHome() {
               <Link className="rounded-xl border px-3 py-2 hover:bg-emerald-50" href="/admin/users">
                 Manage Users
               </Link>
+              <Link className="rounded-xl border px-3 py-2 hover:bg-emerald-50" href="/admin/pets/healthrecords">
+              Update Health Records
+              </Link>
             </div>
           </div>
         </div>

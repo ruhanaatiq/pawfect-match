@@ -19,7 +19,7 @@ export default function CategoryPage() {
       setLoading(true);
       const res = await fetch(`/api/pets?species=${category}`); 
       const data = await res.json();
-      setPets(data.items || []); // ✅ fix
+      setPets(data.items || []); // fix
     } catch (error) {
       console.error("Error fetching pets:", error);
       setPets([]); // fallback
@@ -116,7 +116,7 @@ export default function CategoryPage() {
           <div className="flex flex-col sm:flex-row justify-between items-center mb-6 p-4 rounded-xl bg-white shadow-md">
             <h3 className="text-xl font-semibold text-gray-800 mb-4 sm:mb-0">
               Available <span className="text-amber-500">{selectedBreed}</span>{" "}
-              {category.toLowerCase()}s
+              {category.toLowerCase()}
             </h3>
             <button
               onClick={() => setSelectedBreed(null)}

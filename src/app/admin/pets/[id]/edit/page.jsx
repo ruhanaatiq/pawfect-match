@@ -41,6 +41,11 @@ export default function EditPetPage() {
           distanceKm: p.distanceKm ?? "",
           description: p.description || p.longDescription || "",
           petLocation: locStr,
+          healthCondition: p.healthCondition || "",
+          vaccinationStatus: p.vaccinationStatus || "",
+          temperament: p.temperament || "",
+          lastCheckup: p.vetDetails?.lastCheckup || "",
+          notes: p.vetDetails?.notes || "",
         });
       } catch (e) {
         setErrMsg(e.message || "Failed to load pet");
@@ -269,6 +274,8 @@ export default function EditPetPage() {
                 onChange={(e)=>setForm(s=>({...s, description:e.target.value}))}
               />
             </Field>
+
+            
           </div>
 
           {/* sticky actions for mobile */}
