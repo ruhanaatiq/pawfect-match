@@ -1,5 +1,5 @@
 // src/app/invite/[token]/page.jsx
-import AcceptButton from "./AcceptButton.client";
+import { AcceptInviteButton } from "./AcceptButton.client.jsx";
 import { headers } from "next/headers";
 
 export const dynamic = "force-dynamic";
@@ -12,12 +12,12 @@ function base() {
 }
 
 export default async function InvitePage({ params }) {
-  const { token } = await params;            // ← IMPORTANT
+  const { token } = params; // ✅ no await
 
   const res = await fetch(`${base()}/api/invites/${token}`, { cache: "no-store" });
-  const info = await res.json();
+  const info = await res.json().catch(() => ({}));
 
-  if (!res.ok || !info.valid) {
+  if (!res.ok || !info?.valid) {
     return (
       <main className="max-w-xl mx-auto p-8">
         <h1 className="text-2xl font-semibold mb-2">Invitation</h1>
@@ -33,7 +33,8 @@ export default async function InvitePage({ params }) {
       <p className="mt-1">Role on join: <b>{info.role}</b></p>
 
       <div className="mt-6">
-        <AcceptButton token={token} invitedEmail={info.email} />
+        {/* ✅ use the component you imported */}
+        <AcceptInviteButton token={token} invitedEmail={info.email} />
       </div>
 
       <p className="mt-3 text-sm text-gray-500">

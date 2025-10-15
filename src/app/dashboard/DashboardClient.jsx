@@ -1,36 +1,47 @@
-// src/app/dashboard/page.jsx
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-
-
-import FeedbackCards from "@/components/FeedbackCard";
-import MyFeedback from "@/components/Feedbacks";
-import { useSession, signOut } from "next-auth/react";
+// src/app/dashboard/DashboardClient.jsx
+"use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { toast } from "react-hot-toast"; // ✅ use hot-toast
+import { toast } from "react-hot-toast";
 import MyBookings from "@/components/MyBookings";
 import {
-  FaHeart,
-  FaPaw,
-  FaCog,
-  FaSignOutAlt,
-  FaUser,
-  FaBars,
-  FaCalendarAlt,
-  FaComments,
-  FaStar,
-  FaCalendarCheck,
+  FaHeart, FaPaw, FaCog, FaSignOutAlt, FaUser, FaBars, FaCalendarCheck,
 } from "react-icons/fa";
 
+/* ---------- helpers ---------- */
+function dayKeys(n = 7) {
+  const out = [];
+  const d = new Date();
+  for (let i = n - 1; i >= 0; i--) {
+    const t = new Date(d);
+    t.setHours(0, 0, 0, 0);
+    t.setDate(t.getDate() - i);
+    out.push(t.toISOString().slice(0, 10));
+  }
+  return out;
+}
 
-export default function DashboardPage({ searchParams }) {
-  const initialTab = (searchParams?.tab || "applications").toLowerCase();
-
+function Sparkline({ points = [] }) {
+  if (!points.length) return <div className="h-24" aria-hidden="true" />;
+  const w = 260;
+  const h = 80;
+  const max = Math.max(...points);
+  const min = Math.min(...points);
+  const dx = w / Math.max(points.length - 1, 1);
+  const ny = (v) => (max === min ? h / 2 : h - ((v - min) / (max - min)) * h);
+  const d = points.map((v, i) => `${i ? "L" : "M"} ${i * dx} ${ny(v)}`).join(" ");
   return (
+    <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-24" role="img" aria-label="7-day applications sparkline">
+      <path d={d} stroke="currentColor" strokeWidth="2.5" fill="none" className="text-emerald-500" strokeLinecap="round" />
+      {points.map((v, i) => <circle key={i} cx={i * dx} cy={ny(v)} r="2.5" className="fill-emerald-500" />)}
+    </svg>
+  );
+}
 
+function StatCard({ label, value, delta, icon }) {
+  return (
     <div className="rounded-2xl bg-white/90 shadow-sm ring-1 ring-black/5 p-4 flex items-start gap-4">
       <div className="shrink-0 rounded-xl bg-emerald-50 p-3" aria-hidden="true">{icon}</div>
       <div className="flex-1">
@@ -42,14 +53,9 @@ export default function DashboardPage({ searchParams }) {
   );
 }
 
-/* ---------- page ---------- */
-export default function DashboardPage() {
+/* ---------- client component ---------- */
+export default function DashboardClient({ initialTab = "applications" }) {
   const { data: session, status } = useSession();
-  // console.log(session , session.user)
-  //const [activeTab, setActiveTab] = useState("applications");
-
-  const searchParams = useSearchParams();
-  const initialTab = searchParams.get("tab") || "applications";
 
   const [activeTab, setActiveTab] = useState(initialTab);
   const [applications, setApplications] = useState([]);
@@ -59,11 +65,6 @@ export default function DashboardPage() {
   const [selectedApp, setSelectedApp] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  useEffect(() => {
-    const t = searchParams.get("tab");
-    if (t && t !== activeTab) setActiveTab(t);
-  }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
-
   const userEmail = session?.user?.email;
 
   /* fetch applications */
@@ -72,7 +73,7 @@ export default function DashboardPage() {
     async function run() {
       if (!userEmail) return setLoading(false);
       try {
-        const res = await fetch(`/api/adoptions?email=${encodeURIComponent(userEmail)}`);
+        const res = await fetch(`/api/adoptions?email=${encodeURIComponent(userEmail)}`, { cache: "no-store" });
         if (!res.ok) throw new Error("Failed to fetch applications");
         const data = await res.json();
         if (!cancelled) setApplications(data || []);
@@ -92,7 +93,7 @@ export default function DashboardPage() {
     async function run() {
       if (activeTab !== "favorites" || !userEmail) return;
       try {
-        const res = await fetch(`/api/favorites?email=${encodeURIComponent(userEmail)}`);
+        const res = await fetch(`/api/favorites?email=${encodeURIComponent(userEmail)}`, { cache: "no-store" });
         if (!res.ok) throw new Error("Failed to fetch favorites");
         const data = await res.json();
         if (!cancelled) setFavorites(data || []);
@@ -109,10 +110,10 @@ export default function DashboardPage() {
       const res = await fetch(`/api/favorites/${favId}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to remove favorite");
       setFavorites((prev) => prev.filter((f) => f._id !== favId));
-      toast.success("Removed from favorites"); // ✅ hot-toast
+      toast.success("Removed from favorites");
     } catch (e) {
       console.error(e);
-      toast.error("Failed to remove favorite"); // ✅ hot-toast
+      toast.error("Failed to remove favorite");
     }
   }
 
@@ -122,10 +123,10 @@ export default function DashboardPage() {
       const res = await fetch(`/api/adoptions/${selectedApp}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to cancel application");
       setApplications((prev) => prev.filter((a) => a._id !== selectedApp));
-      toast.success("Application canceled successfully!"); // ✅ hot-toast
+      toast.success("Application canceled successfully!");
     } catch (e) {
       console.error(e);
-      toast.error("Failed to cancel application."); // ✅ hot-toast
+      toast.error("Failed to cancel application.");
     } finally {
       setModalOpen(false);
       setSelectedApp(null);
@@ -189,60 +190,28 @@ export default function DashboardPage() {
           </button>
         </div>
 
-        <button
-          onClick={() => { setActiveTab("profile"); setSidebarOpen(false); }}
-          className={`flex items-center px-3 py-2 rounded-lg mb-3 ${activeTab === "profile" ? "bg-emerald-600 text-white" : "text-gray-700 hover:bg-emerald-100"}`}
-        >
+        <button onClick={() => { setActiveTab("profile"); setSidebarOpen(false); }}
+          className={`flex items-center px-3 py-2 rounded-lg mb-3 ${activeTab === "profile" ? "bg-emerald-600 text-white" : "text-gray-700 hover:bg-emerald-100"}`}>
           <FaUser className="mr-2" /> Profile
         </button>
 
-        <button
-          onClick={() => { setActiveTab("applications"); setSidebarOpen(false); }}
-          className={`flex items-center px-3 py-2 rounded-lg mb-3 ${activeTab === "applications" ? "bg-emerald-600 text-white" : "text-gray-700 hover:bg-emerald-100"}`}
-        >
+        <button onClick={() => { setActiveTab("applications"); setSidebarOpen(false); }}
+          className={`flex items-center px-3 py-2 rounded-lg mb-3 ${activeTab === "applications" ? "bg-emerald-600 text-white" : "text-gray-700 hover:bg-emerald-100"}`}>
           <FaPaw className="mr-2" /> Applications
         </button>
 
-        <button
-          onClick={() => { setActiveTab("favorites"); setSidebarOpen(false); }}
-          className={`flex items-center px-3 py-2 rounded-lg mb-3 ${activeTab === "favorites" ? "bg-emerald-600 text-white" : "text-gray-700 hover:bg-emerald-100"}`}
-        >
+        <button onClick={() => { setActiveTab("favorites"); setSidebarOpen(false); }}
+          className={`flex items-center px-3 py-2 rounded-lg mb-3 ${activeTab === "favorites" ? "bg-emerald-600 text-white" : "text-gray-700 hover:bg-emerald-100"}`}>
           <FaHeart className="mr-2" /> Favorites
         </button>
 
-        <button
-          onClick={() => { setActiveTab("my-bookings"); setSidebarOpen(false); }}
-          className={`flex items-center px-3 py-2 rounded-lg mb-3 ${activeTab === "my-bookings" ? "bg-emerald-600 text-white" : "text-gray-700 hover:bg-emerald-100"}`}
-        >
+        <button onClick={() => { setActiveTab("my-bookings"); setSidebarOpen(false); }}
+          className={`flex items-center px-3 py-2 rounded-lg mb-3 ${activeTab === "my-bookings" ? "bg-emerald-600 text-white" : "text-gray-700 hover:bg-emerald-100"}`}>
           <FaCalendarCheck className="mr-2" /> My Bookings
         </button>
 
-        
-          <button
-            onClick={() => {setActiveTab("my-feedback"); setSidebarOpen(false);}}
-            className={`flex items-center w-full px-3 py-2 rounded-lg text-left transition ${
-              activeTab === "my-feedback"
-                ? "bg-emerald-600 text-white"
-                : "text-gray-700 hover:bg-emerald-100"
-            }`}
-          >
-            <FaComments className="mr-2" /> My Feedback
-          </button>
-          <button
-            onClick={() => {setActiveTab("users-reviews"); setSidebarOpen(false);}}
-            className={`flex items-center w-full px-3 py-2 rounded-lg text-left transition ${
-              activeTab === "users-reviews"
-                ? "bg-emerald-600 text-white"
-                : "text-gray-700 hover:bg-emerald-100"
-            }`}
-          >
-            <FaStar className="mr-2" /> Reviews
-          </button>
-
-        <button
-          onClick={() => { setActiveTab("settings"); setSidebarOpen(false); }}
-          className={`flex items-center px-3 py-2 rounded-lg mt-auto ${activeTab === "settings" ? "bg-emerald-600 text-white" : "text-gray-700 hover:bg-emerald-100"}`}
-        >
+        <button onClick={() => { setActiveTab("settings"); setSidebarOpen(false); }}
+          className={`flex items-center px-3 py-2 rounded-lg mt-auto ${activeTab === "settings" ? "bg-emerald-600 text-white" : "text-gray-700 hover:bg-emerald-100"}`}>
           <FaCog className="mr-2" /> Settings
         </button>
 
@@ -252,9 +221,7 @@ export default function DashboardPage() {
       </aside>
 
       {/* overlay for mobile */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/30 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />
-      )}
+      {sidebarOpen && <div className="fixed inset-0 bg-black/30 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />}
 
       {/* main content */}
       <main className="flex-1 p-6 md:p-8 overflow-y-auto">
@@ -348,47 +315,24 @@ export default function DashboardPage() {
           </section>
         )}
 
-          {/* Settings */}
-          {activeTab === "settings" && (
-            <section>
-              <h3 className="text-xl font-semibold mb-4">Settings</h3>
-              <div className="space-y-3 p-6 rounded-2xl bg-gradient-to-br from-emerald-50/70 via-white/60 to-rose-50/50 backdrop-blur shadow-xl">
-                <Link
-                  href="/update-profile"
-                  className="block text-emerald-600 hover:underline"
-                >
-                  Update Profile
-                </Link>
-                <Link
-                  href="/change-password"
-                  className="block text-emerald-600 hover:underline"
-                >
-                  Change Password
-                </Link>
-              </div>
-            </section>
-          )}
-          {/* My Bookings */}
-          {activeTab === "my-bookings" && (
-            <section>
-              <h3 className="text-xl font-semibold mb-4">My Bookings</h3>
-              <MyBookings />
-            </section>
-          )}
-          {/* User Feedback */}
-          {activeTab === "my-feedback" && (
-                       <section>
-              <h3 className="text-xl font-semibold mb-4"> My Feedback</h3>
-              <MyFeedback />
-            </section>
-          )}
-          {/* Reviews */}
-          {activeTab === "users-reviews" && (
-            <section>
-              <h3 className="text-xl font-semibold mb-4"> All Users Reviews</h3>
-             <FeedbackCards limit={null} showHeader={false} grid={2}/>
-            </section>
-          )}
+        {/* SETTINGS TAB */}
+        {activeTab === "settings" && (
+          <section>
+            <h3 className="text-xl font-semibold mb-4">Settings</h3>
+            <div className="space-y-3 p-6 rounded-2xl bg-gradient-to-br from-emerald-50/70 via-white/60 to-rose-50/50 backdrop-blur shadow-xl">
+              <Link href="/update-profile" className="block text-emerald-600 hover:underline">Update Profile</Link>
+              <Link href="/change-password" className="block text-emerald-600 hover:underline">Change Password</Link>
+            </div>
+          </section>
+        )}
+
+        {/* MY BOOKINGS TAB */}
+        {activeTab === "my-bookings" && (
+          <section>
+            <h3 className="text-xl font-semibold mb-4">My Bookings</h3>
+            <MyBookings />
+          </section>
+        )}
       </main>
 
       {/* cancel modal */}
@@ -403,12 +347,8 @@ export default function DashboardPage() {
               <button onClick={confirmCancel} className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700">Yes, Cancel</button>
             </div>
           </div>
-
         </div>
       )}
-
-      {/* ❌ Removed <ToastContainer /> – global <Toaster /> in layout handles it */}
     </div>
-
   );
 }
