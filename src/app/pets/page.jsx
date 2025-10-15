@@ -1,120 +1,76 @@
-"use client";
+// app/dashboard/shelter/pets/page.jsx
+import { headers } from "next/headers";
+import ShelterPetsClient from "./ShelterPets.client"; // ✅ direct import of client component
 
-import React, { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
-//import dbConnect from "@/lib/dbConnect";
+export const dynamic = "force-dynamic";
 
-export default function AllPets() {
-  
-  const [pets, setPets] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+function absoluteUrl(path = "/") {
+  const env = process.env.NEXT_PUBLIC_BASE_URL;
+  if (env) return new URL(path, env).toString();
+  const h = headers();
+  const proto = h.get("x-forwarded-proto") || "http";
+  const host  = h.get("x-forwarded-host") || h.get("host") || "localhost:3000";
+  return new URL(path, `${proto}://${host}`).toString();
+}
 
-  useEffect(() => {
-    const ac = new AbortController();
-    (async () => {
-      try {
-        setLoading(true);
-        const res = await fetch("/api/pets", { cache: "no-store", signal: ac.signal });
-        const result = await res.json().catch(() => ({}));
+async function getMyShelter() {
+  const h = headers();
+  const cookie = h.get("cookie") ?? "";
+  const res = await fetch(absoluteUrl("/api/shelters/mine"), {
+    cache: "no-store",
+    headers: { cookie },
+  });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`Failed to load shelter (${res.status})`);
+  const data = await res.json();
+  return data?.shelter ?? data;
+}
 
-        if (!res.ok || result.success === false) {
-          throw new Error(result?.error || `HTTP ${res.status}`);
-        }
+export default async function ShelterPetsPage() {
+  const shelter = await getMyShelter();
 
-        // Prefer canonical 'items', fallback to legacy 'data'
-        const list = Array.isArray(result.items)
-          ? result.items
-          : Array.isArray(result.data)
-          ? result.data
-          : [];
-
-        const shaped = list.map((p) => {
-          const mainImage = Array.isArray(p.images)
-            ? p.images[0] || "/placeholder-pet.jpg"
-            : p.image || p.images || "/placeholder-pet.jpg";
-
-          return {
-            id: p._id?.toString?.() ?? p.id ?? "",
-            petName: p.petName ?? p.name ?? "Unnamed",
-            petAge: p.petAge ?? p.age ?? "Unknown",
-            petLocation: p.petLocation ?? p.location ?? {},
-            image: mainImage,
-          };
-        });
-
-        setPets(shaped);
-        setError(null);
-      } catch (err) {
-        if (err.name !== "AbortError") setError(err.message || "Failed to fetch pets");
-      } finally {
-        setLoading(false);
-      }
-    })();
-    return () => ac.abort();
-  }, []);
-
-  const filteredPets = useMemo(
-    () => pets.filter((pet) => pet.petName.toLowerCase().includes(searchTerm.toLowerCase())),
-    [pets, searchTerm]
-  );
-
-  if (loading) return <div>Loading pets...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (!shelter) {
+    return (
+      <main className="mx-auto max-w-5xl p-6">
+        <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5">
+          <h1 className="text-2xl font-semibold mb-2">No shelter found</h1>
+          <p className="text-gray-700">Join or create a shelter to manage pets.</p>
+          <a
+            href="/dashboard/shelter"
+            className="mt-4 inline-block rounded-xl border px-4 py-2 hover:bg-emerald-50"
+          >
+            Back to Shelter
+          </a>
+        </div>
+      </main>
+    );
+  }
 
   return (
-    <div className="px-4 py-8">
-      <h1 className="text-2xl font-bold text-center mb-6">
-        All Pets: {filteredPets.length}
-      </h1>
-
-      <div className="flex justify-center mb-6">
-        <input
-          type="text"
-          placeholder="Search by pet name..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full md:w-1/2 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-        />
+    <main className="mx-auto max-w-6xl p-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">Pets · {shelter.name}</h1>
+        <a
+          href={`/pets/new?shelter=${shelter._id}`}
+          className="rounded-xl bg-emerald-600 px-3 py-2 text-sm text-white hover:bg-emerald-700"
+        >
+          Add Pet
+        </a>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        {filteredPets.length > 0 ? (
-          filteredPets.map((pet) => (
-            <div
-              key={pet.id}
-              className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition duration-300"
-            >
-              <div className="relative w-full h-80">
-                <img src={pet.image} alt={pet.petName} className="h-80 w-full object-cover" />
-              </div>
+      <nav className="flex gap-2 text-sm">
+        <a className="rounded-lg border px-3 py-1.5 hover:bg-emerald-50" href="/dashboard/shelter">
+          Overview
+        </a>
+        <span className="rounded-lg border px-3 py-1.5 bg-emerald-50">Pets</span>
+        <a className="rounded-lg border px-3 py-1.5 hover:bg-emerald-50" href="/dashboard/shelter/requests">
+          Requests
+        </a>
+      </nav>
 
-              <div className="p-4">
-                <h2 className="text-lg font-semibold text-gray-800">{pet.petName}</h2>
-                <p className="text-sm text-gray-600">Age: {pet.petAge}</p>
-                <p className="text-sm text-gray-600">
-                  Location: {pet.petLocation?.city ?? "Unknown"}
-                  {pet.petLocation?.area ? `, ${pet.petLocation.area}` : ""}
-                </p>
-
-                <div className="mt-3">
-                  <Link
-                    href={`/pets/${pet.id}`}
-                    className="inline-block w-full text-center bg-emerald-500 text-white px-4 py-2 rounded-lg hover:bg-emerald-600 transition"
-                  >
-                    View Details
-                  </Link>
-                </div>
-              </div>
-            </div>
-          ))
-        ) : (
-          <p className="text-center text-gray-500 col-span-full">
-            No pets found matching your search.
-          </p>
-        )}
-      </div>
-    </div>
+      <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5">
+        <ShelterPetsClient shelterId={String(shelter._id)} />
+      </section>
+    </main>
   );
 }

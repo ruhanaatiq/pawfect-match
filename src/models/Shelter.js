@@ -7,7 +7,6 @@ const ShelterSchema = new Schema({
   phone: String,
   address: String,
   photos: [String],
-  status: { type: String, enum: ["pending_review","verified","rejected"], default: "pending_review", index: true },
-  verifiedAt: Date,
+  status: { type: String, enum: ["pending", "active", "suspended"], default: "pending" },  verifiedAt: Date,
 }, { timestamps: true });
 export default models.Shelter || model("Shelter", ShelterSchema);

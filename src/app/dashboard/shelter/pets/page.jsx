@@ -1,363 +1,171 @@
-"use client";
+// src/app/dashboard/shelter/pets/page.jsx
+import Link from "next/link";
+import Image from "next/image";
+import { headers } from "next/headers";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+export const dynamic = "force-dynamic";
 
-/** Minimal defensive fetch helper (avoids JSON.parse errors) */
-async function fetchJson(url, options) {
-  const res = await fetch(url, options);
-  const ct = res.headers.get("content-type") || "";
-  const body = ct.includes("application/json") ? await res.json() : await res.text();
-  if (!res.ok) {
-    const msg = (body && body.error) || (typeof body === "string" ? body : res.statusText) || "Request failed";
-    throw new Error(msg);
-  }
-  return body;
+function absoluteUrl(path = "/") {
+  const h = headers();
+  const proto = h.get("x-forwarded-proto") || "http";
+  const host  = h.get("x-forwarded-host") || h.get("host") || "localhost:3000";
+  return new URL(path, `${proto}://${host}`).toString();
 }
 
-const SPECIES = ["dog", "cat", "bird", "rabbit", "other"];
-const SEX = ["male", "female", "unknown"];
-const SIZE = ["xs", "sm", "md", "lg", "xl"];
-const STATUS = ["available", "reserved", "adopted"];
-
-export default function PetsPage() {
-  const [loading, setLoading] = useState(true);
-  const [shelterId, setShelterId] = useState(null);
-  const [pets, setPets] = useState([]);
-  const [error, setError] = useState("");
-  const [isPending, startTransition] = useTransition();
-
-  // Create form state
-  const [form, setForm] = useState({
-    name: "",
-    species: SPECIES[0],
-    breed: "",
-    ageMonths: "",
-    sex: SEX[2],
-    size: SIZE[2],
-    vaccinated: false,
-    goodWithKids: false,
-    spayedNeutered: false,
-    status: STATUS[0],
-    photos: [],
-    description: "",
+function qs(obj) {
+  const u = new URLSearchParams();
+  Object.entries(obj).forEach(([k, v]) => {
+    if (v !== undefined && v !== null && `${v}` !== "") u.set(k, String(v));
   });
+  return u.toString();
+}
 
-  useEffect(() => {
-    (async () => {
-      try {
-        setError("");
-        // get first shelter this user belongs to
-        const { shelters } = await fetchJson("/api/shelters");
-        const first = shelters?.[0]?._id;
-        setShelterId(first || null);
-        if (first) {
-          const { pets } = await fetchJson(`/api/shelters/${first}/pets`);
-          setPets(pets || []);
-        }
-      } catch (e) {
-        setError(e.message || "Failed to load pets");
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
+function normalizeCover(p) {
+  if (Array.isArray(p.images) && p.images.length) return p.images[0];
+  if (typeof p.images === "string" && p.images) return p.images;
+  if (Array.isArray(p.photos) && p.photos.length) return p.photos[0];
+  if (typeof p.photos === "string" && p.photos) return p.photos;
+  return "/placeholder-pet.jpg";
+}
 
-  async function handleAddPet(e) {
-    e.preventDefault();
-    if (!shelterId) return;
+async function getMyShelter() {
+  const cookie = headers().get("cookie") ?? "";
+  const res = await fetch(absoluteUrl("/api/shelters/mine"), {
+    cache: "no-store",
+    headers: { cookie },
+  });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`Failed to load shelter (${res.status})`);
+  const data = await res.json();
+  return data?.shelter ?? data;
+}
 
-    const payload = {
-      ...form,
-      ageMonths: form.ageMonths ? Number(form.ageMonths) : undefined,
-    };
+async function getShelterPets(shelterId, { page = 1, species = "", vaccinated = "" }) {
+  const url = absoluteUrl(
+    `/api/public/shelters/${encodeURIComponent(shelterId)}/pets?${qs({
+      page,
+      species,
+      ...(vaccinated ? { vaccinated } : {}),
+    })}`
+  );
+  // public endpoint; no need to forward cookies
+  const res = await fetch(url, { cache: "no-store" });
+  if (!res.ok) return { items: [], total: 0, page, pageSize: 12 };
+  return res.json();
+}
 
-    try {
-      setError("");
-      const { pet } = await fetchJson(`/api/shelters/${shelterId}/pets`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      setPets((prev) => [pet, ...prev]);
-      // reset minimal fields
-      setForm((f) => ({
-        ...f,
-        name: "",
-        breed: "",
-        ageMonths: "",
-        description: "",
-        status: STATUS[0],
-      }));
-    } catch (e) {
-      setError(e.message || "Failed to add pet");
-    }
-  }
+export default async function ShelterPetsDashboard({ searchParams }) {
+  const page = Math.max(1, Number(searchParams?.page || 1) || 1);
+  const species = (searchParams?.species || "").toString();
+  const vaccinated = (searchParams?.vaccinated || "").toString();
 
-  async function markStatus(petId, status) {
-    try {
-      setError("");
-      // optimistic update
-      setPets((prev) => prev.map((p) => (p._id === petId ? { ...p, status } : p)));
-      await fetchJson(`/api/pets/${petId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
-      });
-    } catch (e) {
-      setError(e.message || "Failed to update status");
-      // reload list to revert optimistic if error
-      startTransition(async () => {
-        if (!shelterId) return;
-        const { pets } = await fetchJson(`/api/shelters/${shelterId}/pets`);
-        setPets(pets || []);
-      });
-    }
-  }
-
-  async function deletePet(petId) {
-    if (!confirm("Delete this pet?")) return;
-    try {
-      setError("");
-      setPets((prev) => prev.filter((p) => p._id !== petId));
-      await fetchJson(`/api/pets/${petId}`, { method: "DELETE" });
-    } catch (e) {
-      setError(e.message || "Failed to delete pet");
-      // soft refresh
-      startTransition(async () => {
-        if (!shelterId) return;
-        const { pets } = await fetchJson(`/api/shelters/${shelterId}/pets`);
-        setPets(pets || []);
-      });
-    }
-  }
-
-  const availableCount = useMemo(() => pets.filter((p) => p.status === "available").length, [pets]);
-  const adoptedCount = useMemo(() => pets.filter((p) => p.status === "adopted").length, [pets]);
-
-  if (loading) {
+  const shelter = await getMyShelter();
+  if (!shelter) {
     return (
-      <div className="rounded-2xl border bg-white p-6">
-        <div className="animate-pulse grid gap-4">
-          <div className="h-6 w-48 rounded bg-gray-200" />
-          <div className="h-10 w-full rounded bg-gray-200" />
-          <div className="h-32 w-full rounded bg-gray-200" />
-        </div>
-      </div>
-    );
-  }
-
-  if (!shelterId) {
-    return (
-      <div className="rounded-2xl border bg-white p-6">
-        <h3 className="text-lg font-semibold">No shelter found</h3>
-        <p className="text-sm text-gray-600 mt-1">
-          Create one in <a href="/dashboard/shelter/settings" className="link">Settings</a> or join with an invite in{" "}
-          <a href="/dashboard/shelter/staff" className="link">Staff</a>.
+      <div className="p-6">
+        <h1 className="text-xl font-semibold">No shelter found</h1>
+        <p className="text-sm text-gray-600 mt-2">
+          Create your shelter profile first.
         </p>
+        <Link href="/dashboard/shelter" className="mt-3 inline-block rounded-lg bg-emerald-600 text-white px-3 py-2">
+          Go to Shelter Overview
+        </Link>
       </div>
     );
   }
+
+  const { items: pets, total, pageSize = 12 } = await getShelterPets(shelter._id || shelter.id, {
+    page, species, vaccinated,
+  });
+  const totalPages = Math.max(1, Math.ceil((total || 0) / pageSize));
 
   return (
-    <div className="grid gap-6">
-      {/* header + stats */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-semibold">Pets</h1>
-        <div className="flex gap-3">
-          <Stat pill title="Total" value={pets.length} />
-          <Stat pill title="Available" value={availableCount} />
-          <Stat pill title="Adopted" value={adoptedCount} />
-        </div>
+    <div className="mx-auto max-w-6xl px-4 py-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">My Shelter Pets</h1>
+        <Link href="/dashboard/shelter/pets/new" className="rounded-xl bg-emerald-600 text-white px-3 py-2">
+          + Add Pet
+        </Link>
       </div>
 
-      {error ? (
-        <div className="alert alert-error text-sm">
-          <span>{error}</span>
-        </div>
-      ) : null}
-
-      {/* create form */}
-      <form onSubmit={handleAddPet} className="rounded-2xl border bg-white p-5 grid gap-4">
-        <h3 className="font-semibold">Add a new pet</h3>
-        <div className="grid md:grid-cols-3 gap-3">
-          <Input label="Name *" value={form.name} onChange={(v) => setForm({ ...form, name: v })} required />
-          <Select
-            label="Species"
-            value={form.species}
-            onChange={(v) => setForm({ ...form, species: v })}
-            options={SPECIES}
-          />
-          <Input label="Breed" value={form.breed} onChange={(v) => setForm({ ...form, breed: v })} />
-          <Input
-            label="Age (months)"
-            type="number"
-            min="0"
-            value={form.ageMonths}
-            onChange={(v) => setForm({ ...form, ageMonths: v })}
-          />
-          <Select label="Sex" value={form.sex} onChange={(v) => setForm({ ...form, sex: v })} options={SEX} />
-          <Select label="Size" value={form.size} onChange={(v) => setForm({ ...form, size: v })} options={SIZE} />
-          <Toggle
-            label="Vaccinated"
-            checked={form.vaccinated}
-            onChange={(v) => setForm({ ...form, vaccinated: v })}
-          />
-          <Toggle
-            label="Good with kids"
-            checked={form.goodWithKids}
-            onChange={(v) => setForm({ ...form, goodWithKids: v })}
-          />
-          <Toggle
-            label="Spayed/Neutered"
-            checked={form.spayedNeutered}
-            onChange={(v) => setForm({ ...form, spayedNeutered: v })}
-          />
-          <Select label="Status" value={form.status} onChange={(v) => setForm({ ...form, status: v })} options={STATUS} />
-          <div className="md:col-span-3">
-            <Label text="Description" />
-            <textarea
-              className="textarea textarea-bordered w-full"
-              rows={3}
-              placeholder="Short description"
-              value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
-            />
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <button className="btn btn-primary" disabled={isPending || !form.name}>Add Pet</button>
-          {isPending && <span className="text-sm text-gray-500">Saving…</span>}
-        </div>
+      {/* Filters */}
+      <form action="/dashboard/shelter/pets" className="flex gap-2">
+        <select name="species" defaultValue={species} className="rounded-xl border px-3 py-2 text-sm">
+          <option value="">All species</option>
+          <option value="Dog">Dog</option>
+          <option value="Cat">Cat</option>
+          <option value="Rabbit">Rabbit</option>
+          <option value="Bird">Bird</option>
+          <option value="Other">Other</option>
+        </select>
+        <select name="vaccinated" defaultValue={vaccinated} className="rounded-xl border px-3 py-2 text-sm">
+          <option value="">Any</option>
+          <option value="true">Vaccinated</option>
+          <option value="false">Not vaccinated</option>
+        </select>
+        <button className="rounded-xl border px-3 py-2 text-sm hover:bg-emerald-50">Filter</button>
       </form>
 
-      {/* table */}
-      <div className="rounded-2xl border bg-white overflow-x-auto">
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Species</th>
-              <th>Status</th>
-              <th className="hidden md:table-cell">Breed</th>
-              <th className="hidden md:table-cell">Age</th>
-              <th className="hidden md:table-cell">Tags</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {pets.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="text-center text-sm text-gray-500">
-                  No pets yet.
-                </td>
-              </tr>
-            ) : (
-              pets.map((p) => (
-                <tr key={p._id}>
-                  <td className="font-medium">{p.name}</td>
-                  <td className="capitalize">{p.species}</td>
-                  <td className="capitalize">{p.status}</td>
-                  <td className="hidden md:table-cell">{p.breed || "-"}</td>
-                  <td className="hidden md:table-cell">{p.ageMonths ?? "-"}</td>
-                  <td className="hidden md:table-cell">
-                    <div className="flex flex-wrap gap-2">
-                      {p.vaccinated && <Tag>Vaccinated</Tag>}
-                      {p.goodWithKids && <Tag>Good w/ kids</Tag>}
-                      {p.spayedNeutered && <Tag>Spayed/Neutered</Tag>}
-                    </div>
-                  </td>
-                  <td className="flex flex-wrap gap-2">
-                    <button
-                      className="btn btn-xs"
-                      onClick={() => markStatus(p._id, "adopted")}
-                      disabled={p.status === "adopted"}
-                    >
-                      Mark adopted
-                    </button>
-                    <div className="dropdown dropdown-end">
-                      <div tabIndex={0} role="button" className="btn btn-xs">Status</div>
-                      <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-40">
-                        {STATUS.map((s) => (
-                          <li key={s}>
-                            <button onClick={() => markStatus(p._id, s)} className="capitalize">{s}</button>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    <button className="btn btn-xs btn-error" onClick={() => deletePet(p._id)}>
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+      {/* Grid */}
+      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+        {pets.map((p) => {
+          const cover = normalizeCover(p);
+          const title = p.name || p.petName || "Friend";
+          const line =
+            `${p.species || p.type || p.petType || "—"} • ${p.gender || "—"} • ${p.size || "—"}` +
+            (p.vaccinated ? " • Vaccinated" : "");
+          return (
+            <Link
+              key={String(p._id || p.id)}
+              href={`/pets/${p._id || p.id}`}
+              className="rounded-xl ring-1 ring-black/5 overflow-hidden bg-white hover:shadow"
+            >
+              <div className="h-40 w-full bg-gray-100">
+                {cover && (
+                  <Image
+                    src={cover}
+                    alt={title}
+                    width={600}
+                    height={320}
+                    className="h-40 w-full object-cover"
+                    unoptimized
+                  />
+                )}
+              </div>
+              <div className="p-3">
+                <div className="font-medium text-gray-900">{title}</div>
+                <div className="text-xs text-gray-600">{line}</div>
+              </div>
+            </Link>
+          );
+        })}
+
+        {!pets.length && (
+          <div className="sm:col-span-2 md:col-span-3 py-12 text-center text-gray-500 text-sm">
+            You don’t have any pets yet.
+          </div>
+        )}
       </div>
-    </div>
-  );
-}
 
-/* ---------- small UI helpers ---------- */
-
-function Label({ text }) {
-  return <span className="text-sm text-gray-600">{text}</span>;
-}
-
-function Input({ label, type = "text", value, onChange, required, min }) {
-  return (
-    <label className="grid gap-1">
-      <Label text={label} />
-      <input
-        className="input input-bordered w-full"
-        type={type}
-        value={value}
-        min={min}
-        required={required}
-        onChange={(e) => onChange(e.target.value)}
-      />
-    </label>
-  );
-}
-
-function Select({ label, value, onChange, options }) {
-  return (
-    <label className="grid gap-1">
-      <Label text={label} />
-      <select className="select select-bordered w-full capitalize" value={value} onChange={(e) => onChange(e.target.value)}>
-        {options.map((o) => (
-          <option key={o} value={o} className="capitalize">
-            {o}
-          </option>
-        ))}
-      </select>
-    </label>
-  );
-}
-
-function Toggle({ label, checked, onChange }) {
-  return (
-    <label className="flex items-center gap-3">
-      <input
-        type="checkbox"
-        className="toggle toggle-success"
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-      />
-      <Label text={label} />
-    </label>
-  );
-}
-
-function Tag({ children }) {
-  return <span className="badge badge-ghost">{children}</span>;
-}
-
-function Stat({ title, value, pill = false }) {
-  return (
-    <div className={`rounded-2xl border bg-white px-4 py-3 ${pill ? "inline-flex items-center gap-2" : ""}`}>
-      <span className="text-sm text-gray-500">{title}</span>
-      <span className="text-lg font-semibold">{value}</span>
+      {totalPages > 1 && (
+        <div className="mt-4 flex items-center justify-between text-sm text-gray-600">
+          <span>Page {page} / {totalPages}</span>
+          <div className="flex gap-2">
+            <Link
+              className={`rounded border px-3 py-1 ${page <= 1 ? "pointer-events-none opacity-50" : "hover:bg-emerald-50"}`}
+              href={`/dashboard/shelter/pets?${qs({ species, vaccinated, page: page - 1 })}`}
+            >
+              Prev
+            </Link>
+            <Link
+              className={`rounded border px-3 py-1 ${page >= totalPages ? "pointer-events-none opacity-50" : "hover:bg-emerald-50"}`}
+              href={`/dashboard/shelter/pets?${qs({ species, vaccinated, page: page + 1 })}`}
+            >
+              Next
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

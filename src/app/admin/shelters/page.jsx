@@ -109,15 +109,22 @@ export default async function SheltersList({ searchParams }) {
                     <td className="px-4 py-3 text-gray-600">
                       {s.email || "—"} {s.phone ? `• ${s.phone}` : ""}
                     </td>
-                    <td className="px-4 py-3 text-right">
-                      <a
-                        href={`/admin/shelters/${id}`}
-                        className="rounded-lg border px-3 py-1.5 text-emerald-700 hover:bg-emerald-50"
-                      >
-                        Edit
-                      </a>
-                      <DeleteShelterButton id={id} />
-                    </td>
+                    
+                    <td className="px-4 py-3 text-right space-x-2">
+  <a
+    href={`/admin/shelters/${id}`}
+    className="inline-block rounded-lg border px-3 py-1.5 text-emerald-700 hover:bg-emerald-50"
+  >
+    Edit
+  </a>
+  <a
+    href={`/admin/shelters/${id}?tab=invites`}
+    className="inline-block rounded-lg border px-3 py-1.5 text-blue-700 hover:bg-blue-50"
+  >
+    Invite
+  </a>
+  <DeleteShelterButton id={id} />
+</td>
                   </tr>
                 );
               })

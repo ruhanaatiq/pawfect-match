@@ -1,22 +1,33 @@
+// src/app/api/shelters/requests/[id]/route.js  (adjust path if different)
+import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongoose";
 import AdoptionRequest from "@/models/AdoptionRequest";
-import { requireSession, requireShelterRole, json } from "@/lib/guard";
+import { requireShelterAccess, respond } from "@/lib/guard";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+const ALLOWED = new Set(["pending","under_review","approved","rejected","completed"]);
 
 export async function PATCH(req, { params }) {
-  const session = await requireSession();
   await connectDB();
+
+  // Load the request first to know the shelterId to guard against
   const ar = await AdoptionRequest.findById(params.id);
-  if (!ar) return json({ error: "Not found" }, 404);
+  if (!ar) return respond(404, { error: "Not found" });
 
-  const { assert } = await requireShelterRole(ar.shelterId, ["owner","manager"]);
-  assert(session.user._id);
+  // Allow admins, or shelter members (owner/manager) of this shelter
+  const g = await requireShelterAccess(ar.shelterId, { allowedRoles: ["owner","manager"] });
+  if (g.response) return g.response;
 
-  const { status, notes } = await req.json();
-  if (!["pending","under_review","approved","rejected","completed"].includes(status))
-    return json({ error: "Invalid status" }, 400);
+  const { status, notes } = await req.json().catch(() => ({}));
+  if (!ALLOWED.has(String(status))) {
+    return respond(400, { error: "Invalid status" });
+  }
 
   ar.status = status;
-  if (notes) ar.notes = notes;
+  if (typeof notes === "string") ar.notes = notes.trim();
   await ar.save();
-  return json({ request: ar.toObject() });
+
+  return NextResponse.json({ request: ar.toObject() });
 }
