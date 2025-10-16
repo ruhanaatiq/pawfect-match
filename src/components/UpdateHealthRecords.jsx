@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
-export default function UpdateHealthForm({ petId, existing }) {
-  const router = useRouter();
+
+export default function UpdateHealthForm({ petId, existing, onUpdated }) {
+
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
+
 
   async function onSubmit(e) {
     e.preventDefault();
@@ -24,16 +25,21 @@ export default function UpdateHealthForm({ petId, existing }) {
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error((await res.json()).error || "Update failed");
+      const data = await res.json();
 
-      // success → refresh page or redirect
-      router.refresh();
+      if (!res.ok) throw new Error(data.error || "Update failed");
+
+      // Call parent refresh
+      if (onUpdated) onUpdated();
+
+      alert("Health records updated successfully!");
     } catch (err) {
       setError(err.message || "Something went wrong");
     } finally {
       setPending(false);
     }
   }
+
 
   return (
     <form
@@ -53,7 +59,7 @@ export default function UpdateHealthForm({ petId, existing }) {
           </label>
           <input
             name="vaccinationStatus"
-            defaultValue={existing?.vaccinationStatus}
+            defaultValue={existing?.vetDetails?.vaccinationStatus}
             required
             className="mt-1 w-full rounded-md border px-3 py-2"
           />
@@ -64,7 +70,7 @@ export default function UpdateHealthForm({ petId, existing }) {
           </label>
           <input
             name="healthCondition"
-            defaultValue={existing?.healthCondition}
+            defaultValue={existing?.vetDetails?.healthCondition}
             required
             className="mt-1 w-full rounded-md border px-3 py-2"
           />
@@ -78,7 +84,7 @@ export default function UpdateHealthForm({ petId, existing }) {
           </label>
           <input
             name="temperament"
-            defaultValue={existing?.temperament}
+            defaultValue={existing?.vetDetails?.temperament}
             className="mt-1 w-full rounded-md border px-3 py-2"
           />
         </div>
