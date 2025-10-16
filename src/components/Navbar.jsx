@@ -83,6 +83,8 @@ export default function Navbar() {
           <Link href="/pet-care" className="hover:text-emerald-400">Pet Care</Link>
           <Link href="/campaigns" className="hover:text-emerald-400">Campaigns</Link>
           <Link href="/shelters" className="hover:text-emerald-400">Shelters</Link>
+          <Link href="/support" className="hover:text-emerald-400">Support</Link>
+
           <Link href="/give-feedback" className="hover:text-emerald-400">Give Feedback</Link>
 
           {isShelterMember && (
@@ -215,6 +217,8 @@ export default function Navbar() {
             <Link href="/vets" onClick={() => setMenuOpen(false)}>Vet Details</Link>
             <Link href="/pet-care" onClick={() => setMenuOpen(false)}>Pet Care</Link>
             <Link href="/shelters" onClick={() => setMenuOpen(false)}>Shelters</Link>
+            <Link href="/support" onClick={() => setMenuOpen(false)}>Support</Link>
+
             <Link href="/give-feedback" className="hover:text-emerald-400">Give Feedback</Link>
 
             {session && (
