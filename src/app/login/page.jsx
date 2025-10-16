@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -26,6 +26,7 @@ export default function LoginPage() {
 
   const notVerified = error?.toLowerCase().includes("email not verified");
 
+  // Redirect if already logged in
   useEffect(() => {
     let timer;
     if (isLocked && lockTime > 0) {
@@ -38,11 +39,6 @@ export default function LoginPage() {
     }
     return () => clearInterval(timer);
   }, [isLocked, lockTime]);
-
-  // Redirect if already logged in
-  useEffect(() => {
-    if (status === "authenticated") router.push("/");
-  }, [status, router]);
 
   async function handleSubmit(e) {
   e.preventDefault();
@@ -98,14 +94,20 @@ export default function LoginPage() {
   }
 }
 
-  async function handleSocialLogin(provider) {
+const handleSocialLogin = async (provider) => {
+  try {
+    setPending(true);
     await signIn(provider, { callbackUrl: "/" });
+  } catch (err) {
+    setError("Social login failed. Please try again.");
+  } finally {
+    setPending(false);
   }
+};
 
   async function resendCode() {
     if (!email) { setError("Enter your email first."); return; }
     setError(""); setInfo("");
-
     const res = await fetch("/api/auth/otp/request", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -131,8 +133,6 @@ export default function LoginPage() {
               Pawfect Match
             </span>
           </div>
-
-
           <h1 className="mb-2 text-center text-3xl font-extrabold text-[#4C3D3D]">Welcome back</h1>
           <p className="mb-6 text-center text-sm text-gray-600">
             Log in to continue your adoption journey.
@@ -207,14 +207,11 @@ export default function LoginPage() {
                   {showPw ? <FiEyeOff /> : <FiEye />}
                 </button>
               </div>
-
               <div className="mt-2 text-right">
                 <Link href="/forgot-password" className="text-xs text-emerald-700 hover:underline">
                   Forgot password?
                 </Link>
               </div>
-
-
             </div>
 
             <button
@@ -284,4 +281,4 @@ export default function LoginPage() {
       </div>
     </div>
   );
-}
+  }

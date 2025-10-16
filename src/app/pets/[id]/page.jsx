@@ -9,6 +9,7 @@ import { GiDogBowl } from "react-icons/gi";
 import AvailablePetsCard from "@/components/AvailablePetsCard";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 
 /* ---------- Slider arrows ---------- */
 function NextArrow({ className, style, onClick }) {
@@ -245,9 +246,12 @@ export default function PetDetail() {
               </p>
 
               {pet.status === "available" ? (
-                <button className="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-6 py-2 rounded-lg shadow-md w-fit transition-all duration-300 cursor-pointer">
+                <Link
+                  href={`/adopt/request/${pet.id}`}
+                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-6 py-2 rounded-lg shadow-md w-fit transition-all duration-300 cursor-pointer"
+                >
                   Adopt Today →
-                </button>
+                </Link>
               ) : (
                 <div className="bg-yellow-500 px-6 py-2 rounded-lg w-fit">
                   <span className="text-white font-semibold">Already Adopted</span>

@@ -6,7 +6,6 @@ import { auth } from "@/auth";
 import { connectDB } from "@/lib/mongoose";
 import AdoptionRequest from "@/models/AdoptionRequest";
 
-// --- helpers ---------------------------------------------------------------
 function dayKeys(n = 7) {
   const out = [];
   const d = new Date();
@@ -226,6 +225,10 @@ export default async function AdminHome() {
               </Link>
               <Link className="rounded-xl border px-3 py-2 hover:bg-emerald-50" href="/admin/users">
                 Manage Users
+              </Link>
+                            <Link className="rounded-xl border px-3 py-2 hover:bg-emerald-50" href="/admin/pets/healthrecords">Update Health records</Link>
+                <Link className="rounded-xl border px-3 py-2 hover:bg-emerald-50" href="/campaigns">
+                Add Campaign
               </Link>
             </div>
           </div>
