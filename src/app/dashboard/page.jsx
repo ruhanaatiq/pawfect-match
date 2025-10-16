@@ -5,8 +5,19 @@ export const revalidate = 0;
 import { Suspense } from "react";
 import DashboardClient from "./DashboardClient";
 
+const ALLOWED_TABS = new Set([
+  "applications",
+  "favorites",
+  "my-bookings",
+  "settings",
+  "profile",
+  "my-feedback",
+  "users-reviews",
+]);
+
 export default function DashboardPage({ searchParams }) {
-  const initialTab = (searchParams?.tab || "applications").toLowerCase();
+  const raw = (searchParams?.tab || "applications").toLowerCase();
+  const initialTab = ALLOWED_TABS.has(raw) ? raw : "applications";
 
   return (
     <Suspense fallback={<div className="p-6">Loading dashboard…</div>}>
