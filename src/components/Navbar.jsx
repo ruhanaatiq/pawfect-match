@@ -82,6 +82,7 @@ export default function Navbar() {
           <Link href="/vets" className="hover:text-emerald-400">Vet Details</Link>
           <Link href="/pet-care" className="hover:text-emerald-400">Pet Care</Link>
           <Link href="/campaigns" className="hover:text-emerald-400">Campaigns</Link>
+          <Link href="/workshop" className="hover:text-emerald-400">Workshop</Link>
           <Link href="/shelters" className="hover:text-emerald-400">Shelters</Link>
           <Link href="/give-feedback" className="hover:text-emerald-400">Give Feedback</Link>
 
@@ -214,6 +215,7 @@ export default function Navbar() {
             <Link href="/adopt" onClick={() => setMenuOpen(false)}>Adopt</Link>
             <Link href="/vets" onClick={() => setMenuOpen(false)}>Vet Details</Link>
             <Link href="/pet-care" onClick={() => setMenuOpen(false)}>Pet Care</Link>
+            <Link href="/workshop" onClick={() => setMenuOpen(false)}>Workshop</Link>
             <Link href="/shelters" onClick={() => setMenuOpen(false)}>Shelters</Link>
             <Link href="/give-feedback" className="hover:text-emerald-400">Give Feedback</Link>
 
