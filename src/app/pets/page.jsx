@@ -1,8 +1,10 @@
 // app/dashboard/shelter/pets/page.jsx
 import { headers } from "next/headers";
-import ShelterPetsClient from "./ShelterPets.client"; // ✅ direct import of client component
+import { redirect } from "next/navigation";
+import ShelterPetsClient from "./ShelterPets.client";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 function absoluteUrl(path = "/") {
   const env = process.env.NEXT_PUBLIC_BASE_URL;
@@ -20,7 +22,11 @@ async function getMyShelter() {
     cache: "no-store",
     headers: { cookie },
   });
+
+  if (res.status === 401) return { unauthenticated: true };
+  if (res.status === 403) return { forbidden: true };
   if (res.status === 404) return null;
+
   if (!res.ok) throw new Error(`Failed to load shelter (${res.status})`);
   const data = await res.json();
   return data?.shelter ?? data;
@@ -29,17 +35,28 @@ async function getMyShelter() {
 export default async function ShelterPetsPage() {
   const shelter = await getMyShelter();
 
+  // not logged in → go login and come back here
+  if (shelter?.unauthenticated) {
+    redirect(`/login?callbackUrl=${encodeURIComponent("/dashboard/shelter/pets")}`);
+  }
+
+  // logged in but lacks permission/role → send to onboarding/overview
+  if (shelter?.forbidden) {
+    redirect("/dashboard/shelter"); // or a role-specific onboarding page
+  }
+
+  // logged in but no shelter record yet
   if (!shelter) {
     return (
       <main className="mx-auto max-w-5xl p-6">
         <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5">
           <h1 className="text-2xl font-semibold mb-2">No shelter found</h1>
-          <p className="text-gray-700">Join or create a shelter to manage pets.</p>
+          <p className="text-gray-700">Create your shelter to manage pets.</p>
           <a
-            href="/dashboard/shelter"
+            href="/dashboard/shelter/create"
             className="mt-4 inline-block rounded-xl border px-4 py-2 hover:bg-emerald-50"
           >
-            Back to Shelter
+            Create Shelter
           </a>
         </div>
       </main>

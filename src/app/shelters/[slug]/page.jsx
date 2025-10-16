@@ -4,6 +4,7 @@ export const revalidate = 60;
 import Link from "next/link";
 import Image from "next/image";
 import { absoluteUrl } from "@/lib/absolute-url";
+
 /* ---------------- helpers ---------------- */
 const qs = (obj) => {
   const u = new URLSearchParams();
@@ -14,7 +15,6 @@ const qs = (obj) => {
 };
 
 function normalizeCover(p) {
-  // Support images, photos, or a single string
   if (Array.isArray(p.images) && p.images.length) return p.images[0];
   if (typeof p.images === "string" && p.images) return p.images;
   if (Array.isArray(p.photos) && p.photos.length) return p.photos[0];
@@ -32,11 +32,13 @@ async function fetchShelter(slugOrId) {
 }
 
 async function fetchShelterPets(shelterId, { page = 1, species = "", vaccinated = "" }) {
+  // Always request adoptable pets for the public page
   const url = absoluteUrl(
     `/api/public/shelters/${encodeURIComponent(shelterId)}/pets?${qs({
       page,
       species,
       ...(vaccinated ? { vaccinated } : {}),
+      adoptable: 1,
     })}`
   );
   const res = await fetch(url, { next: { revalidate: 60 } });
@@ -64,17 +66,17 @@ export default async function ShelterPublic({ params, searchParams }) {
   const vaccinated = (searchParams?.vaccinated || "").toString(); // "", "true", "false"
   const page = Math.max(1, Number(searchParams?.page || 1) || 1);
 
- const shelter = await fetchShelter(slugOrId);
-if (!shelter) return <div className="p-8 text-center">Shelter not found.</div>;
+  const shelter = await fetchShelter(slugOrId);
+  if (!shelter) return <div className="p-8 text-center">Shelter not found.</div>;
 
-// ✅ use a guaranteed id (works if API returns `_id` or `id`, or user visited by slug)
-const shelterId = shelter._id || shelter.id || slugOrId;
+  // Guaranteed id (covers _id/id or when slug == id)
+  const shelterId = shelter._id || shelter.id || slugOrId;
 
-const { items: pets, total, pageSize } = await fetchShelterPets(shelterId, {
-  page,
-  species,
-  vaccinated,
-});
+  const { items: pets, total, pageSize } = await fetchShelterPets(shelterId, {
+    page,
+    species,
+    vaccinated,
+  });
   const totalPages = Math.max(1, Math.ceil((total || 0) / (pageSize || 12)));
 
   return (
@@ -146,7 +148,7 @@ const { items: pets, total, pageSize } = await fetchShelterPets(shelterId, {
         </p>
       </section>
 
-      {/* Adoptable Pets (this is where they show) */}
+      {/* Adoptable Pets */}
       <section id="adoptable" className="rounded-2xl bg-white/90 shadow-sm ring-1 ring-black/5 p-5">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-[#4C3D3D]">Adoptable Pets</h2>
@@ -177,11 +179,11 @@ const { items: pets, total, pageSize } = await fetchShelterPets(shelterId, {
               `${p.species || p.type || p.petType || "—"} • ${p.gender || "—"} • ${p.size || "—"}` +
               (p.vaccinated ? " • Vaccinated" : "");
             return (
-             <Link
-  key={String(p._id || p.id)}
-  href={`/pets/${p._id || p.id}`}
-  className="rounded-xl ring-1 ring-black/5 overflow-hidden bg-white hover:shadow"
->
+              <Link
+                key={String(p._id || p.id)}
+                href={`/pets/${p._id || p.id}`}
+                className="rounded-xl ring-1 ring-black/5 overflow-hidden bg-white hover:shadow"
+              >
                 <div className="h-40 w-full bg-gray-100">
                   {cover && (
                     <Image
@@ -241,18 +243,12 @@ const { items: pets, total, pageSize } = await fetchShelterPets(shelterId, {
         <div className="rounded-2xl bg-white/90 shadow-sm ring-1 ring-black/5 p-5">
           <h3 className="font-semibold text-[#4C3D3D]">Contact</h3>
           <ul className="mt-2 text-sm text-gray-700 space-y-1">
-            <li>
-              <span className="text-gray-500">Phone:</span> {shelter.phone || "—"}
-            </li>
-            <li>
-              <span className="text-gray-500">Email:</span> {shelter.email || "—"}
-            </li>
+            <li><span className="text-gray-500">Phone:</span> {shelter.phone || "—"}</li>
+            <li><span className="text-gray-500">Email:</span> {shelter.email || "—"}</li>
             <li>
               <span className="text-gray-500">Address:</span>{" "}
               {shelter.address ||
-                [shelter.location?.city, shelter.location?.state, shelter.location?.country]
-                  .filter(Boolean)
-                  .join(", ") ||
+                [shelter.location?.city, shelter.location?.state, shelter.location?.country].filter(Boolean).join(", ") ||
                 "—"}
             </li>
             <li>
@@ -281,18 +277,3 @@ function Highlight({ label, value }) {
     </div>
   );
 }
-import { NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongoose";
-import Pet from "@/models/Pets";             // adjust if your file is Pet.js
-import mongoose from "mongoose";
-
-export const dynamic = "force-dynamic";
-
-function b(q) {
-  if (q == null || q === "") return undefined;
-  const s = String(q).toLowerCase();
-  if (["1","true","yes"].includes(s)) return true;
-  if (["0","false","no"].includes(s)) return false;
-  return undefined;
-}
-

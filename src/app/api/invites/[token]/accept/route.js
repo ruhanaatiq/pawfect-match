@@ -1,3 +1,4 @@
+// app/api/invites/[token]/accept/route.js
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { auth } from "@/auth";
@@ -5,6 +6,7 @@ import { connectDB } from "@/lib/mongoose";
 import User from "@/models/User";
 import Shelter from "@/models/Shelter";
 import ShelterInvite from "@/models/ShelterInvite";
+// (optional) import { revalidatePath } from "next/cache";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -27,7 +29,6 @@ function sha256Hex(s) {
   return crypto.createHash("sha256").update(s).digest("hex");
 }
 
-/* ---------- POST /api/invites/[token]/accept ---------- */
 export async function POST(_req, { params }) {
   try {
     const session = await auth();
@@ -37,9 +38,8 @@ export async function POST(_req, { params }) {
 
     await connectDB();
 
-    // 1) Find invite by token hash
-    const rawToken = params.token;
-    const tokenHash = sha256Hex(rawToken);
+    // 1) Lookup invite
+    const tokenHash = sha256Hex(params.token);
     const invite = await ShelterInvite.findOne({ tokenHash }).lean();
 
     if (!invite) return NextResponse.json({ error: "Invite not found" }, { status: 404 });
@@ -52,7 +52,7 @@ export async function POST(_req, { params }) {
       return NextResponse.json({ error: "Invite expired" }, { status: 410 });
     }
 
-    // 2) Email must match (normalized)
+    // 2) Email match
     const sessionEmail = normalizeEmail(session.user.email);
     const invitedEmail = normalizeEmail(invite.email);
     if (!sessionEmail || sessionEmail !== invitedEmail) {
@@ -62,55 +62,67 @@ export async function POST(_req, { params }) {
       );
     }
 
-    // 3) Load user — prefer session.user.id, fallback to email
+    // 3) Load user (by id first, then email)
     let user = null;
-    if (session.user.id) {
-      user = await User.findById(session.user.id);
+    if (session.user.id) user = await User.findById(session.user.id);
+    if (!user) user = await User.findOne({ email: session.user.email });
+    if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
+
+    // 4) Prepare atomic shelter update based on role
+    const baseFilter = { _id: invite.shelterId };
+    const ownerSet =
+      invite.role === "owner"
+        ? { ownerId: user._id }
+        : {}; // allow takeover only if no owner? add "ownerId: { $exists: false }" in filter if needed
+
+    const rolePush =
+      invite.role === "manager"
+        ? { $addToSet: { managers: user._id } }
+        : invite.role === "owner"
+        ? {} // owner handled via $set above
+        : { $addToSet: { staff: user._id } };
+
+    // Policy: activate when an OWNER accepts (change if you want “activate on first member”)
+    const statusSet =
+      invite.role === "owner"
+        ? { status: "active", activatedAt: new Date() }
+        : {}; 
+        // If you prefer "activate when first member joins":
+        // ? { status: "active", activatedAt: new Date() } : {};
+
+    // 5) Execute atomic shelter update
+    const update = {
+      $set: { ...ownerSet, ...statusSet },
+      ...(Object.keys(rolePush).length ? rolePush : {}),
+    };
+
+    const updatedShelter = await Shelter.findOneAndUpdate(baseFilter, update, {
+      new: true,
+      lean: true,
+    });
+    if (!updatedShelter) return NextResponse.json({ error: "Shelter not found" }, { status: 404 });
+
+    // 6) Upgrade user role (if not already)
+    if (user.role !== "shelter") {
+      user.role = "shelter";
+      await user.save();
     }
-    if (!user) {
-      user = await User.findOne({ email: session.user.email });
-    }
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
 
-    // 4) Load shelter
-    const shelter = await Shelter.findById(invite.shelterId);
-    if (!shelter) return NextResponse.json({ error: "Shelter not found" }, { status: 404 });
+    // 7) Mark invite accepted
+    await ShelterInvite.updateOne(
+      { _id: invite._id },
+      { $set: { status: "accepted", acceptedAt: new Date(), acceptedByUserId: user._id } }
+    );
 
-    // 5) Upgrade permissions and link user to shelter based on invite.role
-    user.role = "shelter";
+    // 8) (optional) Revalidate public shelter page if you use ISR
+    // try { revalidatePath(`/shelters/${updatedShelter.slug}`); } catch {}
 
-    shelter.managers = shelter.managers || [];
-    shelter.staff = shelter.staff || [];
-
-    if (invite.role === "owner") {
-      if (shelter.ownerId && String(shelter.ownerId) !== String(user._id)) {
-        return NextResponse.json({ error: "Shelter already has an owner" }, { status: 409 });
-      }
-      shelter.ownerId = user._id;
-    } else if (invite.role === "manager") {
-      if (!shelter.managers.find(id => String(id) === String(user._id))) {
-        shelter.managers.push(user._id);
-      }
-    } else {
-      if (!shelter.staff.find(id => String(id) === String(user._id))) {
-        shelter.staff.push(user._id);
-      }
-    }
-
-    // 6) Persist & mark invite accepted
-    await Promise.all([
-      user.save(),
-      shelter.save(),
-      ShelterInvite.updateOne(
-        { _id: invite._id },
-        { $set: { status: "accepted", acceptedAt: new Date(), acceptedByUserId: user._id } }
-      ),
-    ]);
-
-    // With JWT sessions, the new role appears on next login; tell client to reauth
-    return NextResponse.json({ ok: true, needReauth: true });
+    // With JWT sessions, the updated role shows after next login/refresh.
+    return NextResponse.json({
+      ok: true,
+      needReauth: true,
+      shelter: { ...updatedShelter, _id: String(updatedShelter._id) },
+    });
   } catch (err) {
     console.error("Accept invite failed:", err);
     return NextResponse.json(

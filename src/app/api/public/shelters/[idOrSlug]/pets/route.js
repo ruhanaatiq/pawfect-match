@@ -1,47 +1,52 @@
+// src/app/api/public/shelters/[idOrSlug]/pets/route.js
 import { NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongoose";
-import Shelter from "@/models/Shelter";
-import Pet from "@/models/Pets";           // ⚠️ ensure the file name is Pet, not Pets
-import mongoose from "mongoose";
-
-const PUBLIC_STATUSES = (process.env.PUBLIC_PET_STATUSES || "available,listed,active")
-  .split(",")
-  .map(s => s.trim())
-  .filter(Boolean);
+import { getCollection } from "@/lib/dbConnect";
+import { ObjectId } from "mongodb";
 
 export async function GET(req, { params }) {
-  await connectDB();
+  try {
+    const url = new URL(req.url);
+    const page = Math.max(1, Number(url.searchParams.get("page") || 1));
+    const species = url.searchParams.get("species") || "";
+    const vaccinated = url.searchParams.get("vaccinated") || "";
+    const adoptable = url.searchParams.get("adoptable");
 
-  const { idOrSlug } = params;
-  const { searchParams } = new URL(req.url);
-  const page = Math.max(1, Number(searchParams.get("page") || 1) || 1);
-  const pageSize = Math.min(24, Math.max(1, Number(searchParams.get("pageSize") || 12)));
-  const species = (searchParams.get("species") || "").trim();     // "", "Dog", "Cat", etc
-  const vaccinated = searchParams.get("vaccinated");              // "", "true", "false"
+    const shelters = await getCollection("shelters");
+    const pets = await getCollection("pets");
 
-  // Find shelter by slug OR id
-  const isId = mongoose.Types.ObjectId.isValid(idOrSlug);
-  const shelter = await Shelter.findOne(isId ? { _id: idOrSlug } : { publicSlug: idOrSlug }).lean();
-  if (!shelter) return NextResponse.json({ error: "Shelter not found" }, { status: 404 });
+    // Resolve shelter id from idOrSlug
+    const key = params.idOrSlug;
+    let shelter = null;
+    if (ObjectId.isValid(key)) {
+      shelter = await shelters.findOne({ _id: new ObjectId(key) });
+      if (!shelter) shelter = await shelters.findOne({ slug: key });
+    } else {
+      shelter = await shelters.findOne({ slug: key });
+    }
+    if (!shelter) return NextResponse.json({ items: [], total: 0, page, pageSize: 12 });
 
-  const filter = {
-    shelter: shelter._id,
-    // show only public pets
-    $or: [{ status: { $in: PUBLIC_STATUSES } }, { status: { $exists: false } }, { status: "" }, { status: null }],
-  };
-  if (species) filter.species = species;
-  if (vaccinated === "true") filter.vaccinated = true;
-  if (vaccinated === "false") filter.vaccinated = false;
+    const pageSize = 12;
+    const query = { shelterId: String(shelter._id) };
+    if (species) query.species = species;
+    if (vaccinated === "true") query.vaccinated = true;
+    if (vaccinated === "false") query.vaccinated = false;
+    if (adoptable) query.status = { $in: ["available", "adoptable"] };
 
-  const [items, total] = await Promise.all([
-    Pet.find(filter)
-      .select("_id name species gender size age vaccinated images photos status")
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * pageSize)
-      .limit(pageSize)
-      .lean(),
-    Pet.countDocuments(filter),
-  ]);
+    const [items, total] = await Promise.all([
+      pets.find(query).sort({ createdAt: -1 }).skip((page - 1) * pageSize).limit(pageSize).toArray(),
+      pets.countDocuments(query),
+    ]);
 
-  return NextResponse.json({ items, total, page, pageSize });
+    // normalize cover fields a bit
+    const shape = (doc) => ({
+      ...doc,
+      _id: String(doc._id),
+      images: Array.isArray(doc.images) ? doc.images : (doc.images ? [doc.images] : (doc.photos || [])),
+    });
+
+    return NextResponse.json({ items: items.map(shape), total, page, pageSize });
+  } catch (e) {
+    console.error(e);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
 }

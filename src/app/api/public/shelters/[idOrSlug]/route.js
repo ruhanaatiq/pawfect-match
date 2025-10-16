@@ -1,31 +1,24 @@
+// src/app/api/public/shelters/[idOrSlug]/route.js
 import { NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongoose";
-import Shelter from "@/models/Shelter";
-import mongoose from "mongoose";
-
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
+import { getCollection } from "@/lib/dbConnect";
+import { ObjectId } from "mongodb";
 
 export async function GET(_req, { params }) {
-  await connectDB();
-  const key = params.slug;
+  try {
+    const shelters = await getCollection("shelters");
+    const key = params.idOrSlug;
 
-  const byId = mongoose.isValidObjectId(key)
-    ? await Shelter.findById(key).lean()
-    : null;
+    let query = { slug: key };
+    if (ObjectId.isValid(key)) {
+      query = { $or: [{ _id: new ObjectId(key) }, { slug: key }] };
+    }
 
-  const bySlug = byId
-    ? null
-    : await Shelter.findOne({ slug: key }).lean(); // adjust if your field is different
+    const s = await shelters.findOne(query);
+    if (!s) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const s = byId || bySlug;
-  if (!s) return NextResponse.json({ error: "Not found" }, { status: 404 });
-
-  return NextResponse.json({
-    shelter: {
-      ...s,
-      _id: String(s._id), // IMPORTANT
-      id: String(s._id),  // optional convenience
-    },
-  });
+    return NextResponse.json({ shelter: { ...s, _id: String(s._id) } });
+  } catch (e) {
+    console.error(e);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
 }
