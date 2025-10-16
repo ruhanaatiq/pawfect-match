@@ -1,74 +1,121 @@
-// src/app/api/invites/[token]/accept/route.js
 import { NextResponse } from "next/server";
+import crypto from "crypto";
+import { auth } from "@/auth";
 import { connectDB } from "@/lib/mongoose";
-import ShelterInvite from "@/models/ShelterInvite";
-import Shelter from "@/models/Shelter";
 import User from "@/models/User";
-import { requireSession } from "@/lib/guard";
-import { hashToken } from "@/lib/invites";
+import Shelter from "@/models/Shelter";
+import ShelterInvite from "@/models/ShelterInvite";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+/* ---------- helpers ---------- */
+function normalizeEmail(e = "") {
+  e = String(e || "").trim().toLowerCase();
+  const at = e.lastIndexOf("@");
+  if (at === -1) return e;
+  let local = e.slice(0, at);
+  const domain = e.slice(at + 1);
+  if (domain === "gmail.com" || domain === "googlemail.com") {
+    const plus = local.indexOf("+");
+    if (plus !== -1) local = local.slice(0, plus);
+    local = local.replace(/\./g, "");
+  }
+  return `${local}@${domain}`;
+}
+function sha256Hex(s) {
+  return crypto.createHash("sha256").update(s).digest("hex");
+}
+
+/* ---------- POST /api/invites/[token]/accept ---------- */
 export async function POST(_req, { params }) {
   try {
-    const { token } = await params;                 // ← await params
-    const session = await requireSession();         // ← returns session or throws 401
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     await connectDB();
 
-    const tokenHash = hashToken(token);
-    const inv = await ShelterInvite.findOne({ tokenHash });
-    if (!inv) return NextResponse.json({ error: "invalid token" }, { status: 400 });
-    if (inv.status !== "pending") return NextResponse.json({ error: inv.status }, { status: 400 });
-    if (inv.expiresAt && inv.expiresAt < new Date()) {
-      inv.status = "expired";
-      await inv.save();
-      return NextResponse.json({ error: "expired" }, { status: 400 });
+    // 1) Find invite by token hash
+    const rawToken = params.token;
+    const tokenHash = sha256Hex(rawToken);
+    const invite = await ShelterInvite.findOne({ tokenHash }).lean();
+
+    if (!invite) return NextResponse.json({ error: "Invite not found" }, { status: 404 });
+    if (invite.status === "revoked")
+      return NextResponse.json({ error: "Invite revoked" }, { status: 400 });
+    if (invite.status === "accepted")
+      return NextResponse.json({ error: "Invite already accepted" }, { status: 400 });
+    if (invite.expiresAt && new Date(invite.expiresAt) < new Date()) {
+      await ShelterInvite.updateOne({ _id: invite._id }, { $set: { status: "expired" } });
+      return NextResponse.json({ error: "Invite expired" }, { status: 410 });
     }
 
-    // Must be same email as invite
-    const userEmail = String(session.user?.email || "").toLowerCase();
-    if (userEmail !== String(inv.email).toLowerCase()) {
+    // 2) Email must match (normalized)
+    const sessionEmail = normalizeEmail(session.user.email);
+    const invitedEmail = normalizeEmail(invite.email);
+    if (!sessionEmail || sessionEmail !== invitedEmail) {
       return NextResponse.json(
-        { error: "Invite is for a different email. Sign in with the invited email." },
+        { error: "Email mismatch", details: { invitedEmail: invite.email, sessionEmail: session.user.email } },
         { status: 403 }
       );
     }
 
-    // Ensure user exists
-    const user = await User.findOne({ email: inv.email.toLowerCase() });
+    // 3) Load user — prefer session.user.id, fallback to email
+    let user = null;
+    if (session.user.id) {
+      user = await User.findById(session.user.id);
+    }
     if (!user) {
-      return NextResponse.json(
-        { error: "Account not found. Please sign up first, then open the invite link again." },
-        { status: 403 }
-      );
+      user = await User.findOne({ email: session.user.email });
+    }
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Add membership if missing
-    const shelter = await Shelter.findById(inv.shelterId);
+    // 4) Load shelter
+    const shelter = await Shelter.findById(invite.shelterId);
     if (!shelter) return NextResponse.json({ error: "Shelter not found" }, { status: 404 });
 
-    const already = (shelter.members || []).some(m => String(m.userId) === String(user._id));
-    if (!already) {
-      shelter.members = shelter.members || [];
-      shelter.members.push({
-        userId: user._id,
-        role: inv.role,
-        joinedAt: new Date(),
-        status: "active",
-      });
-      await shelter.save();
+    // 5) Upgrade permissions and link user to shelter based on invite.role
+    user.role = "shelter";
+
+    shelter.managers = shelter.managers || [];
+    shelter.staff = shelter.staff || [];
+
+    if (invite.role === "owner") {
+      if (shelter.ownerId && String(shelter.ownerId) !== String(user._id)) {
+        return NextResponse.json({ error: "Shelter already has an owner" }, { status: 409 });
+      }
+      shelter.ownerId = user._id;
+    } else if (invite.role === "manager") {
+      if (!shelter.managers.find(id => String(id) === String(user._id))) {
+        shelter.managers.push(user._id);
+      }
+    } else {
+      if (!shelter.staff.find(id => String(id) === String(user._id))) {
+        shelter.staff.push(user._id);
+      }
     }
 
-    // Mark invite accepted
-    inv.status = "accepted";
-    inv.acceptedAt = new Date();
-    inv.acceptedByUserId = user._id;
-    await inv.save();
+    // 6) Persist & mark invite accepted
+    await Promise.all([
+      user.save(),
+      shelter.save(),
+      ShelterInvite.updateOne(
+        { _id: invite._id },
+        { $set: { status: "accepted", acceptedAt: new Date(), acceptedByUserId: user._id } }
+      ),
+    ]);
 
-    return NextResponse.json({ ok: true, shelterId: String(shelter._id), role: inv.role });
-  } catch (e) {
-    console.error("[POST /api/invites/:token/accept]", e);
-    return NextResponse.json({ error: "Internal Error" }, { status: 500 });
+    // With JWT sessions, the new role appears on next login; tell client to reauth
+    return NextResponse.json({ ok: true, needReauth: true });
+  } catch (err) {
+    console.error("Accept invite failed:", err);
+    return NextResponse.json(
+      { error: "Server error", details: String(err?.message || err) },
+      { status: 500 }
+    );
   }
 }

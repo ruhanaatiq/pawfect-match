@@ -1,50 +1,45 @@
-import { connectDB } from "@/lib/mongoose";
-import Shelter from "@/models/Shelter";
-import { requireSession } from "@/lib/guard";
-import { NextResponse } from "next/server";
-import crypto from "crypto";
-
-export const runtime = "nodejs";
+// Public: list shelters (searchable)
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+import { NextResponse } from "next/server";
+import { connectDB } from "@/lib/mongoose";
+import Shelter from "@/models/Shelter";
+
+export async function GET(req) {
   try {
-    const session = await requireSession();
     await connectDB();
-    const shelters = await Shelter.find({ "members.userId": session.user._id })
-      .select("_id name verifiedAt members inviteCode email phone address")
+
+    const { searchParams } = new URL(req.url);
+    const q = (searchParams.get("q") || "").trim();
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+    const pageSize = Math.min(24, Math.max(1, parseInt(searchParams.get("pageSize") || "21", 10)));
+
+    // Allow both "verified" and "accepted" (if you use that name)
+    const statusFilter = { status: { $in: ["verified", "accepted"] } };
+
+    const find = q
+      ? {
+          ...statusFilter,
+          $or: [
+            { name: { $regex: q, $options: "i" } },
+            { "location.city": { $regex: q, $options: "i" } },
+            { "location.state": { $regex: q, $options: "i" } },
+            { address: { $regex: q, $options: "i" } },
+          ],
+        }
+      : statusFilter;
+
+    const cursor = Shelter.find(find)
+      .select("name publicSlug address location city state country email phone status")
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * pageSize)
+      .limit(pageSize)
       .lean();
-    return NextResponse.json({ shelters });
-  } catch (err) {
-    if (err instanceof Response) return err;
-    console.error(err);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
-  }
-}
 
-export async function POST(req) {
-  try {
-    const session = await requireSession();
-    const body = await req.json();
-    await connectDB();
-
-    const inviteCode = crypto.randomBytes(6).toString("hex");
-    const shelter = await Shelter.create({
-      name: body.name,
-      email: body.email || "",
-      phone: body.phone || "",
-      address: body.address || "",
-      inviteCode,
-      members: [{ userId: session.user._id, role: "owner" }],
-    });
-
-    return NextResponse.json(
-      { shelter: { ...shelter.toObject(), _id: String(shelter._id) } },
-      { status: 201 }
-    );
-  } catch (err) {
-    if (err instanceof Response) return err;
-    console.error(err);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    const [items, total] = await Promise.all([cursor, Shelter.countDocuments(find)]);
+    return NextResponse.json({ items, total, page, pageSize });
+  } catch (e) {
+    console.error(e);
+    return NextResponse.json({ items: [], total: 0, page: 1, pageSize: 21 });
   }
 }

@@ -1,156 +1,134 @@
+// src/app/admin/shelters/[id]/EditShelterForm.client.jsx
 "use client";
+import { useEffect, useMemo, useState } from "react";
 
-import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
-
-export default function EditShelterForm({ id, shelter }) {
-  const router = useRouter();
-  const [saving, setSaving] = useState(false);
-  const [info, setInfo] = useState("");
+export default function EditShelterForm({ id, shelter: initialShelter }) {
+  const [shelter, setShelter] = useState(initialShelter || null);
   const [error, setError] = useState("");
-  const [isPending, startTransition] = useTransition();
+  const [saving, setSaving] = useState(false);
 
-  if (!id) return <p className="text-red-600">Missing shelter id.</p>;
-  if (!shelter) return <p className="text-red-600">Shelter not found.</p>;
+  const shelterId = useMemo(
+    () => id || initialShelter?._id || initialShelter?.id || null,
+    [id, initialShelter]
+  );
+
+  // Fetch only if we have an id but not a shelter object
+  useEffect(() => {
+    if (!shelterId || shelter) return;
+    (async () => {
+      try {
+        setError("");
+        const res = await fetch(`/api/admin/shelters/${shelterId}`, { cache: "no-store" });
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(json?.error || `Failed to load (${res.status})`);
+        setShelter(json?.shelter ?? json);
+      } catch (e) {
+        setError(e.message || "Failed to load shelter");
+      }
+    })();
+  }, [shelterId, shelter]);
+
+  if (!shelterId && !shelter) {
+    return <p className="text-red-500">Missing shelter id.</p>;
+  }
+  if (error) return <p className="text-red-500">{error}</p>;
+  if (!shelter) return <p>Loading…</p>;
 
   async function onSubmit(e) {
     e.preventDefault();
-    setError("");
-    setInfo("");
     setSaving(true);
+    setError("");
 
     const form = new FormData(e.currentTarget);
     const payload = {
-      name: String(form.get("name") || "").trim(),
-      country: String(form.get("country") || "").trim(),
-      description: String(form.get("description") || "").trim(),
+      name: form.get("name")?.trim() || "",
+      email: form.get("email")?.trim() || "",
+      phone: form.get("phone")?.trim() || "",
+      address: form.get("address")?.trim() || "",
+      status: form.get("status")?.trim() || shelter.status || "pending",
     };
 
     try {
-      // ✅ assign fetch to res
-      const res = await fetch(`/api/admin/shelters/${id}`, {
+      const res = await fetch(`/api/admin/shelters/${shelterId}`, {
         method: "PATCH",
-        headers: { "content-type": "application/json" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-
-      const j = await safeJson(res);
-      if (!res.ok) throw new Error(j?.error || `Save failed (${res.status})`);
-
-      // ✅ redirect to Manage Shelters after saving
-      startTransition(() => {
-        router.push("/admin/shelters");
-        router.refresh();
-      });
-    } catch (err) {
-      setError(err.message || "Something went wrong while saving.");
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json?.error || `Update failed (${res.status})`);
+      // optimistic local update
+      setShelter((prev) => ({ ...(prev || {}), ...payload }));
+    } catch (e) {
+      setError(e.message || "Update failed");
     } finally {
       setSaving(false);
     }
   }
 
-  async function onDelete() {
-    if (!confirm("Delete this shelter? This cannot be undone.")) return;
-
-    setError("");
-    setInfo("");
-    setSaving(true);
-
-    try {
-      const res = await fetch(`/api/admin/shelters/${id}`, { method: "DELETE" });
-      const j = await safeJson(res);
-      if (!res.ok) throw new Error(j?.error || `Delete failed (${res.status})`);
-
-      router.push("/admin/shelters");
-      startTransition(() => router.refresh());
-    } catch (err) {
-      setError(err.message || "Something went wrong while deleting.");
-      setSaving(false);
-    }
-  }
-
-  const disabled = saving || isPending;
-
   return (
-    <form
-      onSubmit={onSubmit}
-      className="grid grid-cols-1 gap-4 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5"
-      noValidate
-    >
-      {info && (
-        <p className="rounded-lg bg-emerald-50 px-3 py-2 text-emerald-700">
-          {info}
-        </p>
-      )}
-      {error && (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-red-700">
-          {error}
-        </p>
-      )}
+    <form onSubmit={onSubmit} className="grid gap-4">
+      <div className="grid sm:grid-cols-2 gap-4">
+        <label className="grid gap-1">
+          <span className="text-sm text-gray-600">Name *</span>
+          <input
+            name="name"
+            defaultValue={shelter.name || ""}
+            required
+            className="rounded-xl border px-3 py-2"
+          />
+        </label>
 
-      <label className="grid gap-1">
-        <span className="text-sm text-gray-600">Name *</span>
-        <input
-          name="name"
-          defaultValue={shelter.name ?? ""}
-          required
-          className="rounded-xl border px-3 py-2"
-          aria-required="true"
-        />
-      </label>
+        <label className="grid gap-1">
+          <span className="text-sm text-gray-600">Email</span>
+          <input
+            type="email"
+            name="email"
+            defaultValue={shelter.email || ""}
+            className="rounded-xl border px-3 py-2"
+          />
+        </label>
 
-      <label className="grid gap-1">
-        <span className="text-sm text-gray-600">Country</span>
-        <input
-          name="country"
-          defaultValue={shelter.country ?? ""}
-          className="rounded-xl border px-3 py-2"
-        />
-      </label>
+        <label className="grid gap-1">
+          <span className="text-sm text-gray-600">Phone</span>
+          <input
+            name="phone"
+            defaultValue={shelter.phone || ""}
+            className="rounded-xl border px-3 py-2"
+          />
+        </label>
 
-      <label className="grid gap-1">
-        <span className="text-sm text-gray-600">Description</span>
-        <textarea
-          name="description"
-          rows={4}
-          defaultValue={shelter.description ?? ""}
-          className="rounded-xl border px-3 py-2"
-        />
-      </label>
-
-      <div className="mt-2 flex gap-3">
-        <button
-          disabled={disabled}
-          className="rounded-xl bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700 disabled:opacity-60"
-        >
-          {saving ? "Saving..." : "Save"}
-        </button>
-
-        <a
-          href="/admin/shelters"
-          className="rounded-xl border px-4 py-2 hover:bg-emerald-50"
-        >
-          Back
-        </a>
-
-        <button
-          type="button"
-          onClick={onDelete}
-          disabled={disabled}
-          className="ml-auto rounded-xl bg-red-600 px-4 py-2 text-white hover:bg-red-700 disabled:opacity-60"
-        >
-          Delete
-        </button>
+        <label className="grid gap-1">
+          <span className="text-sm text-gray-600">Status</span>
+          <select
+            name="status"
+            defaultValue={shelter.status || "pending"}
+            className="rounded-xl border px-3 py-2"
+          >
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="suspended">Suspended</option>
+          </select>
+        </label>
       </div>
+
+      <label className="grid gap-1">
+        <span className="text-sm text-gray-600">Address</span>
+        <input
+          name="address"
+          defaultValue={shelter.address || ""}
+          className="rounded-xl border px-3 py-2"
+        />
+      </label>
+
+      {error && <p className="text-red-500">{error}</p>}
+
+      <button
+        type="submit"
+        disabled={saving}
+        className="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-6 py-2 rounded-lg shadow-md w-fit transition-all"
+      >
+        {saving ? "Saving…" : "Save Changes"}
+      </button>
     </form>
   );
-}
-
-// Safely parse JSON (handles empty bodies)
-async function safeJson(res) {
-  try {
-    return await res.json();
-  } catch {
-    return null;
-  }
 }

@@ -1,33 +1,23 @@
-// src/app/api/shelters/[id]/route.js
+import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongoose";
 import Shelter from "@/models/Shelter";
-import { requireSession, requireShelterRole } from "@/lib/guard";
-import { NextResponse } from "next/server";
+import mongoose from "mongoose";
 
-export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET(_req, { params }) {
-  const session = await requireSession();
-  const { shelter } = await requireShelterRole(params.id, ["owner", "manager", "staff"]);
+  await connectDB();
+  const key = params.id;
 
-  // ensure member
-  const isMember = shelter.members.some((m) => String(m.userId) === String(session.user._id));
-  if (!isMember) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  // try slug first
+  const bySlug = await Shelter.findOne({ publicSlug: key }).lean();
+  if (bySlug) return NextResponse.json({ shelter: bySlug });
+
+  // then plain id
+  if (mongoose.isValidObjectId(key)) {
+    const byId = await Shelter.findById(key).lean();
+    if (byId) return NextResponse.json({ shelter: byId });
   }
 
-  return NextResponse.json({ shelter });
-}
-
-export async function PATCH(req, { params }) {
-  const session = await requireSession();
-  const { assert } = await requireShelterRole(params.id, ["owner", "manager"]);
-  assert(session.user._id);
-
-  await connectDB();
-  const patch = await req.json();
-  const s = await Shelter.findByIdAndUpdate(params.id, patch, { new: true }).lean();
-
-  return NextResponse.json({ shelter: s });
+  return NextResponse.json({ error: "Not found" }, { status: 404 });
 }
