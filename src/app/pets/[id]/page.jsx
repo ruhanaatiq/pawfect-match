@@ -1,9 +1,16 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import Slider from "react-slick";
 import {
-  FaPaw, FaPalette, FaVenusMars, FaNotesMedical, FaSyringe,
-  FaClock, FaRulerCombined, FaMapMarkerAlt,
+  FaPaw,
+  FaPalette,
+  FaVenusMars,
+  FaNotesMedical,
+  FaSyringe,
+  FaClock,
+  FaRulerCombined,
+  FaMapMarkerAlt,
 } from "react-icons/fa";
 import { GiDogBowl } from "react-icons/gi";
 import AvailablePetsCard from "@/components/AvailablePetsCard";
@@ -51,15 +58,15 @@ function normalizeOne(raw) {
 
   const id = raw.id || raw._id || null;
 
-  // images could be string or array; normalize to array + cover
+  // images → array + cover
   const imagesArr = Array.isArray(raw.images)
     ? raw.images.filter(Boolean)
     : raw.images
     ? [raw.images]
     : [];
-  const cover = imagesArr[0] || "/placeholder-pet.jpg";
+  const cover = imagesArr[0] || raw.image || "/placeholder-pet.jpg";
 
-  // normalize location
+  // location (stringify for display)
   const loc = raw.petLocation || raw.location || null;
   const locationLine =
     loc && typeof loc === "object"
@@ -68,26 +75,28 @@ function normalizeOne(raw) {
       ? loc
       : "";
 
-  // status safe
   const statusVal = raw.status == null ? "" : String(raw.status).toLowerCase();
 
   return {
     id,
     petName: raw.petName || raw.name || "Friend",
-    species: raw.species || "",
-    breed: raw.breed || "",
+    species: raw.species || raw.petCategory || "",
+    breed: raw.breed || raw.petBreed || "",
     petAge: raw.petAge ?? raw.age ?? "",
     gender: raw.gender || "",
     size: raw.size || "",
     images: imagesArr,
     coverImage: cover,
     color: raw.color || "",
+    // NEW/ENSURED fields:
+    temperament: raw.temperament || "",
     healthStatus: raw.healthStatus || "",
     vaccinated: raw.vaccinated ?? null,
+    lastCheckup: raw.lastCheckup ?? raw?.vetDetails?.lastCheckup ?? "",
     longDescription: raw.longDescription || raw.description || "",
     status: statusVal,
-    petLocation: loc,               // keep raw (object/string/null)
-    petLocationLine: locationLine,  // display-ready string
+    petLocation: loc,
+    petLocationLine: locationLine,
     shelterInfo: raw.shelterInfo || null,
     vetDetails: raw.vetDetails || null,
   };
@@ -123,8 +132,11 @@ export default function PetDetail() {
         setError(json?.error || `Failed to load (${res.status})`);
         return;
       }
-      const raw = json?.data || json?.pet || json;
+
+      // Read { item } first, then fallbacks
+      const raw = json?.item ?? json?.data ?? json?.pet ?? null;
       const normalized = normalizeOne(raw);
+
       if (!normalized?.id) {
         setError("Pet not found");
         return;
@@ -138,9 +150,11 @@ export default function PetDetail() {
 
   async function fetchAllPets() {
     try {
-      const res = await fetch("/api/pets", { cache: "no-store" });
+      // show other available pets
+      const res = await fetch("/api/pets?status=available", { cache: "no-store" });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) return;
+
       const arr = json?.data || json?.items || json;
       const list = Array.isArray(arr)
         ? arr.map(normalizeOne).filter(Boolean)
@@ -171,16 +185,11 @@ export default function PetDetail() {
   if (error) return <div className="p-8 text-red-500">Error: {error}</div>;
   if (!pet) return <div className="p-8">Pet not found</div>;
 
-  // Exclude current pet — use the normalized id on both sides
+  // Exclude current pet — use normalized id on both sides
   const otherPets = allPets.filter((p) => p?.id && p.id !== pet.id);
 
-  // Small guards to avoid rendering objects as children anywhere in the table
   const safeText = (v, fallback = "—") =>
-    v == null
-      ? fallback
-      : typeof v === "object"
-      ? fallback
-      : String(v).trim() || fallback;
+    v == null ? fallback : typeof v === "object" ? fallback : String(v).trim() || fallback;
 
   return (
     <>
@@ -227,11 +236,17 @@ export default function PetDetail() {
                 <p className="flex items-center gap-2"><FaPalette /> <strong>Color:</strong> {safeText(pet.color, "Not specified")}</p>
                 <p className="flex items-center gap-2"><FaVenusMars /> <strong>Gender:</strong> {safeText(pet.gender, "Not specified")}</p>
                 <p className="flex items-center gap-2"><GiDogBowl /> <strong>Breed:</strong> {safeText(pet.breed, "Not specified")}</p>
+
+                {/* NEW lines */}
                 <p className="flex items-center gap-2"><FaNotesMedical /> <strong>Health:</strong> {safeText(pet.healthStatus, "Good")}</p>
+                <p className="flex items-center gap-2"><FaPaw /> <strong>Temperament:</strong> {safeText(pet.temperament, "Friendly")}</p>
+
                 <p className="flex items-center gap-2">
                   <FaSyringe title="Vaccination Info" /> <strong>Vaccinated:</strong>{" "}
                   {pet.vaccinated === null ? "—" : pet.vaccinated ? "Yes" : "No"}
                 </p>
+                <p className="flex items-center gap-2"><FaClock /> <strong>Last Checkup:</strong> {safeText(pet.lastCheckup, "Not available")}</p>
+
                 <p className="flex items-center gap-2"><FaClock /> <strong>Age:</strong> {safeText(pet.petAge, "—")}</p>
                 <p className="flex items-center gap-2"><FaRulerCombined /> <strong>Size:</strong> {safeText(pet.size, "Medium")}</p>
               </div>

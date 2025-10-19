@@ -5,9 +5,22 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import categoriesData from "@/data/category.json";
 
+const toKey = (v) =>
+  String(v || "").trim().toLowerCase().replace(/\s+/g, " ");
+const pickBreed = (p) =>
+  String(
+    p?.breed ??
+      p?.petBreed ??
+      p?.breedName ??
+      p?.type ??
+      p?.petType ??
+      ""
+  ).trim();
+
 export default function CategoryPage() {
   const params = useParams();
   const category = String(params?.category || "").trim();
+
   const [selectedBreed, setSelectedBreed] = useState(null);
   const [pets, setPets] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,40 +34,37 @@ export default function CategoryPage() {
       try {
         setLoading(true);
         setFetchError("");
-        const res = await fetch(`/api/pets?species=${encodeURIComponent(category)}`, {
-          signal: controller.signal,
-          cache: "no-store",
-        });
+
+        // ask for available pets; server should have tolerant species filter
+        const res = await fetch(
+          `/api/pets?species=${encodeURIComponent(category)}&status=available`,
+          { signal: controller.signal, cache: "no-store" }
+        );
         if (!res.ok) throw new Error(`Failed to load pets (${res.status})`);
+
         const data = await res.json();
         const raw = Array.isArray(data?.items) ? data.items : [];
 
         const normalized = raw.map((p, index) => {
           const id = String(p?._id ?? p?.id ?? p?.slug ?? `idx-${index}`);
-          const firstImage = Array.isArray(p?.images)
+          const cover = Array.isArray(p?.images)
             ? p.images.find(Boolean)
-            : p?.images;
+            : p?.images || p?.image;
+
+          const breed = pickBreed(p);
+
           return {
             ...p,
             id,
-            petName: p?.petName || p?.name || "Friend",
-            images: firstImage || "/placeholder.jpg",
+            petName: (p?.petName || p?.name || "Friend").toString(),
+            images: cover || "/placeholder.jpg",
             species: p?.species ?? p?.petCategory ?? "",
             petLocation: p?.petLocation ?? null,
             petAge: p?.petAge ?? p?.age ?? "",
-            breed: p?.breed ?? "",
+            breed,
+            _breedKey: toKey(breed), // for filtering
           };
         });
-
-        if (process?.env?.NODE_ENV !== "production") {
-          const seen = new Set();
-          const dups = [];
-          for (const p of normalized) {
-            if (seen.has(p.id)) dups.push(p.id);
-            seen.add(p.id);
-          }
-          if (dups.length) console.warn("Duplicate pet ids found:", dups);
-        }
 
         if (!cancelled) setPets(normalized);
       } catch (err) {
@@ -77,16 +87,14 @@ export default function CategoryPage() {
 
   const allBreeds = useMemo(() => {
     const speciesObj = categoriesData?.categories?.[category]?.species || {};
-    const list = Object.values(speciesObj).flat().filter(Boolean);
+    const list = Object.values(speciesObj).flat().map((b) => String(b).trim()).filter(Boolean);
     return Array.from(new Set(list));
   }, [category]);
 
   const filteredPets = useMemo(() => {
     if (!selectedBreed) return [];
-    return pets.filter(
-      (pet) =>
-        String(pet.breed).toLowerCase() === String(selectedBreed).toLowerCase()
-    );
+    const needle = toKey(selectedBreed);
+    return pets.filter((p) => p._breedKey === needle || p._breedKey.includes(needle));
   }, [pets, selectedBreed]);
 
   return (
@@ -123,9 +131,7 @@ export default function CategoryPage() {
       </header>
 
       {/* Loading */}
-      {loading && (
-        <div className="text-center text-gray-600 py-20">Loading pets...</div>
-      )}
+      {loading && <div className="text-center text-gray-600 py-20">Loading pets...</div>}
 
       {/* Error */}
       {!loading && fetchError && (
@@ -196,53 +202,50 @@ export default function CategoryPage() {
           {filteredPets.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
               {filteredPets.map((pet) => (
-                <>
-                  {/* stable unique key */}
-                  <div
-                    key={pet.id}
-                    className="bg-white border rounded-xl p-4 shadow-md transition-all duration-300 hover:shadow-xl overflow-hidden"
-                  >
-                    <div className="overflow-hidden rounded-xl mb-4 h-48 flex items-center justify-center bg-gray-100 relative">
-                      <img
-                        src={pet.images}
-                        alt={pet.petName}
-                        className="w-full h-full object-cover"
-                      />
-                      {pet.petAge ? (
-                        <div className="absolute top-3 right-3 bg-amber-400 text-white text-xs font-bold px-2 py-1 rounded-full">
-                          {pet.petAge}
-                        </div>
-                      ) : null}
-                    </div>
-
-                    <h4 className="font-bold text-xl mb-2 text-gray-800">
-                      {pet.petName}
-                    </h4>
-
-                    <div className="flex items-center text-gray-600 mb-4">
-                      <svg
-                        className="w-4 h-4 mr-1"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      <span>{pet?.petLocation?.city ?? "—"}</span>
-                    </div>
-
-                    <Link
-                      href={`/pets/${pet.id}`}
-                      className="inline-block w-full text-center px-4 py-3 rounded-xl transition-colors font-semibold"
-                      style={{ backgroundColor: "rgb(255, 219, 90)", color: "#333" }}
-                    >
-                      Meet {pet.petName}
-                    </Link>
+                <div
+                  key={pet.id} /* key on the top node */
+                  className="bg-white border rounded-xl p-4 shadow-md transition-all duration-300 hover:shadow-xl overflow-hidden"
+                >
+                  <div className="overflow-hidden rounded-xl mb-4 h-48 flex items-center justify-center bg-gray-100 relative">
+                    <img
+                      src={pet.images}
+                      alt={pet.petName}
+                      className="w-full h-full object-cover"
+                    />
+                    {pet.petAge ? (
+                      <div className="absolute top-3 right-3 bg-amber-400 text-white text-xs font-bold px-2 py-1 rounded-full">
+                        {pet.petAge}
+                      </div>
+                    ) : null}
                   </div>
-                </>
+
+                  <h4 className="font-bold text-xl mb-2 text-gray-800">
+                    {pet.petName}
+                  </h4>
+
+                  <div className="flex items-center text-gray-600 mb-4">
+                    <svg
+                      className="w-4 h-4 mr-1"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <span>{pet?.petLocation?.city ?? "—"}</span>
+                  </div>
+
+                  <Link
+                    href={`/pets/${pet.id}`}
+                    className="inline-block w-full text-center px-4 py-3 rounded-xl transition-colors font-semibold"
+                    style={{ backgroundColor: "rgb(255, 219, 90)", color: "#333" }}
+                  >
+                    Meet {pet.petName}
+                  </Link>
+                </div>
               ))}
             </div>
           ) : (
