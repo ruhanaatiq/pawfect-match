@@ -4,7 +4,7 @@ import { getCollection } from "@/lib/dbConnect";
 
 export const runtime = "nodejs"; // MongoDB needs Node runtime
 
-// Normalize output to what the Admin table expects
+// Normalize a doc for public/admin UI
 function shape(doc) {
   const imagesArr = Array.isArray(doc.images)
     ? doc.images.filter(Boolean)
@@ -14,7 +14,7 @@ function shape(doc) {
 
   const image =
     imagesArr[0] ||
-    doc.image || // in case single field was used earlier
+    doc.image || // single image fallback from older writers
     "/placeholder-pet.jpg";
 
   return {
@@ -25,66 +25,76 @@ function shape(doc) {
     age: doc.petAge ?? doc.age ?? "",
     gender: doc.gender ?? "",
     size: doc.size ?? "",
-    status: doc.status ?? "available", // default if not set yet
-    image,                              // single main image (UI reads this first)
-    images: imagesArr.length ? imagesArr : [image], // also provide an array (UI fallback)
+    status: doc.status ?? "available",
+    // ✅ fields your public card reads:
+    image,                                   // main image
+    images: imagesArr.length ? imagesArr : [image],
+    temperament: doc.temperament ?? "",
+    description: doc.longDescription ?? doc.description ?? "",
+    // optional location passthrough
+    petLocation: doc.petLocation ?? null,    // e.g., { city, area, ... }
     createdAt: doc.createdAt ?? null,
   };
 }
 
-function arrify(v) {
-  if (!v) return [];
-  if (Array.isArray(v)) return v.filter(Boolean);
-  return String(v).split(",").map(s => s.trim()).filter(Boolean);
+function escapeRegex(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
+const arrify = (v) =>
+  !v ? [] : Array.isArray(v) ? v.filter(Boolean) : String(v).split(",").map(s => s.trim()).filter(Boolean);
 
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
 
-    // paging
+    // paging (support both pageSize and limit)
     const page = Math.max(1, Number(searchParams.get("page") || 1));
-    const pageSizeRaw = Number(searchParams.get("pageSize") || 10);
-    const pageSize = Math.min(100, Math.max(1, pageSizeRaw));
+    const rawPageSize = Number(searchParams.get("pageSize") ?? searchParams.get("limit") ?? 10);
+    const pageSize = Math.min(100, Math.max(1, rawPageSize));
 
     // filters
     const q = searchParams.get("q")?.trim();
     const status = searchParams.get("status"); // "all" | available | pending | adopted | inactive
+    const species = searchParams.get("species")?.trim(); // <-- added
+    const breeds = arrify(searchParams.get("breeds"));    // optional multi-breed filter
 
     const filter = {};
 
-    // text search across common fields
+    if (status && status !== "all") filter.status = status;
+    if (species) filter.$or = [
+      { species },
+      { petCategory: species },
+    ];
+    if (breeds.length) filter.breed = { $in: breeds };
+
+    // text search across common fields (+ location)
     if (q) {
-      const rx = { $regex: q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), $options: "i" };
-      filter.$or = [
+      const rx = { $regex: escapeRegex(q), $options: "i" };
+      // merge with prior $or if species already set one
+      filter.$or = (filter.$or || []).concat([
         { petName: rx }, { name: rx },
         { breed: rx }, { species: rx }, { petCategory: rx },
-      ];
-    }
-
-    if (status && status !== "all") {
-      filter.status = status;
+        { description: rx }, { longDescription: rx }, { temperament: rx },
+        { "petLocation.city": rx }, { "petLocation.area": rx },
+      ]);
     }
 
     const pets = await getCollection("pets");
 
     const total = await pets.countDocuments(filter);
-
     const docs = await pets
       .find(filter)
-      .sort({ createdAt: -1 }) // newest first
+      .sort({ createdAt: -1 })
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .toArray();
 
     const items = docs.map(shape);
 
-    return NextResponse.json({
-      items,
-      total,
-      page,
-      pageSize,
-    });
+    // small public cache; tweak as you like
+    const res = NextResponse.json({ items, total, page, pageSize });
+    res.headers.set("Cache-Control", "public, s-maxage=60, stale-while-revalidate=120");
+    return res;
   } catch (error) {
     console.error("GET /api/pets error:", error);
     return NextResponse.json(

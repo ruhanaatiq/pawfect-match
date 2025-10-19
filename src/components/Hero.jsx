@@ -126,7 +126,7 @@ export default function Hero() {
             {/* Rotating organic blob */}
             <motion.div
               aria-hidden
-              className="absolute inset-0 rounded-[50%_45%_55%_50%] bg-emerald-500/90"
+              className="absolute inset-0 rounded-[50%_45%_55%_50%] bg-[#FFF7D4]"
               initial={{ rotate: 0, scale: 0.95 }}
               animate={{ rotate: 360, scale: [0.95, 1, 0.97, 1] }}
               transition={{
