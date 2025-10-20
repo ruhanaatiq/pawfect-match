@@ -118,7 +118,23 @@ export default function Hero() {
               </button>
             ))}
           </motion.div>
+          {/* Matchmaker Quiz CTA */}
+<motion.div
+  className="mt-6 flex justify-center md:justify-start"
+  initial={{ opacity: 0, y: 10 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ delay: 0.45 }}
+>
+  <button
+    onClick={() => router.push("/matchmaker")}
+    className="btn btn-lg bg-gradient-to-r rounded-full px-3 py-2 from-emerald-600 to-teal-500 text-white font-bold shadow-md hover:shadow-lg"
+  >
+    🐾 Take the Matchmaker Quiz
+  </button>
+</motion.div>
+
         </motion.div>
+
 
         {/* Right: Animated blob + Carousel */}
         <div className="flex justify-center md:justify-end">
