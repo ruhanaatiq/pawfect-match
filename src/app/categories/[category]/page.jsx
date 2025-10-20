@@ -1,45 +1,101 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import categoriesData from "@/data/category.json";
 
+const toKey = (v) =>
+  String(v || "").trim().toLowerCase().replace(/\s+/g, " ");
+const pickBreed = (p) =>
+  String(
+    p?.breed ??
+      p?.petBreed ??
+      p?.breedName ??
+      p?.type ??
+      p?.petType ??
+      ""
+  ).trim();
+
 export default function CategoryPage() {
   const params = useParams();
-  const category = params.category;
+  const category = String(params?.category || "").trim();
+
   const [selectedBreed, setSelectedBreed] = useState(null);
   const [pets, setPets] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState("");
 
-  // Fetch pets from your database where species = category
   useEffect(() => {
-  const fetchPets = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch(`/api/pets?species=${category}`); 
-      const data = await res.json();
-      setPets(data.items || []); // fix
-    } catch (error) {
-      console.error("Error fetching pets:", error);
-      setPets([]); // fallback
-    } finally {
-      setLoading(false);
+    let cancelled = false;
+    const controller = new AbortController();
+
+    async function fetchPets() {
+      try {
+        setLoading(true);
+        setFetchError("");
+
+        // ask for available pets; server should have tolerant species filter
+        const res = await fetch(
+          `/api/pets?species=${encodeURIComponent(category)}&status=available`,
+          { signal: controller.signal, cache: "no-store" }
+        );
+        if (!res.ok) throw new Error(`Failed to load pets (${res.status})`);
+
+        const data = await res.json();
+        const raw = Array.isArray(data?.items) ? data.items : [];
+
+        const normalized = raw.map((p, index) => {
+          const id = String(p?._id ?? p?.id ?? p?.slug ?? `idx-${index}`);
+          const cover = Array.isArray(p?.images)
+            ? p.images.find(Boolean)
+            : p?.images || p?.image;
+
+          const breed = pickBreed(p);
+
+          return {
+            ...p,
+            id,
+            petName: (p?.petName || p?.name || "Friend").toString(),
+            images: cover || "/placeholder.jpg",
+            species: p?.species ?? p?.petCategory ?? "",
+            petLocation: p?.petLocation ?? null,
+            petAge: p?.petAge ?? p?.age ?? "",
+            breed,
+            _breedKey: toKey(breed), // for filtering
+          };
+        });
+
+        if (!cancelled) setPets(normalized);
+      } catch (err) {
+        if (!cancelled) {
+          console.error("Error fetching pets:", err);
+          setFetchError(err?.message || "Error fetching pets");
+          setPets([]);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     }
-  };
 
-  fetchPets();
-}, [category]);
+    fetchPets();
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [category]);
 
+  const allBreeds = useMemo(() => {
+    const speciesObj = categoriesData?.categories?.[category]?.species || {};
+    const list = Object.values(speciesObj).flat().map((b) => String(b).trim()).filter(Boolean);
+    return Array.from(new Set(list));
+  }, [category]);
 
-  // Get breeds under the category from local JSON
-  const speciesObj = categoriesData.categories[category]?.species || {};
-  const allBreeds = Object.values(speciesObj).flat();
-
-  // Filter pets by selected breed
-  const filteredPets = selectedBreed
-    ? pets.filter((pet) => pet.breed === selectedBreed)
-    : [];
+  const filteredPets = useMemo(() => {
+    if (!selectedBreed) return [];
+    const needle = toKey(selectedBreed);
+    return pets.filter((p) => p._breedKey === needle || p._breedKey.includes(needle));
+  }, [pets, selectedBreed]);
 
   return (
     <div
@@ -74,44 +130,60 @@ export default function CategoryPage() {
         </div>
       </header>
 
-      {/* Loading state */}
-      {loading && (
-        <div className="text-center text-gray-600 py-20">Loading pets...</div>
+      {/* Loading */}
+      {loading && <div className="text-center text-gray-600 py-20">Loading pets...</div>}
+
+      {/* Error */}
+      {!loading && fetchError && (
+        <div className="text-center text-red-600 py-6">{fetchError}</div>
       )}
 
-      {/* Breeds Section */}
-      {!loading && !selectedBreed && (
+      {/* Breeds */}
+      {!loading && !fetchError && !selectedBreed && (
         <div>
           <h3 className="text-xl font-semibold mb-6 text-center text-gray-700">
             Select a Breed
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-            {allBreeds.map((breed) => (
-              <div
-                key={breed}
-                className="bg-white rounded-xl p-5 cursor-pointer transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg border border-gray-100 flex flex-col items-center"
-                onClick={() => setSelectedBreed(breed)}
-              >
-                <div
-                  className="w-16 h-16 rounded-full mb-3 flex items-center justify-center"
-                  style={{ backgroundColor: "rgb(255, 219, 90)" }}
+
+          {allBreeds.length ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+              {allBreeds.map((breed) => (
+                <button
+                  key={breed}
+                  type="button"
+                  className="bg-white rounded-xl p-5 cursor-pointer transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg border border-gray-100 flex flex-col items-center w-full"
+                  onClick={() => setSelectedBreed(breed)}
                 >
-                  <span className="text-white text-2xl">🐾</span>
-                </div>
-                <h3 className="text-lg font-semibold text-center text-gray-800">
-                  {breed}
-                </h3>
-                <p className="text-sm text-gray-500 mt-1 text-center">
-                  View available pets
-                </p>
-              </div>
-            ))}
-          </div>
+                  <div
+                    className="w-16 h-16 rounded-full mb-3 flex items-center justify-center"
+                    style={{ backgroundColor: "rgb(255, 219, 90)" }}
+                  >
+                    <span className="text-white text-2xl">🐾</span>
+                  </div>
+                  <h3 className="text-lg font-semibold text-center text-gray-800">
+                    {breed}
+                  </h3>
+                  <p className="text-sm text-gray-500 mt-1 text-center">
+                    View available pets
+                  </p>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 rounded-xl bg-white shadow-md">
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                No breeds configured
+              </h3>
+              <p className="text-gray-600">
+                We couldn’t find any breeds for {category.toLowerCase()}.
+              </p>
+            </div>
+          )}
         </div>
       )}
 
       {/* Pets of Selected Breed */}
-      {!loading && selectedBreed && (
+      {!loading && !fetchError && selectedBreed && (
         <div>
           <div className="flex flex-col sm:flex-row justify-between items-center mb-6 p-4 rounded-xl bg-white shadow-md">
             <h3 className="text-xl font-semibold text-gray-800 mb-4 sm:mb-0">
@@ -121,10 +193,7 @@ export default function CategoryPage() {
             <button
               onClick={() => setSelectedBreed(null)}
               className="px-4 py-2 rounded-full transition-colors flex items-center"
-              style={{
-                backgroundColor: "rgb(255, 219, 90)",
-                color: "#333",
-              }}
+              style={{ backgroundColor: "rgb(255, 219, 90)", color: "#333" }}
             >
               <span className="mr-2">←</span> Back to Breeds
             </button>
@@ -134,22 +203,26 @@ export default function CategoryPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
               {filteredPets.map((pet) => (
                 <div
-                  key={pet._id}
+                  key={pet.id} /* key on the top node */
                   className="bg-white border rounded-xl p-4 shadow-md transition-all duration-300 hover:shadow-xl overflow-hidden"
                 >
                   <div className="overflow-hidden rounded-xl mb-4 h-48 flex items-center justify-center bg-gray-100 relative">
                     <img
-                      src={pet.images || "/placeholder.jpg"}
+                      src={pet.images}
                       alt={pet.petName}
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute top-3 right-3 bg-amber-400 text-white text-xs font-bold px-2 py-1 rounded-full">
-                      {pet.petAge}
-                    </div>
+                    {pet.petAge ? (
+                      <div className="absolute top-3 right-3 bg-amber-400 text-white text-xs font-bold px-2 py-1 rounded-full">
+                        {pet.petAge}
+                      </div>
+                    ) : null}
                   </div>
+
                   <h4 className="font-bold text-xl mb-2 text-gray-800">
                     {pet.petName}
                   </h4>
+
                   <div className="flex items-center text-gray-600 mb-4">
                     <svg
                       className="w-4 h-4 mr-1"
@@ -162,17 +235,15 @@ export default function CategoryPage() {
                         clipRule="evenodd"
                       />
                     </svg>
-                    <span>{pet.petLocation?.city}</span>
+                    <span>{pet?.petLocation?.city ?? "—"}</span>
                   </div>
+
                   <Link
                     href={`/pets/${pet.id}`}
                     className="inline-block w-full text-center px-4 py-3 rounded-xl transition-colors font-semibold"
-                    style={{
-                      backgroundColor: "rgb(255, 219, 90)",
-                      color: "#333",
-                    }}
+                    style={{ backgroundColor: "rgb(255, 219, 90)", color: "#333" }}
                   >
-                    Meet {pet.petName || pet.name}
+                    Meet {pet.petName}
                   </Link>
                 </div>
               ))}
@@ -189,16 +260,12 @@ export default function CategoryPage() {
                 No pets found
               </h3>
               <p className="text-gray-600 mb-6">
-                We don't have any {selectedBreed}{" "}
-                {category.toLowerCase()}s available right now.
+                We don't have any {selectedBreed} {category.toLowerCase()}s available right now.
               </p>
               <button
                 onClick={() => setSelectedBreed(null)}
                 className="px-6 py-2 rounded-full transition-colors inline-flex items-center"
-                style={{
-                  backgroundColor: "rgb(255, 219, 90)",
-                  color: "#333",
-                }}
+                style={{ backgroundColor: "rgb(255, 219, 90)", color: "#333" }}
               >
                 <span className="mr-2">←</span> Browse other breeds
               </button>
