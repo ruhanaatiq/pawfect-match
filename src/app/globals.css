@@ -9,3 +9,40 @@ color: #059669 ;
 html {
   scroll-behavior: smooth;
 }
+
+.react-calendar {
+  background-color: white;
+  border: none;
+  font-family: 'Inter', sans-serif;
+}
+
+.react-calendar__tile--now {
+  background: #fde68a !important; /* soft yellow */
+  color: #4c3d3d;
+  border-radius: 8px;
+}
+
+.react-calendar__tile--active {
+  background: #f59e0b !important; /* deep orange */
+  color: white !important;
+  border-radius: 8px;
+}
+
+.react-calendar__month-view__weekdays {
+  color: #10b981; /* emerald */
+  font-weight: 600;
+}
+
+
+@keyframes marquee {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 8s linear infinite;
+}
