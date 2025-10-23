@@ -9,7 +9,7 @@ export default function SponsorshipSection() {
     // Bronze Sponsors
     {
       name: "TechNova Solutions",
-      logo: "https://logo.com/brand/technova-solutions-eqtoo4/logos",
+      logo: "https://i.ibb.co.com/4GNQW52/technova1.png",
       url: "https://technovasolutions.io",
       tier: "Bronze",
     },
@@ -23,13 +23,13 @@ export default function SponsorshipSection() {
     // Silver Sponsors
     {
       name: "EduBridge Network",
-      logo: "https://upload.wikimedia.org/wikipedia/commons/1/1b/Logo_Edu_Bridge.png", // placeholder
+      logo: "https://i.ibb.co.com/wZLJfxWv/edu.png", // placeholder
       url: "https://www.edubridge.org/",
       tier: "Silver",
     },
     {
       name: "Sparksoft Corporation",
-      logo: "https://www.sparksoftcorp.com/sites/all/themes/sparksofttheme/logo.png",
+      logo: "https://i.ibb.co.com/P3DMHDP/sparksoft.png",
       url: "https://www.sparksoftcorp.com",
       tier: "Silver",
     },
@@ -37,7 +37,7 @@ export default function SponsorshipSection() {
     // Gold Sponsors
     {
       name: "BrightPath Media",
-      logo: "https://www.brightpath-media.com/wp-content/uploads/2023/02/brightpath-media-logo.png",
+      logo: "https://i.ibb.co.com/BvjMjZL/brightpath.png",
       url: "https://www.brightpath-media.com",
       tier: "Gold",
     },

@@ -18,9 +18,12 @@ import {
   FaDownload,
   FaComments,
   FaStar,
+  FaHandshake,
 } from "react-icons/fa";
 import MyFeedback from "@/components/Feedbacks";
 import FeedbackCards from "@/components/FeedbackCard";
+import SponsorshipRequests from "@/components/SponsorshipRequests";
+
 
 /* ---------- helpers ---------- */
 function dayKeys(n = 7) {
@@ -43,12 +46,32 @@ function Sparkline({ points = [] }) {
   const min = Math.min(...points);
   const dx = w / Math.max(points.length - 1, 1);
   const ny = (v) => (max === min ? h / 2 : h - ((v - min) / (max - min)) * h);
-  const d = points.map((v, i) => `${i ? "L" : "M"} ${i * dx} ${ny(v)}`).join(" ");
+  const d = points
+    .map((v, i) => `${i ? "L" : "M"} ${i * dx} ${ny(v)}`)
+    .join(" ");
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-24" role="img" aria-label="7-day applications sparkline">
-      <path d={d} stroke="currentColor" strokeWidth="2.5" fill="none" className="text-emerald-500" strokeLinecap="round" />
+    <svg
+      viewBox={`0 0 ${w} ${h}`}
+      className="w-full h-24"
+      role="img"
+      aria-label="7-day applications sparkline"
+    >
+      <path
+        d={d}
+        stroke="currentColor"
+        strokeWidth="2.5"
+        fill="none"
+        className="text-emerald-500"
+        strokeLinecap="round"
+      />
       {points.map((v, i) => (
-        <circle key={i} cx={i * dx} cy={ny(v)} r="2.5" className="fill-emerald-500" />
+        <circle
+          key={i}
+          cx={i * dx}
+          cy={ny(v)}
+          r="2.5"
+          className="fill-emerald-500"
+        />
       ))}
     </svg>
   );
@@ -57,11 +80,15 @@ function Sparkline({ points = [] }) {
 function StatCard({ label, value, delta, icon }) {
   return (
     <div className="rounded-2xl bg-white/90 shadow-sm ring-1 ring-black/5 p-4 flex items-start gap-4">
-      <div className="shrink-0 rounded-xl bg-emerald-50 p-3" aria-hidden="true">{icon}</div>
+      <div className="shrink-0 rounded-xl bg-emerald-50 p-3" aria-hidden="true">
+        {icon}
+      </div>
       <div className="flex-1">
         <div className="text-sm text-gray-500">{label}</div>
         <div className="mt-1 text-2xl font-semibold text-gray-900">{value}</div>
-        {delta ? <div className="mt-0.5 text-xs text-emerald-600">{delta}</div> : null}
+        {delta ? (
+          <div className="mt-0.5 text-xs text-emerald-600">{delta}</div>
+        ) : null}
       </div>
     </div>
   );
@@ -95,7 +122,10 @@ export default function DashboardClient({ initialTab = "applications" }) {
     async function run() {
       if (!userEmail) return setLoading(false);
       try {
-        const res = await fetch(`/api/adoptions?email=${encodeURIComponent(userEmail)}`, { cache: "no-store" });
+        const res = await fetch(
+          `/api/adoptions?email=${encodeURIComponent(userEmail)}`,
+          { cache: "no-store" }
+        );
         if (!res.ok) throw new Error("Failed to fetch applications");
         const data = await res.json();
         if (!cancelled) setApplications(Array.isArray(data) ? data : []);
@@ -107,7 +137,9 @@ export default function DashboardClient({ initialTab = "applications" }) {
       }
     }
     run();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [userEmail]);
 
   /* fetch favorites only when tab opened */
@@ -116,7 +148,10 @@ export default function DashboardClient({ initialTab = "applications" }) {
     async function run() {
       if (activeTab !== "favorites" || !userEmail) return;
       try {
-        const res = await fetch(`/api/favorites?email=${encodeURIComponent(userEmail)}`, { cache: "no-store" });
+        const res = await fetch(
+          `/api/favorites?email=${encodeURIComponent(userEmail)}`,
+          { cache: "no-store" }
+        );
         if (!res.ok) throw new Error("Failed to fetch favorites");
         const data = await res.json();
         if (!cancelled) setFavorites(Array.isArray(data) ? data : []);
@@ -126,7 +161,9 @@ export default function DashboardClient({ initialTab = "applications" }) {
       }
     }
     run();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [activeTab, userEmail]);
 
   async function removeFavorite(favId) {
@@ -144,7 +181,9 @@ export default function DashboardClient({ initialTab = "applications" }) {
   async function confirmCancel() {
     if (!selectedApp?._id) return;
     try {
-      const res = await fetch(`/api/adoptions/${selectedApp._id}`, { method: "DELETE" });
+      const res = await fetch(`/api/adoptions/${selectedApp._id}`, {
+        method: "DELETE",
+      });
       if (!res.ok) throw new Error("Failed to cancel application");
       setApplications((prev) => prev.filter((a) => a._id !== selectedApp._id));
       toast.success("Application canceled successfully!");
@@ -190,8 +229,13 @@ export default function DashboardClient({ initialTab = "applications" }) {
   if (!session) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-emerald-50 to-white">
-        <p className="mb-4 text-lg text-gray-700">You must be logged in to view this page.</p>
-        <Link href="/login" className="px-5 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 shadow">
+        <p className="mb-4 text-lg text-gray-700">
+          You must be logged in to view this page.
+        </p>
+        <Link
+          href="/login"
+          className="px-5 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 shadow"
+        >
           Go to Login
         </Link>
       </div>
@@ -202,8 +246,12 @@ export default function DashboardClient({ initialTab = "applications" }) {
 
   /* stats */
   const totalApps = applications.length;
-  const pendingApps = applications.filter((a) => a.status?.toLowerCase() === "pending").length;
-  const approvedApps = applications.filter((a) => a.status?.toLowerCase() === "approved").length;
+  const pendingApps = applications.filter(
+    (a) => a.status?.toLowerCase() === "pending"
+  ).length;
+  const approvedApps = applications.filter(
+    (a) => a.status?.toLowerCase() === "approved"
+  ).length;
 
   const keys = dayKeys(7);
   const map = new Map();
@@ -231,57 +279,147 @@ export default function DashboardClient({ initialTab = "applications" }) {
       {/* sidebar */}
       <aside
         className={`fixed inset-y-0 left-0 w-60 bg-white shadow-lg p-6 transform transition-transform duration-300 z-40
-        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} md:relative md:translate-x-0 md:flex md:flex-col`}
+        ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } md:relative md:translate-x-0 md:flex md:flex-col`}
       >
         {/* close on mobile */}
         <div className="flex justify-end md:hidden mb-4">
-          <button onClick={() => setSidebarOpen(false)} className="text-gray-500 hover:text-gray-700 text-2xl font-bold" aria-label="Close menu">
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
+            aria-label="Close menu"
+          >
             &times;
           </button>
         </div>
 
-        <button onClick={() => { setActiveTab("profile"); setSidebarOpen(false); }}
-          className={`flex items-center px-3 py-2 rounded-lg mb-3 ${activeTab === "profile" ? "bg-emerald-600 text-white" : "text-gray-700 hover:bg-emerald-100"}`}>
+        <button
+          onClick={() => {
+            setActiveTab("profile");
+            setSidebarOpen(false);
+          }}
+          className={`flex items-center px-3 py-2 rounded-lg mb-3 ${
+            activeTab === "profile"
+              ? "bg-emerald-600 text-white"
+              : "text-gray-700 hover:bg-emerald-100"
+          }`}
+        >
           <FaUser className="mr-2" /> Profile
         </button>
 
-        <button onClick={() => { setActiveTab("applications"); setSidebarOpen(false); }}
-          className={`flex items-center px-3 py-2 rounded-lg mb-3 ${activeTab === "applications" ? "bg-emerald-600 text-white" : "text-gray-700 hover:bg-emerald-100"}`}>
+        <button
+          onClick={() => {
+            setActiveTab("applications");
+            setSidebarOpen(false);
+          }}
+          className={`flex items-center px-3 py-2 rounded-lg mb-3 ${
+            activeTab === "applications"
+              ? "bg-emerald-600 text-white"
+              : "text-gray-700 hover:bg-emerald-100"
+          }`}
+        >
           <FaPaw className="mr-2" /> Applications
         </button>
 
-        <button onClick={() => { setActiveTab("favorites"); setSidebarOpen(false); }}
-          className={`flex items-center px-3 py-2 rounded-lg mb-3 ${activeTab === "favorites" ? "bg-emerald-600 text-white" : "text-gray-700 hover:bg-emerald-100"}`}>
+        <button
+          onClick={() => {
+            setActiveTab("favorites");
+            setSidebarOpen(false);
+          }}
+          className={`flex items-center px-3 py-2 rounded-lg mb-3 ${
+            activeTab === "favorites"
+              ? "bg-emerald-600 text-white"
+              : "text-gray-700 hover:bg-emerald-100"
+          }`}
+        >
           <FaHeart className="mr-2" /> Favorites
         </button>
 
-        <button onClick={() => { setActiveTab("my-bookings"); setSidebarOpen(false); }}
-          className={`flex items-center px-3 py-2 rounded-lg mb-3 ${activeTab === "my-bookings" ? "bg-emerald-600 text-white" : "text-gray-700 hover:bg-emerald-100"}`}>
+        <button
+          onClick={() => {
+            setActiveTab("my-bookings");
+            setSidebarOpen(false);
+          }}
+          className={`flex items-center px-3 py-2 rounded-lg mb-3 ${
+            activeTab === "my-bookings"
+              ? "bg-emerald-600 text-white"
+              : "text-gray-700 hover:bg-emerald-100"
+          }`}
+        >
           <FaCalendarCheck className="mr-2" /> My Bookings
         </button>
 
-        <button onClick={() => { setActiveTab("my-feedback"); setSidebarOpen(false); }}
-          className={`flex items-center px-3 py-2 rounded-lg mb-3 ${activeTab === "my-feedback" ? "bg-emerald-600 text-white" : "text-gray-700 hover:bg-emerald-100"}`}>
+        <button
+          onClick={() => {
+            setActiveTab("my-feedback");
+            setSidebarOpen(false);
+          }}
+          className={`flex items-center px-3 py-2 rounded-lg mb-3 ${
+            activeTab === "my-feedback"
+              ? "bg-emerald-600 text-white"
+              : "text-gray-700 hover:bg-emerald-100"
+          }`}
+        >
           <FaComments className="mr-2" /> My Feedback
         </button>
 
-        <button onClick={() => { setActiveTab("users-reviews"); setSidebarOpen(false); }}
-          className={`flex items-center px-3 py-2 rounded-lg mb-3 ${activeTab === "users-reviews" ? "bg-emerald-600 text-white" : "text-gray-700 hover:bg-emerald-100"}`}>
+        <button
+          onClick={() => {
+            setActiveTab("users-reviews");
+            setSidebarOpen(false);
+          }}
+          className={`flex items-center px-3 py-2 rounded-lg mb-3 ${
+            activeTab === "users-reviews"
+              ? "bg-emerald-600 text-white"
+              : "text-gray-700 hover:bg-emerald-100"
+          }`}
+        >
           <FaStar className="mr-2" /> Reviews
         </button>
+        <button
+          onClick={() => {
+            setActiveTab("sponsorships");
+            setSidebarOpen(false);
+          }}
+          className={`flex items-center px-3 py-2 rounded-lg mb-3 ${
+            activeTab === "sponsorships"
+              ? "bg-emerald-600 text-white"
+              : "text-gray-700 hover:bg-emerald-100"
+          }`}
+        >
+          <FaHandshake className="mr-2" /> Sponsorships
+        </button>
 
-        <button onClick={() => { setActiveTab("settings"); setSidebarOpen(false); }}
-          className={`flex items-center px-3 py-2 rounded-lg mt-auto ${activeTab === "settings" ? "bg-emerald-600 text-white" : "text-gray-700 hover:bg-emerald-100"}`}>
+        <button
+          onClick={() => {
+            setActiveTab("settings");
+            setSidebarOpen(false);
+          }}
+          className={`flex items-center px-3 py-2 rounded-lg mt-auto ${
+            activeTab === "settings"
+              ? "bg-emerald-600 text-white"
+              : "text-gray-700 hover:bg-emerald-100"
+          }`}
+        >
           <FaCog className="mr-2" /> Settings
         </button>
 
-        <button onClick={() => signOut()} className="flex items-center px-3 py-2 rounded-lg mt-4 text-red-600 hover:bg-red-100">
+        <button
+          onClick={() => signOut()}
+          className="flex items-center px-3 py-2 rounded-lg mt-4 text-red-600 hover:bg-red-100"
+        >
           <FaSignOutAlt className="mr-2" /> Logout
         </button>
       </aside>
 
       {/* overlay for mobile */}
-      {sidebarOpen && <div className="fixed inset-0 bg-black/30 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/30 z-30 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
 
       {/* main content */}
       <main className="flex-1 p-6 md:p-8 overflow-y-auto">
@@ -292,28 +430,54 @@ export default function DashboardClient({ initialTab = "applications" }) {
               <img
                 src={
                   user.image ||
-                  `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || "User")}`
+                  `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                    user.name || "User"
+                  )}`
                 }
                 alt="Profile"
                 className="w-20 h-20 rounded-full border-2 border-emerald-200 mx-auto mb-4"
               />
-              <h2 className="text-2xl font-bold text-[#4C3D3D]">Welcome back, {user.name || "User"}!</h2>
-              <p className="text-gray-600 mt-1">Here’s a quick look at your adoption activity.</p>
+              <h2 className="text-2xl font-bold text-[#4C3D3D]">
+                Welcome back, {user.name || "User"}!
+              </h2>
+              <p className="text-gray-600 mt-1">
+                Here’s a quick look at your adoption activity.
+              </p>
               <p className="text-sm text-gray-500 mt-1">Email: {user.email}</p>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
-              <StatCard label="Total Applications" value={totalApps} icon={<FaPaw className="text-emerald-600" />} />
-              <StatCard label="Pending" value={pendingApps} icon={<FaPaw className="text-emerald-600" />} />
-              <StatCard label="Approved" value={approvedApps} icon={<FaPaw className="text-emerald-600" />} />
-              <StatCard label="Favorites" value={favorites.length} icon={<FaHeart className="text-emerald-600" />} />
+              <StatCard
+                label="Total Applications"
+                value={totalApps}
+                icon={<FaPaw className="text-emerald-600" />}
+              />
+              <StatCard
+                label="Pending"
+                value={pendingApps}
+                icon={<FaPaw className="text-emerald-600" />}
+              />
+              <StatCard
+                label="Approved"
+                value={approvedApps}
+                icon={<FaPaw className="text-emerald-600" />}
+              />
+              <StatCard
+                label="Favorites"
+                value={favorites.length}
+                icon={<FaHeart className="text-emerald-600" />}
+              />
             </div>
 
             <div className="rounded-2xl bg-white/90 shadow-sm ring-1 ring-black/5 p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-sm text-gray-500">Weekly Applications</div>
-                  <div className="text-lg font-semibold text-gray-900">Last 7 days</div>
+                  <div className="text-sm text-gray-500">
+                    Weekly Applications
+                  </div>
+                  <div className="text-lg font-semibold text-gray-900">
+                    Last 7 days
+                  </div>
                 </div>
               </div>
               <div className="mt-2">
@@ -327,7 +491,9 @@ export default function DashboardClient({ initialTab = "applications" }) {
         {activeTab === "applications" && (
           <section>
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-semibold">My Adoption Applications</h3>
+              <h3 className="text-xl font-semibold">
+                My Adoption Applications
+              </h3>
               <button
                 onClick={downloadApplications}
                 className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
@@ -345,27 +511,51 @@ export default function DashboardClient({ initialTab = "applications" }) {
                 {applications.map((app) => {
                   const status = app.status?.toLowerCase();
                   const width =
-                    status === "approved" ? "100%" :
-                    status === "pending" ? "50%" : "0%";
+                    status === "approved"
+                      ? "100%"
+                      : status === "pending"
+                      ? "50%"
+                      : "0%";
                   const bar =
-                    status === "approved" ? "bg-green-500" :
-                    status === "pending" ? "bg-yellow-400" : "bg-gray-400";
+                    status === "approved"
+                      ? "bg-green-500"
+                      : status === "pending"
+                      ? "bg-yellow-400"
+                      : "bg-gray-400";
                   return (
-                    <li key={app._id} className="p-4 bg-white rounded-xl shadow flex flex-col md:flex-row md:justify-between md:items-center w-full">
+                    <li
+                      key={app._id}
+                      className="p-4 bg-white rounded-xl shadow flex flex-col md:flex-row md:justify-between md:items-center w-full"
+                    >
                       <div className="flex-1 space-y-1">
-                        <p className="font-semibold text-lg text-[#4C3D3D]">{app.petName || "Unknown Pet"}</p>
-                        <p className="text-sm text-gray-600">Status: <span className="font-medium">{app.status}</span></p>
-                        <p className="text-sm text-gray-600">City: {app.applicant?.city || "N/A"}</p>
-                        <p className="text-sm text-gray-600">Phone: {app.applicant?.phone || "N/A"}</p>
+                        <p className="font-semibold text-lg text-[#4C3D3D]">
+                          {app.petName || "Unknown Pet"}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Status:{" "}
+                          <span className="font-medium">{app.status}</span>
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          City: {app.applicant?.city || "N/A"}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Phone: {app.applicant?.phone || "N/A"}
+                        </p>
 
                         <div className="mt-2 w-full bg-gray-200 h-2 rounded-full">
-                          <div className={`h-2 rounded-full ${bar}`} style={{ width }} />
+                          <div
+                            className={`h-2 rounded-full ${bar}`}
+                            style={{ width }}
+                          />
                         </div>
                       </div>
 
                       {status === "pending" && (
                         <button
-                          onClick={() => { setSelectedApp(app); setModalOpen(true); }}
+                          onClick={() => {
+                            setSelectedApp(app);
+                            setModalOpen(true);
+                          }}
                           className="mt-3 md:mt-0 md:ml-6 flex-shrink-0 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
                         >
                           Cancel
@@ -390,13 +580,26 @@ export default function DashboardClient({ initialTab = "applications" }) {
             ) : (
               <ul className="space-y-4">
                 {favorites.map((fav) => (
-                  <li key={fav._id} className="p-4 bg-white rounded-xl shadow flex justify-between items-center">
+                  <li
+                    key={fav._id}
+                    className="p-4 bg-white rounded-xl shadow flex justify-between items-center"
+                  >
                     <div>
-                      <p className="font-semibold text-lg text-[#4C3D3D]">{fav.pet?.name || "Unknown Pet"}</p>
-                      <p className="text-sm text-gray-600">Type: {fav.pet?.type || "N/A"}</p>
-                      <p className="text-sm text-gray-600">Age: {fav.pet?.age || "N/A"}</p>
+                      <p className="font-semibold text-lg text-[#4C3D3D]">
+                        {fav.pet?.name || "Unknown Pet"}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Type: {fav.pet?.type || "N/A"}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Age: {fav.pet?.age || "N/A"}
+                      </p>
                     </div>
-                    <button onClick={() => removeFavorite(fav._id)} className="text-red-600 hover:text-red-800" title="Remove from favorites">
+                    <button
+                      onClick={() => removeFavorite(fav._id)}
+                      className="text-red-600 hover:text-red-800"
+                      title="Remove from favorites"
+                    >
                       <FaHeart />
                     </button>
                   </li>
@@ -429,14 +632,33 @@ export default function DashboardClient({ initialTab = "applications" }) {
             <FeedbackCards limit={null} showHeader={false} grid={2} />
           </section>
         )}
+        {/* SPONSORSHIPS TAB */}
+        {activeTab === "sponsorships" && (
+          <section>
+            <h3 className="text-xl font-semibold mb-4">
+              My Sponsorship Requests
+            </h3>
+            <SponsorshipRequests userEmail={userEmail} />
+          </section>
+        )}
 
         {/* SETTINGS TAB */}
         {activeTab === "settings" && (
           <section>
             <h3 className="text-xl font-semibold mb-4">Settings</h3>
             <div className="space-y-3 p-6 rounded-2xl bg-gradient-to-br from-emerald-50/70 via-white/60 to-rose-50/50 backdrop-blur shadow-xl">
-              <Link href="/update-profile" className="block text-emerald-600 hover:underline">Update Profile</Link>
-              <Link href="/change-password" className="block text-emerald-600 hover:underline">Change Password</Link>
+              <Link
+                href="/update-profile"
+                className="block text-emerald-600 hover:underline"
+              >
+                Update Profile
+              </Link>
+              <Link
+                href="/change-password"
+                className="block text-emerald-600 hover:underline"
+              >
+                Change Password
+              </Link>
             </div>
           </section>
         )}
@@ -450,11 +672,27 @@ export default function DashboardClient({ initialTab = "applications" }) {
             <h3 className="text-lg font-semibold mb-2">Cancel Application?</h3>
             <p className="mb-6 text-gray-600">
               Are you sure you want to cancel your adoption for{" "}
-              <span className="font-medium">{selectedApp?.petName || "this pet"}</span>?
+              <span className="font-medium">
+                {selectedApp?.petName || "this pet"}
+              </span>
+              ?
             </p>
             <div className="flex justify-end space-x-3">
-              <button onClick={() => { setModalOpen(false); setSelectedApp(null); }} className="px-4 py-2 rounded-lg bg-gray-300 hover:bg-gray-400">No</button>
-              <button onClick={confirmCancel} className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700">Yes, Cancel</button>
+              <button
+                onClick={() => {
+                  setModalOpen(false);
+                  setSelectedApp(null);
+                }}
+                className="px-4 py-2 rounded-lg bg-gray-300 hover:bg-gray-400"
+              >
+                No
+              </button>
+              <button
+                onClick={confirmCancel}
+                className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700"
+              >
+                Yes, Cancel
+              </button>
             </div>
           </div>
         </div>
