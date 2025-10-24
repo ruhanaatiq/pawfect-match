@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { FaStar, FaMapMarkerAlt, FaQuoteLeft } from "react-icons/fa";
 import { IoIosStar, IoIosTrendingUp } from "react-icons/io";
+import {motion} from 'framer-motion'
 
 export default function FeedbackCards({
   limit = null,
@@ -86,11 +87,17 @@ export default function FeedbackCards({
     );
   }
 
+
   return (
     <div className="w-full">
       {/* Header Section */}
       {showHeader && (
-        <div className="text-center mb-12">
+        <motion.div 
+         initial={{ opacity: 0, y: -20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          viewport={{amount : 0.5}}
+        className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4 flex justify-center items-start gap-2">
             <FaQuoteLeft className="text-emerald-500 -mt-2 opacity-50" />
             What Our Users Say
@@ -98,23 +105,33 @@ export default function FeedbackCards({
           <p className="text-gray-600 max-w-2xl mx-auto">
             Real stories from people who found their perfect companions
           </p>
-        </div>
+        </motion.div>
       )}
 
       {/* Reviews Stats Section */}
       {showReviews && (
-        <ReviewsSection 
-          feedbacks={feedbacks} 
-          renderStars={renderStars}
-          averageRating={stats.averageRating}
-        />
+        <motion.div 
+         initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}>
+          <ReviewsSection 
+            feedbacks={feedbacks} 
+            renderStars={renderStars}
+            averageRating={stats.averageRating}
+          />
+        </motion.div>
       )}
 
       {/* Feedback Cards Grid */}
-      <div className={`grid grid-cols-1 md:grid-cols-2 ${grid == 3 ? 'lg:grid-cols-3' : 'lg:grid-cols-2'} gap-6`}>
+      <motion.div 
+       className={`grid grid-cols-1 md:grid-cols-2 ${grid == 3 ? 'lg:grid-cols-3' : 'lg:grid-cols-2'} gap-6`}>
         {feedbacks.map((feedback) => (
-          <div
+          <motion.div 
             key={feedback._id}
+              initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          viewport={{amount : 0.4}}
             className="bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-emerald-200 transform hover:-translate-y-1"
           >
             <div className="flex justify-between items-center pb-4 border-b border-gray-200">
@@ -170,9 +187,9 @@ export default function FeedbackCards({
                 <span>{feedback.location}</span>
               </div>
             )}
-          </div>
+          </motion.div >
         ))}
-      </div>
+      </motion.div >
     </div>
   );
 }
@@ -245,7 +262,7 @@ const ReviewsSection = ({ feedbacks, renderStars, averageRating }) => {
 
         {/* Right: Rating Breakdown Bars */}
         <div className="flex-1">
-          {[5, 4, 3, 2, 1].map((rating) => {
+          {[5, 4, 3, 2, 1].map((rating, index) => {
             const count = ratingsCount[rating] || 0;
             const percentage = (count / maxCount) * 100;
             
@@ -257,7 +274,7 @@ const ReviewsSection = ({ feedbacks, renderStars, averageRating }) => {
                 
                 {/* Progress Bar */}
                 <div className="flex-1 bg-gray-200 rounded-full h-2.5 relative overflow-hidden">
-                  <div
+                  <motion.div
                     className={`h-full rounded-full transition-all duration-500 ${
                       rating === 5
                         ? "bg-emerald-500"
@@ -270,7 +287,13 @@ const ReviewsSection = ({ feedbacks, renderStars, averageRating }) => {
                         : "bg-red-400"
                     }`}
                     style={{ width: `${percentage}%` }}
-                  ></div>
+                    initial={{ width: 0 }}
+                    animate={{ width: `${percentage}%` }}
+                    transition={{ 
+                      duration: 0.8,
+                      delay: 0.3 + index * 0.1 
+                    }}
+                  ></motion.div>
                 </div>
                 
                 {/* Count */}
