@@ -14,6 +14,7 @@ import {
   Droplets,
 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 // import { } from "lucide-react"
 
 export default function CareDetails({ params }) {
@@ -89,9 +90,13 @@ export default function CareDetails({ params }) {
             unoptimized
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-          <h1 className="absolute left-5 bottom-5 text-white  text-2xl md:text-3xl font-bold drop-shadow-md">
+          <motion.h1
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+           className="absolute left-5 bottom-5 text-white  text-2xl md:text-3xl font-bold drop-shadow-md">
             {article.title}
-          </h1>
+          </motion.h1>
         </div>
 
         <div className="mb-4 text-sm md:text-base text-gray-500 flex justify-around items-center">
@@ -245,8 +250,12 @@ const QuickCareTips = () => {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {tips.map((tip, index) => (
-          <div
+          <motion.div
             key={index}
+            initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay : index*0.05 }}
+          viewport={{amount : 0.5}}
             className="bg-white shadow-emerald-100 shadow-md border border-gray-100 p-5 rounded-2xl hover:shadow-lg transition-all duration-300"
           >
             <div className="flex flex-col items-start gap-3">
@@ -256,7 +265,7 @@ const QuickCareTips = () => {
                 {tip.desc}
               </p>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
     </section>
