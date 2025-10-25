@@ -16,8 +16,8 @@ const ALLOWED_TABS = new Set([
 ]);
 
 export default function DashboardPage({ searchParams }) {
-  const raw = (searchParams?.tab || "applications").toLowerCase();
-  const initialTab = ALLOWED_TABS.has(raw) ? raw : "applications";
+  const raw = (searchParams?.tab || "profile").toLowerCase();
+  const initialTab = ALLOWED_TABS.has(raw) ? raw : "profile";
 
   return (
     <Suspense fallback={<div className="p-6">Loading dashboard…</div>}>
