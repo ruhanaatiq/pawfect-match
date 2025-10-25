@@ -4,10 +4,15 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { toast } from "react-hot-toast";
+
 import MyBookings from "@/components/MyBookings";
+import MyFeedback from "@/components/Feedbacks";
+import FeedbackCards from "@/components/FeedbackCard";
+import SponsorshipRequests from "@/components/SponsorshipRequests";
+
 import {
   FaHeart,
   FaPaw,
@@ -19,12 +24,11 @@ import {
   FaDownload,
   FaComments,
   FaStar,
+  FaHandshake,
 } from "react-icons/fa";
+
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-
-import MyFeedback from "@/components/Feedbacks";
-import FeedbackCards from "@/components/FeedbackCard";
 
 /* ---------- helpers ---------- */
 function dayKeys(n = 7) {
@@ -39,8 +43,8 @@ function dayKeys(n = 7) {
   return out;
 }
 
-function Sparkline({ points = [] }) {
-  if (!points.length) return <div className="h-24" />;
+function Sparkline({ points = [], className = "text-emerald-500" }) {
+  if (!points.length) return <div className="h-24" aria-hidden="true" />;
 
   const w = 260;
   const h = 80;
@@ -48,66 +52,54 @@ function Sparkline({ points = [] }) {
   const min = Math.min(...points);
   const dx = w / Math.max(points.length - 1, 1);
   const ny = (v) => (max === min ? h / 2 : h - ((v - min) / (max - min)) * h);
-
-  const pathData = points.map((v, i) => `${i === 0 ? "M" : "L"} ${i * dx} ${ny(v)}`).join(" ");
+  const d = points.map((v, i) => `${i ? "L" : "M"} ${i * dx} ${ny(v)}`).join(" ");
 
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-24">
-      <path d={pathData} stroke="#10B981" strokeWidth="2" fill="none" strokeLinecap="round" />
+    <svg
+      viewBox={`0 0 ${w} ${h}`}
+      className={`w-full h-24 ${className}`}
+      role="img"
+      aria-label="7-day applications sparkline"
+    >
+      <path
+        d={d}
+        stroke="currentColor"
+        strokeWidth="2.5"
+        fill="none"
+        strokeLinecap="round"
+      />
       {points.map((v, i) => (
-        <circle key={i} cx={i * dx} cy={ny(v)} r="2.5" fill="#10B981" />
+        <circle
+          key={i}
+          cx={i * dx}
+          cy={ny(v)}
+          r="2.5"
+          fill="currentColor"
+        />
       ))}
     </svg>
   );
 }
 
-
-
 function StatCard({ label, value, icon }) {
   return (
-    <div className="relative p-5 rounded-ee-2xl shadow-sm ring-1 ring-black/5 
-                    bg-gradient-to-r from-yellow-100 via-yellow-100 to-orange-100 overflow-hidden">
-      
-      {/* Moving text across entire card */}
-      <p className="absolute top-2 left-0 whitespace-nowrap animate-marquee 
-                   text-sm font-semibold text-gray-800 tracking-wide w-full">
-        {label}
-      </p>
-
-      {/* Value and icon centered below */}
-      <div className="flex items-center justify-between mt-8">
-        <p className="text-2xl md:text-2xl font-bold text-gray-800">{value}</p>
-        <div className="text-2xl text-amber-700">{icon}</div>
+    <div className="rounded-2xl bg-white/90 shadow-sm ring-1 ring-black/5 p-4 flex items-start gap-4">
+      <div className="shrink-0 rounded-xl bg-emerald-50 p-3" aria-hidden="true">
+        {icon}
+      </div>
+      <div className="flex-1">
+        <div className="text-sm text-gray-500">{label}</div>
+        <div className="mt-1 text-2xl font-semibold text-gray-900">{value}</div>
       </div>
     </div>
   );
 }
 
-
-
-
-
-/* ---------- client component ---------- */
-export default function DashboardClient({ initialTab = "profile" }) {
-  const { data: session, status } = useSession();
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const [activeTab, setActiveTab] = useState(initialTab);
-  const [applications, setApplications] = useState([]);
-  const [favorites, setFavorites] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedApp, setSelectedApp] = useState(null); // store object (not just id)
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [now, setNow] = useState(new Date());
-const [workshops, setWorkshops] = useState([]);
-const [joinedWorkshops, setJoinedWorkshops] = useState({});
-
-
-  const userEmail = session?.user?.email;
-  const getCountdown = (dateStr, nowRef = new Date()) => {
+/* countdown + workshops helpers */
+const getCountdown = (dateStr, nowRef = new Date()) => {
   const date = new Date(dateStr);
   const diff = date - nowRef;
+  if (Number.isNaN(date.getTime())) return "Date TBA";
   if (diff <= 0) return "Live now!";
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
@@ -115,13 +107,28 @@ const [joinedWorkshops, setJoinedWorkshops] = useState({});
   const seconds = Math.floor((diff / 1000) % 60);
   return `${days}d ${hours}h ${minutes}m ${seconds}s`;
 };
-  const workshopList = workshops
-  .sort((a, b) => new Date(a.date) - new Date(b.date))
-  .map((ws) => ({
-    ...ws,
-    countdown: getCountdown(ws.date),
-    joined: !!joinedWorkshops[ws.id],
-  }));
+
+/* ---------- client component ---------- */
+export default function DashboardClient({ initialTab = "profile" }) {
+  const { data: session, status } = useSession();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const [activeTab, setActiveTab] = useState(initialTab);
+  const [applications, setApplications] = useState([]);
+  const [favorites, setFavorites] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedApp, setSelectedApp] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Workshops / calendar enhancements
+  const [workshops, setWorkshops] = useState([]);
+  const [joinedWorkshops, setJoinedWorkshops] = useState({});
+  const [now, setNow] = useState(new Date());
+
+  const userEmail = session?.user?.email;
 
   /* keep tab in sync with URL (?tab=) */
   useEffect(() => {
@@ -151,35 +158,6 @@ const [joinedWorkshops, setJoinedWorkshops] = useState({});
     return () => { cancelled = true; };
   }, [userEmail]);
 
-  useEffect(() => {
-  let cancelled = false;
-  async function fetchWorkshops() {
-    try {
-      const res = await fetch("/api/workshops", { cache: "no-store" });
-      if (!res.ok) throw new Error("Failed to fetch workshops");
-      const data = await res.json();
-      if (!cancelled) setWorkshops(Array.isArray(data) ? data : []);
-    } catch (e) {
-      console.error(e);
-      toast.error("Failed to load workshops");
-    }
-  }
-  fetchWorkshops();
-  return () => { cancelled = true; };
-}, []);
-
-useEffect(() => {
-  const stored = localStorage.getItem("joinedWorkshops");
-  if (stored) setJoinedWorkshops(JSON.parse(stored));
-}, []);
-
-
-
-
-
-
-
-
   /* fetch favorites only when tab opened */
   useEffect(() => {
     let cancelled = false;
@@ -198,6 +176,48 @@ useEffect(() => {
     run();
     return () => { cancelled = true; };
   }, [activeTab, userEmail]);
+
+  /* workshops list */
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchWorkshops() {
+      try {
+        const res = await fetch("/api/workshops", { cache: "no-store" });
+        if (!res.ok) throw new Error("Failed to fetch workshops");
+        const data = await res.json();
+        if (!cancelled) setWorkshops(Array.isArray(data) ? data : []);
+      } catch (e) {
+        console.error(e);
+        toast.error("Failed to load workshops");
+      }
+    }
+    fetchWorkshops();
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("joinedWorkshops");
+      if (stored) setJoinedWorkshops(JSON.parse(stored));
+    } catch {}
+  }, []);
+
+  // tick "now" every 1s for countdowns (optional)
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const workshopList = useMemo(() => {
+    return workshops
+      .slice()
+      .sort((a, b) => new Date(a.date) - new Date(b.date))
+      .map((ws) => ({
+        ...ws,
+        countdown: getCountdown(ws.date, now),
+        joined: !!joinedWorkshops[ws.id],
+      }));
+  }, [workshops, joinedWorkshops, now]);
 
   async function removeFavorite(favId) {
     try {
@@ -226,7 +246,6 @@ useEffect(() => {
       setSelectedApp(null);
     }
   }
-  
 
   /* CSV download */
   function downloadApplications() {
@@ -279,9 +298,8 @@ useEffect(() => {
   const keys = dayKeys(7);
   const map = new Map();
   applications.forEach((app) => {
-    // guard against missing/invalid createdAt
     const t = app?.createdAt ? new Date(app.createdAt) : null;
-    if (t && !isNaN(t)) {
+    if (t && !Number.isNaN(t.getTime())) {
       const date = t.toISOString().slice(0, 10);
       map.set(date, (map.get(date) || 0) + 1);
     }
@@ -289,181 +307,162 @@ useEffect(() => {
   const weekly = keys.map((k) => map.get(k) ?? 0);
   const trendColor = weekly[weekly.length - 1] >= weekly[0] ? "text-emerald-500" : "text-red-500";
 
-
- return (
-  <div className="flex min-h-screen bg-[url('/paws-bg.png')] bg-repeat bg-">
-    {/* Mobile Hamburger */}
-    <button
-      onClick={() => setSidebarOpen((v) => !v)}
-      className="md:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-white shadow"
-      aria-label="Toggle menu"
-    >
-      <FaBars className="text-emerald-600" />
-    </button>
-
-  <aside
-  className={`fixed inset-y-0 left-0 md:-left-48 w-60 p-6 transform transition-transform duration-300 z-40
-    ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} 
-    md:relative md:translate-x-0 md:flex md:flex-col
-    bg-white/30 backdrop-blur-lg bg-gradient-to-b from-emerald-200/20 via-white/10 to-emerald-300/20
-    border-r border-white/20 shadow-lg`}
->
-
-      {/* Close on mobile */}
-      <div className="flex justify-end md:hidden mb-4">
-        <button
-          onClick={() => setSidebarOpen(false)}
-          className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
-          aria-label="Close menu"
-        >
-          &times;
-        </button>
-      </div>
-
-      {/* Sidebar buttons */}
-      {[
-        { tab: "profile", icon: <FaUser className="mr-2" />, label: "Profile" },
-        { tab: "applications", icon: <FaPaw className="mr-2" />, label: "Applications" },
-        { tab: "favorites", icon: <FaHeart className="mr-2" />, label: "Favorites" },
-        { tab: "my-bookings", icon: <FaCalendarCheck className="mr-2" />, label: "My Bookings" },
-        { tab: "my-feedback", icon: <FaComments className="mr-2" />, label: "My Feedback" },
-        { tab: "users-reviews", icon: <FaStar className="mr-2" />, label: "Reviews" },
-          { tab: "settings", icon: <FaStar className="mr-2" />, label: "Settings" },
-      ].map((btn) => (
-        <button
-          key={btn.tab}
-          onClick={() => { setActiveTab(btn.tab); setSidebarOpen(false); }}
-          className={`flex items-center px-3 py-2 rounded-2xl mb-3 ${
-            activeTab === btn.tab ? "bg-emerald-600 text-white" : "text-gray-700 hover:bg-emerald-100"
-          }`}
-        >
-          {btn.icon} {btn.label}
-        </button>
-      ))}
-
+  return (
+    <div className="flex min-h-screen bg-[url('/paws-bg.png')] bg-repeat bg-emerald-50/50">
+      {/* mobile hamburger */}
       <button
-        onClick={() => signOut()}
-        className="flex items-center px-3 py-0 rounded-lg mt-4 text-red-600 hover:bg-red-100"
+        onClick={() => setSidebarOpen((v) => !v)}
+        className="md:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-white shadow"
+        aria-label="Toggle menu"
       >
-        <FaSignOutAlt className="mr-2" /> Logout
+        <FaBars className="text-emerald-600" />
       </button>
 
-      <div className="mt-auto flex justify-center relative ">
-    <img
-      src="welcomedog.png"
-      alt="Cute Dog Hug"
-      className="w-60 h-85 rounded-2xl relative z-10"
-    />
-    <div className="absolute inset-0 rounded-2xl pointer-events-none"></div>
-  </div>
-</aside>
-
-    {/* Overlay for mobile */}
-    {sidebarOpen && (
-      <div
-        className="fixed inset-0 bg-black/30 z-30 md:hidden"
-        onClick={() => setSidebarOpen(false)}
-      />
-    )}
-
-    {/* Main Content */}
-    <main className="flex-1 p-6 md:p-8 overflow-y-auto transition-all duration-300 md:-ml-48">
-      {activeTab === "profile" && (
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Left side — Profile card, stats, sparkline */}
-          <div className="flex-1 space-y-6">
-            {/* Profile card */}
-            <div className="mb-6 p-6 rounded-3xl bg-gradient-to-br from-amber-100 via-pink-100 to-rose-100 shadow-lg ring-1 ring-rose-200 text-center relative overflow-hidden">
-              <div className="absolute -top-4 -left-4 text-amber-300 text-5xl opacity-30 rotate-12">🐾</div>
-              <div className="absolute bottom-0 right-0 text-rose-300 text-6xl opacity-30 -rotate-12">🐾</div>
-
-              <div className="relative inline-block">
-                <img
-                  src={user.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || "User")}&background=FBCFE8&color=4C3D3D`}
-                  alt="Profile"
-                  className="w-24 h-24 rounded-full border-4 border-pink-200 shadow-md mx-auto mb-3"
-                />
-                <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-1 shadow">🐕</div>
-              </div>
-
-              <h2 className="text-2xl font-bold text-[#4C3D3D] mt-2">
-                Welcome back, {user.name || "User"}!
-              </h2>
-              <p className="text-gray-700 mt-1">Here’s a quick look at your adoption activity.</p>
-              <p className="text-sm text-gray-500 mt-2">✉️ Email: {user.email}</p>
-            </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-6">
-              <StatCard label="Total Applications" value={totalApps} icon={<FaPaw className="text-emerald-600" />} />
-              <StatCard label="Pending" value={pendingApps} icon={<FaPaw className="text-emerald-600" />} />
-              <StatCard label="Approved" value={approvedApps} icon={<FaPaw className="text-emerald-600" />} />
-              <StatCard label="Favorites" value={favorites.length} icon={<FaHeart className="text-emerald-600" />} />
-            </div>
-
-            {/* Weekly Applications Sparkline */}
-            <div className="rounded-2xl bg-white/90 shadow-sm ring-1 ring-black/5 p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm text-gray-500">Weekly Applications</div>
-                  <div className="text-lg font-semibold text-gray-900">Last 7 days</div>
-                </div>
-              </div>
-              <div className="mt-2">
-               <Sparkline points={weekly} color={trendColor} />
-              </div>
-            </div>
-          </div>
-
-          {/* Right side — Calendar + Workshops */}
-          <div className="lg:w-72 flex flex-col gap-4">
-            {/* Calendar */}
-            <div className="rounded-2xl bg-white shadow-sm ring-1 ring-black/5 p-4 border border-emerald-100">
-              <h4 className="text-center font-semibold mb-2 text-[#4C3D3D]">Your Calendar</h4>
-              <Calendar
-                className="rounded-xl text-sm border-0 w-full"
-                tileClassName={({ date }) => {
-                  const day = date.getDate();
-                  if (day % 5 === 0) return "bg-orange-100 text-orange-700 rounded-md";
-                  if (day % 3 === 0) return "bg-yellow-100 text-yellow-700 rounded-md";
-                  if (day % 2 === 0) return "bg-green-100 text-green-700 rounded-md";
-                  return "";
-                }}
-              />
-            </div>
-   {/* Upcoming Workshops */}
-            <div className="rounded-2xl bg-amber-100 shadow-sm ring-1 ring-black/5 p-4 border border-emerald-100 h-50 overflow-y-auto">
-  <h4 className="text-center font-semibold mb-2 text-amber-900 ">Upcoming Workshops</h4>
-  {workshopList.map((ws) => (
-    <div
-      key={ws.id}
-      className="relative bg-cover bg-center rounded-xl shadow overflow-hidden h-28 mb-3"
-      style={{ backgroundImage: `url(${ws.bgImage})` }}
-    >
-      <div className="absolute inset-0 bg-black/30"></div>
-      <div className="relative z-10 p-3 flex flex-col justify-between h-full text-white">
-        <div>
-          <h5 className="font-semibold">{ws.title}</h5>
-          <p className="text-xs">{new Date(ws.date).toLocaleDateString()} | {new Date(ws.date).toLocaleTimeString()}</p>
-        </div>
-        <div className="flex justify-between items-center mt-1">
-          <span className="text-yellow-300 text-xs font-medium">{ws.countdown}</span>
-          <button
-            onClick={() => router.push(`/workshops/${ws.id}`)}
-            className="px-2 py-1 text-xs rounded-lg bg-emerald-600 hover:bg-emerald-700"
-          >
-            Join
+      {/* sidebar */}
+      <aside
+        className={`fixed inset-y-0 left-0 w-60 p-6 transform transition-transform duration-300 z-40
+        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} 
+        md:relative md:translate-x-0 md:flex md:flex-col
+        bg-white/30 backdrop-blur-lg bg-gradient-to-b from-emerald-200/20 via-white/10 to-emerald-300/20
+        border-r border-white/20 shadow-lg`}
+      >
+        {/* close on mobile */}
+        <div className="flex justify-end md:hidden mb-4">
+          <button onClick={() => setSidebarOpen(false)} className="text-gray-500 hover:text-gray-700 text-2xl font-bold" aria-label="Close menu">
+            &times;
           </button>
         </div>
-      </div>
-    </div>
-  ))}
-</div>
 
+        {[
+          { tab: "profile", icon: <FaUser className="mr-2" />, label: "Profile" },
+          { tab: "applications", icon: <FaPaw className="mr-2" />, label: "Applications" },
+          { tab: "favorites", icon: <FaHeart className="mr-2" />, label: "Favorites" },
+          { tab: "my-bookings", icon: <FaCalendarCheck className="mr-2" />, label: "My Bookings" },
+          { tab: "my-feedback", icon: <FaComments className="mr-2" />, label: "My Feedback" },
+          { tab: "users-reviews", icon: <FaStar className="mr-2" />, label: "Reviews" },
+          { tab: "sponsorships", icon: <FaHandshake className="mr-2" />, label: "Sponsorships" },
+          { tab: "settings", icon: <FaCog className="mr-2" />, label: "Settings" },
+        ].map((btn) => (
+          <button
+            key={btn.tab}
+            onClick={() => { setActiveTab(btn.tab); setSidebarOpen(false); }}
+            className={`flex items-center px-3 py-2 rounded-2xl mb-3 ${
+              activeTab === btn.tab ? "bg-emerald-600 text-white" : "text-gray-700 hover:bg-emerald-100"
+            }`}
+          >
+            {btn.icon} {btn.label}
+          </button>
+        ))}
 
-          </div>
+        <button onClick={() => signOut()} className="flex items-center px-3 py-0 rounded-lg mt-4 text-red-600 hover:bg-red-100">
+          <FaSignOutAlt className="mr-2" /> Logout
+        </button>
+
+        <div className="mt-auto flex justify-center relative">
+          <img src="welcomedog.png" alt="Cute Dog Hug" className="w-60 h-85 rounded-2xl relative z-10" />
+          <div className="absolute inset-0 rounded-2xl pointer-events-none" />
         </div>
-      )}
+      </aside>
+
+      {/* overlay for mobile */}
+      {sidebarOpen && <div className="fixed inset-0 bg-black/30 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />}
+
+      {/* main content */}
+      <main className="flex-1 p-6 md:p-8 overflow-y-auto">
+        {/* PROFILE TAB */}
+        {activeTab === "profile" && (
+          <div className="flex flex-col lg:flex-row gap-6">
+            {/* left: profile + stats + sparkline */}
+            <div className="flex-1 space-y-6">
+              <div className="mb-6 p-6 rounded-3xl bg-gradient-to-br from-amber-100 via-pink-100 to-rose-100 shadow-lg ring-1 ring-rose-200 text-center relative overflow-hidden">
+                <div className="absolute -top-4 -left-4 text-amber-300 text-5xl opacity-30 rotate-12">🐾</div>
+                <div className="absolute bottom-0 right-0 text-rose-300 text-6xl opacity-30 -rotate-12">🐾</div>
+
+                <div className="relative inline-block">
+                  <img
+                    src={user.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || "User")}&background=FBCFE8&color=4C3D3D`}
+                    alt="Profile"
+                    className="w-24 h-24 rounded-full border-4 border-pink-200 shadow-md mx-auto mb-3"
+                  />
+                  <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-1 shadow">🐕</div>
+                </div>
+
+                <h2 className="text-2xl font-bold text-[#4C3D3D] mt-2">
+                  Welcome back, {user.name || "User"}!
+                </h2>
+                <p className="text-gray-700 mt-1">Here’s a quick look at your adoption activity.</p>
+                <p className="text-sm text-gray-500 mt-2">✉️ Email: {user.email}</p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-6">
+                <StatCard label="Total Applications" value={totalApps} icon={<FaPaw className="text-emerald-600" />} />
+                <StatCard label="Pending" value={pendingApps} icon={<FaPaw className="text-emerald-600" />} />
+                <StatCard label="Approved" value={approvedApps} icon={<FaPaw className="text-emerald-600" />} />
+                <StatCard label="Favorites" value={favorites.length} icon={<FaHeart className="text-emerald-600" />} />
+              </div>
+
+              <div className="rounded-2xl bg-white/90 shadow-sm ring-1 ring-black/5 p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-sm text-gray-500">Weekly Applications</div>
+                    <div className="text-lg font-semibold text-gray-900">Last 7 days</div>
+                  </div>
+                </div>
+                <div className="mt-2">
+                  <Sparkline points={weekly} className={trendColor} />
+                </div>
+              </div>
+            </div>
+
+            {/* right: calendar + workshops */}
+            <div className="lg:w-72 flex flex-col gap-4">
+              <div className="rounded-2xl bg-white shadow-sm ring-1 ring-black/5 p-4 border border-emerald-100">
+                <h4 className="text-center font-semibold mb-2 text-[#4C3D3D]">Your Calendar</h4>
+                <Calendar
+                  className="rounded-xl text-sm border-0 w-full"
+                  tileClassName={({ date }) => {
+                    const day = date.getDate();
+                    if (day % 5 === 0) return "bg-orange-100 text-orange-700 rounded-md";
+                    if (day % 3 === 0) return "bg-yellow-100 text-yellow-700 rounded-md";
+                    if (day % 2 === 0) return "bg-green-100 text-green-700 rounded-md";
+                    return "";
+                  }}
+                />
+              </div>
+
+              <div className="rounded-2xl bg-amber-100 shadow-sm ring-1 ring-black/5 p-4 border border-emerald-100 h-50 overflow-y-auto">
+                <h4 className="text-center font-semibold mb-2 text-amber-900">Upcoming Workshops</h4>
+                {workshopList.map((ws) => (
+                  <div
+                    key={ws.id}
+                    className="relative bg-cover bg-center rounded-xl shadow overflow-hidden h-28 mb-3"
+                    style={{ backgroundImage: `url(${ws.bgImage})` }}
+                  >
+                    <div className="absolute inset-0 bg-black/30" />
+                    <div className="relative z-10 p-3 flex flex-col justify-between h-full text-white">
+                      <div>
+                        <h5 className="font-semibold">{ws.title}</h5>
+                        <p className="text-xs">
+                          {new Date(ws.date).toLocaleDateString()} | {new Date(ws.date).toLocaleTimeString()}
+                        </p>
+                      </div>
+                      <div className="flex justify-between items-center mt-1">
+                        <span className="text-yellow-300 text-xs font-medium">{ws.countdown}</span>
+                        <button
+                          onClick={() => router.push(`/workshops/${ws.id}`)}
+                          className="px-2 py-1 text-xs rounded-lg bg-emerald-600 hover:bg-emerald-700"
+                        >
+                          Join
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* APPLICATIONS TAB */}
         {activeTab === "applications" && (
           <section>
@@ -568,6 +567,14 @@ useEffect(() => {
           <section>
             <h3 className="text-xl font-semibold mb-4">All Users Reviews</h3>
             <FeedbackCards limit={null} showHeader={false} grid={2} />
+          </section>
+        )}
+
+        {/* SPONSORSHIPS TAB */}
+        {activeTab === "sponsorships" && (
+          <section>
+            <h3 className="text-xl font-semibold mb-4">My Sponsorship Requests</h3>
+            <SponsorshipRequests userEmail={userEmail} />
           </section>
         )}
 

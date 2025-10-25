@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   FaPhone,
   FaEnvelope,
@@ -9,13 +9,35 @@ import {
 } from "react-icons/fa";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import toast from "react-hot-toast";
+
 export default function VetDetailClient({ vet }) {
   const { data: session } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [alreadyBooked, setAlreadyBooked] = useState(false);
 
+  // ✅ Check if the current user already booked this vet
+  useEffect(() => {
+    const checkBooking = async () => {
+      if (!session?.user?.email) return;
+
+      try {
+        const res = await fetch(`/api/bookings?email=${session.user.email}`);
+        if (!res.ok) return;
+
+        const data = await res.json();
+        const hasBooked = data.some((b) => b.vetId === vet._id);
+        setAlreadyBooked(hasBooked);
+      } catch (err) {
+        console.error("Error checking booking:", err);
+      }
+    };
+
+    checkBooking();
+  }, [session, vet._id]);
+
+  // ✅ Handle booking
   const handleBookAppointment = async () => {
     if (!session) {
       toast.error("Please login first.");
@@ -45,6 +67,7 @@ export default function VetDetailClient({ vet }) {
       if (!res.ok) throw new Error(result.error || "Failed to book");
 
       toast.success("Appointment booked!");
+      setAlreadyBooked(true);
       router.push("/dashboard?tab=my-bookings");
     } catch (err) {
       toast.error(err.message);
@@ -52,6 +75,8 @@ export default function VetDetailClient({ vet }) {
       setLoading(false);
     }
   };
+
+  // ✅ UI
   return (
     <div className="px-4 py-8 max-w-5xl mx-auto space-y-10">
       {/* Vet Card */}
@@ -125,19 +150,17 @@ export default function VetDetailClient({ vet }) {
             </p>
           </div>
 
-          {/* <button className="bg-[#f9d66f] hover:bg-[#f9d66f]  font-semibold px-6 py-2 rounded-lg shadow-md w-fit transition-all duration-300 cursor-pointer mt-4">
-            Book Appointment
-          </button> */}
+          {/* ✅ Dynamic button */}
           <button
             onClick={handleBookAppointment}
-            disabled={loading || vet.status === "booked"}
+            disabled={loading || alreadyBooked}
             className={`bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-6 py-2 rounded-lg shadow-md transition-all ${
-              loading ? "opacity-70 cursor-not-allowed" : ""
+              loading || alreadyBooked ? "opacity-70 cursor-not-allowed" : ""
             }`}
           >
             {loading
               ? "Booking..."
-              : vet.status === "booked"
+              : alreadyBooked
               ? "Booked"
               : "Book Appointment"}
           </button>
