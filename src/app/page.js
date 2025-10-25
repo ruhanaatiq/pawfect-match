@@ -9,7 +9,7 @@ import Newsletter from "@/components/Newsletter";
 import CalltoAction from "@/components/CalltoAction";
 import ContactForm from "@/components/ContactForm";
 import FeedbackCards from "@/components/FeedbackCard";
-
+import AccessoriesSpotlightSection from "@/components/AccessoriesSpotlightSection";
 export default async function HomePage() {
    
   return (
@@ -18,6 +18,7 @@ export default async function HomePage() {
       <Services />
       <About/>
        <PetCategories/>
+       <AccessoriesSpotlightSection/>
        <WhyChooseUs/>
        {/* <Testimonials/> */}
       <LandingPageFeedback />
