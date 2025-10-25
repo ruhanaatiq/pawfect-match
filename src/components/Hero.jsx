@@ -20,16 +20,14 @@ export default function Hero() {
 
   // autoplay carousel
   useEffect(() => {
-    const id = setInterval(() => {
-      setCurrent((i) => (i + 1) % slides.length);
-    }, 3500);
+    const id = setInterval(() => setCurrent((i) => (i + 1) % slides.length), 3500);
     return () => clearInterval(id);
   }, [slides.length]);
 
-  // ✅ JS version (no TS types)
-  const goTo = useCallback((idx) => {
-    setCurrent((idx + slides.length) % slides.length);
-  }, [slides.length]);
+  const goTo = useCallback(
+    (idx) => setCurrent((idx + slides.length) % slides.length),
+    [slides.length]
+  );
 
   function handleSearch(e) {
     e.preventDefault();
@@ -43,6 +41,10 @@ export default function Hero() {
       {/* animated paw background */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute inset-0 bg-[url('/paws-bg.png')] bg-[length:220px_220px] opacity-10 animate-pawFloat" />
+        {/* floating paw decals */}
+        <FloatingPaw className="left-[10%] top-[20%]" delay={0} />
+        <FloatingPaw className="right-[12%] top-[30%]" delay={1.2} />
+        <FloatingPaw className="left-[18%] bottom-[18%]" delay={2.1} />
       </div>
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
@@ -53,32 +55,54 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
-          <h1 className="text-4xl md:text-5xl font-extrabold leading-tight text-[#4C3D3D]">
+          {/* NEW: AI Matchmaker pill */}
+          <motion.div
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200"
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05, duration: 0.35 }}
+            aria-label="New AI Matchmaker feature"
+          >
+            <span className="text-xs font-semibold uppercase tracking-wide">New</span>
+            <span className="text-xs">AI Matchmaker</span>
+          </motion.div>
+
+          <h1 className="mt-3 text-4xl md:text-5xl font-extrabold leading-tight text-[#4C3D3D]">
             Find Your{" "}
             <motion.span
-              className="text-emerald-600 inline-block"
-              initial={{ scale: 0.9 }}
-              animate={{ scale: [0.9, 1.03, 1] }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600"
+              initial={{ scale: 0.96 }}
+              animate={{ scale: [0.96, 1.03, 1] }}
+              transition={{ duration: 0.9, ease: "easeOut" }}
             >
-              Best Match
+              Pawfect Match
             </motion.span>
           </h1>
 
           <motion.p
-            className="mt-4 text-gray-700 max-w-md md:max-w-lg"
+            className="mt-3 text-gray-700 max-w-md md:max-w-lg"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15, duration: 0.5 }}
           >
-            Discover loving pets from shelters and foster homes. Adopt a furry
-            friend and give them the home they deserve.
+            Discover loving pets from shelters and foster homes. Adopt a furry friend and give
+            them the home they deserve.
+          </motion.p>
+
+          {/* NEW: quiz subheadline */}
+          <motion.p
+            className="mt-2 text-sm text-gray-600"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.25, duration: 0.4 }}
+          >
+            Not sure where to start? Take our 60-second quiz and get personalized matches.
           </motion.p>
 
           {/* Search Box */}
           <motion.form
             onSubmit={handleSearch}
-            className="mt-6 flex items-center bg-white shadow-md rounded-full overflow-hidden max-w-md mx-auto md:mx-0 focus-within:shadow-lg transition-shadow"
+            className="mt-5 flex items-center bg-white shadow-md rounded-full overflow-hidden max-w-md mx-auto md:mx-0 focus-within:shadow-lg transition-shadow"
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25, duration: 0.45 }}
@@ -89,7 +113,7 @@ export default function Hero() {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search pets (e.g., Husky, kitten, Dhaka)..."
+              placeholder="Search pets (e.g., Husky, kitten, Dhaka)…"
               className="flex-1 px-5 py-3 outline-none"
               aria-label="Search pets"
             />
@@ -118,23 +142,33 @@ export default function Hero() {
               </button>
             ))}
           </motion.div>
-          {/* Matchmaker Quiz CTA */}
-<motion.div
-  className="mt-6 flex justify-center md:justify-start"
-  initial={{ opacity: 0, y: 10 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ delay: 0.45 }}
->
-  <button
-    onClick={() => router.push("/matchmaker")}
-    className="btn btn-lg bg-gradient-to-r rounded-full px-3 py-2 from-emerald-600 to-teal-500 text-white font-bold shadow-md hover:shadow-lg"
-  >
-    🐾 Take the Matchmaker Quiz
-  </button>
-</motion.div>
 
+          {/* ✅ Matchmaker CTA with animation */}
+          <motion.div
+            className="mt-6 flex items-center gap-3 justify-center md:justify-start"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.45 }}
+          >
+            <motion.button
+              onClick={() => router.push("/matchmaker")}
+              className="btn btn-lg border-0 px-5 py-3 rounded-full text-white font-bold shadow-md hover:shadow-lg bg-gradient-to-r from-emerald-600 to-teal-500"
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <motion.span
+                className="mr-1"
+                animate={{ rotate: [0, -10, 10, 0], y: [0, -1, 1, 0] }}
+                transition={{ duration: 1.2, repeat: Infinity, repeatDelay: 1.3 }}
+                aria-hidden
+              >
+                
+              </motion.span>
+    🐾 Pet-Human Personality Match Quiz            </motion.button>
+
+           
+          </motion.div>
         </motion.div>
-
 
         {/* Right: Animated blob + Carousel */}
         <div className="flex justify-center md:justify-end">
@@ -226,5 +260,20 @@ export default function Hero() {
         }
       `}</style>
     </section>
+  );
+}
+
+/* ---------- tiny helper: floating paw decal ---------- */
+function FloatingPaw({ className = "", delay = 0 }) {
+  return (
+    <motion.div
+      className={`absolute text-3xl opacity-20 ${className}`}
+      initial={{ y: 20, opacity: 0 }}
+      animate={{ y: [-10, 10, -10], opacity: [0.15, 0.25, 0.15] }}
+      transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay }}
+      aria-hidden
+    >
+      🐾
+    </motion.div>
   );
 }
