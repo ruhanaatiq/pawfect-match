@@ -188,7 +188,7 @@ export default function PaymentPage() {
               </div>
 
               <button
-                className={`btn btn-primary mt-4 ${loading ? "btn-disabled" : ""}`}
+                className={`bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-3xl mt-4 px-2 ${loading ? "btn-disabled" : ""}`}
                 onClick={handleProceedToPay}
                 disabled={loading}
               >
@@ -196,7 +196,7 @@ export default function PaymentPage() {
               </button>
 
               <button
-                className="btn btn-ghost mt-2"
+                className="btn text-emerald-600 hover:bg-emerald-700 bg-white font-semibold py-3 rounded-3xl mt-4 px-2"
                 onClick={() => router.push("/accessories")}
                 disabled={loading}
               >

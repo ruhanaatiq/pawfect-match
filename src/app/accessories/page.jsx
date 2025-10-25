@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 -------------------------------------------------- */
 const DEMO_ACCESSORIES_LIST = [
   { id: "a1", name: "Comfort Harness", category: "Walking", brand: "PawCo", price: 24.99, oldPrice: 32, rating: 4.6, reviews: 128, image: "https://i.ibb.co/cXpz7TKN/harness.jpg", badge: "Sale", inStock: true },
-  { id: "a2", name: "Ceramic Bowl", category: "Feeding", brand: "PetNest", price: 18.5, rating: 4.3, reviews: 76, image: "https://i.ibb.co/cXpz7TKN/harness.jpg", badge: "New", inStock: true },
+  { id: "a2", name: "Ceramic Bowl", category: "Feeding", brand: "PetNest", price: 18.5, rating: 4.3, reviews: 76, image: "https://i.ibb.co/S79wdT8R/bowls.jpg", badge: "New", inStock: true },
   { id: "a3", name: "Chew Toy Set", category: "Toys", brand: "ChewyTime", price: 14.0, rating: 4.1, reviews: 64, image: "https://i.ibb.co/cXpz7TKN/harness.jpg", inStock: true },
   { id: "a4", name: "Cozy Bed (M/L)", category: "Beds", brand: "Snuggo", price: 39.99, rating: 4.8, reviews: 210, image: "https://i.ibb.co/cXpz7TKN/harness.jpg", badge: "Top", inStock: true },
   { id: "a5", name: "LED Collar", category: "Walking", brand: "GlowPaws", price: 12.99, rating: 4.2, reviews: 41, image: "/accessories/collar.jpg", inStock: false },
