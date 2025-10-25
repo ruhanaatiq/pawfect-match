@@ -138,13 +138,14 @@ export default function PetCampaignsPage() {
         <div>
           <label className="block text-sm font-medium">Goal Amount</label>
           <input
-            name="goal"
-            type="number"
-            value={form.goal}
-            onChange={handleChange}
-            required
-            className="input input-bordered w-full"
-          />
+  type="number"
+  name="goal"
+  value={form.goal}
+  onChange={(e) => setForm({ ...form, goal: e.target.value })}
+  placeholder="Enter goal amount"
+  className="input input-bordered w-full"
+/>
+
         </div>
         <div>
           <label className="block text-sm font-medium">Status</label>

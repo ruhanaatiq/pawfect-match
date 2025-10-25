@@ -1,7 +1,7 @@
 // app/api/public/pets/route.js
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongoose";
-import Pet from "@/models/Pet";
+import Pet from "@/models/Pets";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

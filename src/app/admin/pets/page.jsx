@@ -95,14 +95,13 @@ export default function AdminPetsPage() {
       {/* table */}
       <div className="overflow-x-auto rounded-2xl shadow ring-1 ring-black/5 bg-white">
         <table className="table table-sm w-full min-w-[1000px]">
-          {/* no comments inside colgroup (hydration safe) */}
           <colgroup>
             <col className="w-[320px]" />
             <col className="w-[200px]" />
             <col className="w-[140px]" />
             <col className="w-[120px]" />
             <col className="w-[140px]" />
-            <col className="w-[160px]" />
+            <col className="w-[220px]" />
           </colgroup>
 
           <thead className="sticky top-0 z-10 bg-gradient-to-r from-emerald-50 to-green-50 text-emerald-900">
@@ -134,7 +133,7 @@ export default function AdminPetsPage() {
                     <td className="px-4 py-4"><div className="skeleton h-4 w-16" /></td>
                     <td className="px-4 py-4"><div className="skeleton h-4 w-10" /></td>
                     <td className="px-4 py-4"><div className="skeleton h-5 w-16 rounded-full" /></td>
-                    <td className="px-4 py-4 text-right"><div className="skeleton h-8 w-24 ml-auto rounded-lg" /></td>
+                    <td className="px-4 py-4 text-right"><div className="skeleton h-8 w-40 ml-auto rounded-lg" /></td>
                   </tr>
                 ))
               : null}
@@ -143,10 +142,7 @@ export default function AdminPetsPage() {
             {rows.map((p, i) => {
               const pid = getId(p);
               return (
-                <tr
-                  key={pid || `row-${i}`}
-                  className="hover:bg-emerald-50/40 transition-colors"
-                >
+                <tr key={pid || `row-${i}`} className="hover:bg-emerald-50/40 transition-colors">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <div className="avatar">
@@ -177,28 +173,29 @@ export default function AdminPetsPage() {
                     </span>
                   </td>
 
+                  {/* ✅ Correct, single Actions cell */}
                   <td className="px-4 py-3 text-right space-x-1">
+                    <Link
+                      href={`/admin/pets/${pid}/campaigns`}
+                      className="btn btn-ghost btn-xs"
+                      title="Campaigns"
+                    >
+                      Campaigns
+                    </Link>
+
                     <Link
                       href={`/admin/pets/${pid}/edit`}
                       className="btn btn-ghost btn-xs"
                       title="Edit"
                     >
-                      {/* pencil icon */}
-                      <svg width="14" height="14" viewBox="0 0 24 24">
-                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Z" fill="currentColor"/>
-                        <path d="M20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 1 0-1.41 1.41l2.34 2.34a1 1 0 0 0 1.41 0Z" fill="currentColor"/>
-                      </svg>
                       Edit
                     </Link>
+
                     <button
                       className="btn btn-ghost btn-xs text-error"
                       onClick={() => deleteOne(pid)}
                       title="Delete"
                     >
-                      {/* trash icon */}
-                      <svg width="14" height="14" viewBox="0 0 24 24">
-                        <path d="M9 3h6l1 2h4v2H4V5h4l1-2Zm1 6h2v8h-2V9Zm4 0h2v8h-2V9ZM7 9h2v8H7V9Z" fill="currentColor"/>
-                      </svg>
                       Delete
                     </button>
                   </td>

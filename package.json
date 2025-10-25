@@ -9,6 +9,8 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@stripe/react-stripe-js": "^5.2.0",
+    "@stripe/stripe-js": "^8.1.0",
     "bcryptjs": "^3.0.2",
     "canvas-confetti": "^1.9.3",
     "dotenv": "^17.2.2",
@@ -21,6 +23,7 @@
     "next-auth": "^4.24.11",
     "nodemailer": "^6.10.1",
     "react": "19.1.0",
+    "react-calendar": "^6.0.0",
     "react-dom": "19.1.0",
     "react-feather": "^2.0.10",
     "react-hot-toast": "^2.6.0",
@@ -28,6 +31,7 @@
     "react-slick": "^0.31.0",
     "react-toastify": "^11.0.5",
     "slick-carousel": "^1.8.1",
+    "stripe": "^19.1.0",
     "sweetalert2": "^11.25.0"
   },
   "devDependencies": {
