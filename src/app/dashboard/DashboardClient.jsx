@@ -8,6 +8,11 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { toast } from "react-hot-toast";
 import MyBookings from "@/components/MyBookings";
+import { motion } from "framer-motion";
+import Image from "next/image";
+
+
+
 import {
   FaHeart,
   FaPaw,
@@ -89,12 +94,11 @@ function StatCard({ label, value, icon }) {
 
 /* ---------- client component ---------- */
 export default function DashboardClient({ initialTab = "profile" }) {
-  const { data: session, status } = useSession();
+const { data: session, status, update } = useSession();
   const searchParams = useSearchParams();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState(initialTab);
   const [applications, setApplications] = useState([]);
-  const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedApp, setSelectedApp] = useState(null); // store object (not just id)
@@ -102,9 +106,14 @@ export default function DashboardClient({ initialTab = "profile" }) {
   const [now, setNow] = useState(new Date());
 const [workshops, setWorkshops] = useState([]);
 const [joinedWorkshops, setJoinedWorkshops] = useState({});
+const [updateModalOpen, setUpdateModalOpen] = useState(false);
+const user = session?.user || { name: "", email: "", image: "" }; // <--- define once
+const userEmail = user.email;
+const [profileData, setProfileData] = useState({ name: user?.name || "", email: user?.email || "" });
 
 
-  const userEmail = session?.user?.email;
+
+  
   const getCountdown = (dateStr, nowRef = new Date()) => {
   const date = new Date(dateStr);
   const diff = date - nowRef;
@@ -151,6 +160,34 @@ const [joinedWorkshops, setJoinedWorkshops] = useState({});
     return () => { cancelled = true; };
   }, [userEmail]);
 
+  const handleProfileUpdate = async () => {
+  try {
+    const res = await fetch("/api/update-profile", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(profileData),
+    });
+    if (!res.ok) throw new Error("Failed to update profile");
+
+    // Update session
+    await update({
+      user: {
+        ...session.user,
+        name: profileData.name,
+        email: profileData.email,
+      },
+    });
+
+    toast.success("Profile updated!");
+    setUpdateModalOpen(false);
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to update profile");
+  }
+};
+
+
+
   useEffect(() => {
   let cancelled = false;
   async function fetchWorkshops() {
@@ -180,36 +217,7 @@ useEffect(() => {
 
 
 
-  /* fetch favorites only when tab opened */
-  useEffect(() => {
-    let cancelled = false;
-    async function run() {
-      if (activeTab !== "favorites" || !userEmail) return;
-      try {
-        const res = await fetch(`/api/favorites?email=${encodeURIComponent(userEmail)}`, { cache: "no-store" });
-        if (!res.ok) throw new Error("Failed to fetch favorites");
-        const data = await res.json();
-        if (!cancelled) setFavorites(Array.isArray(data) ? data : []);
-      } catch (e) {
-        console.error(e);
-        toast.error("Couldn't load favorites.");
-      }
-    }
-    run();
-    return () => { cancelled = true; };
-  }, [activeTab, userEmail]);
-
-  async function removeFavorite(favId) {
-    try {
-      const res = await fetch(`/api/favorites/${favId}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Failed to remove favorite");
-      setFavorites((prev) => prev.filter((f) => f._id !== favId));
-      toast.success("Removed from favorites");
-    } catch (e) {
-      console.error(e);
-      toast.error("Failed to remove favorite");
-    }
-  }
+  
 
   async function confirmCancel() {
     if (!selectedApp?._id) return;
@@ -269,7 +277,7 @@ useEffect(() => {
     );
   }
 
-  const user = session.user;
+ 
 
   /* stats */
   const totalApps = applications.length;
@@ -324,11 +332,10 @@ useEffect(() => {
       {[
         { tab: "profile", icon: <FaUser className="mr-2" />, label: "Profile" },
         { tab: "applications", icon: <FaPaw className="mr-2" />, label: "Applications" },
-        { tab: "favorites", icon: <FaHeart className="mr-2" />, label: "Favorites" },
         { tab: "my-bookings", icon: <FaCalendarCheck className="mr-2" />, label: "My Bookings" },
         { tab: "my-feedback", icon: <FaComments className="mr-2" />, label: "My Feedback" },
         { tab: "users-reviews", icon: <FaStar className="mr-2" />, label: "Reviews" },
-          { tab: "settings", icon: <FaStar className="mr-2" />, label: "Settings" },
+          { tab: "settings", icon: <FaCog className="mr-2" />, label: "Settings" },
       ].map((btn) => (
         <button
           key={btn.tab}
@@ -398,7 +405,7 @@ useEffect(() => {
               <StatCard label="Total Applications" value={totalApps} icon={<FaPaw className="text-emerald-600" />} />
               <StatCard label="Pending" value={pendingApps} icon={<FaPaw className="text-emerald-600" />} />
               <StatCard label="Approved" value={approvedApps} icon={<FaPaw className="text-emerald-600" />} />
-              <StatCard label="Favorites" value={favorites.length} icon={<FaHeart className="text-emerald-600" />} />
+             
             </div>
 
             {/* Weekly Applications Sparkline */}
@@ -464,88 +471,98 @@ useEffect(() => {
           </div>
         </div>
       )}
-        {/* APPLICATIONS TAB */}
-        {activeTab === "applications" && (
-          <section>
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-semibold">My Adoption Applications</h3>
-              <button
-                onClick={downloadApplications}
-                className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
-              >
-                <FaDownload /> Download CSV
-              </button>
-            </div>
+     {/* APPLICATIONS TAB */}
+{activeTab === "applications" && (
+  <section className="space-y-6">
+    {/* Header */}
+    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <h3 className="text-2xl md:text-3xl font-bold text-[#4C3D3D]">My Adoption Applications</h3>
+      <motion.button
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={downloadApplications}
+        className="flex items-center gap-2 px-5 py-2 bg-emerald-600 text-white rounded-xl shadow-md hover:bg-emerald-700 transition"
+      >
+        <FaDownload /> Download CSV
+      </motion.button>
+    </div>
 
-            {applications.length === 0 ? (
-              <div className="p-6 rounded-2xl bg-gradient-to-br from-emerald-50/70 via-white/60 to-rose-50/50 backdrop-blur shadow-xl text-gray-600">
-                <p>No applications yet 🐶🐱</p>
+    {/* No Applications */}
+    {applications.length === 0 ? (
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="p-8 rounded-3xl bg-gradient-to-br from-emerald-50/70 via-white/60 to-rose-50/50 backdrop-blur shadow-xl text-gray-600 text-center font-medium"
+      >
+        <p className="text-lg">No applications yet 🐶🐱</p>
+      </motion.div>
+    ) : (
+      <ul className="space-y-4">
+        {applications.map((app, i) => {
+          const status = app.status?.toLowerCase();
+          const width = status === "approved" ? "100%" : status === "pending" ? "50%" : "0%";
+          const bar = status === "approved" ? "bg-green-500" : status === "pending" ? "bg-yellow-400" : "bg-gray-400";
+
+          return (
+            <motion.li
+              key={app._id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.1 }}
+              className="p-5 bg-white rounded-3xl shadow-lg flex flex-col md:flex-row md:justify-between md:items-center w-full hover:scale-102 hover:shadow-2xl transition-transform duration-300"
+            >
+              
+
+
+
+              {/* Details */}
+              <div className="flex-1 space-y-2 mt-4 md:mt-0">
+                <p className="font-semibold text-lg text-[#4C3D3D]">{app.petName || "Unknown Pet"}</p>
+                <p className="text-sm text-gray-600">
+                  Status:{" "}
+                  <span
+                    className={`font-medium px-2 py-0.5 rounded-full text-xs ${
+                      status === "approved" ? "bg-green-100 text-green-700" :
+                      status === "pending" ? "bg-yellow-100 text-yellow-700" :
+                      "bg-gray-200 text-gray-600"
+                    }`}
+                  >
+                    {app.status}
+                  </span>
+                </p>
+                <p className="text-sm text-gray-600">City: {app.applicant?.city || "N/A"}</p>
+                <p className="text-sm text-gray-600">Phone: {app.applicant?.phone || "N/A"}</p>
+
+                {/* Status Bar */}
+                <div className="mt-2 w-full bg-gray-200 h-3 rounded-full overflow-hidden">
+                  <motion.div
+                    className={`h-3 rounded-full ${bar}`}
+                    initial={{ width: 0 }}
+                    animate={{ width }}
+                    transition={{ duration: 1 }}
+                  />
+                </div>
               </div>
-            ) : (
-              <ul className="space-y-3">
-                {applications.map((app) => {
-                  const status = app.status?.toLowerCase();
-                  const width =
-                    status === "approved" ? "100%" :
-                    status === "pending" ? "50%" : "0%";
-                  const bar =
-                    status === "approved" ? "bg-green-500" :
-                    status === "pending" ? "bg-yellow-400" : "bg-gray-400";
-                  return (
-                    <li key={app._id} className="p-4 bg-white rounded-xl shadow flex flex-col md:flex-row md:justify-between md:items-center w-full">
-                      <div className="flex-1 space-y-1">
-                        <p className="font-semibold text-lg text-[#4C3D3D]">{app.petName || "Unknown Pet"}</p>
-                        <p className="text-sm text-gray-600">Status: <span className="font-medium">{app.status}</span></p>
-                        <p className="text-sm text-gray-600">City: {app.applicant?.city || "N/A"}</p>
-                        <p className="text-sm text-gray-600">Phone: {app.applicant?.phone || "N/A"}</p>
 
-                        <div className="mt-2 w-full bg-gray-200 h-2 rounded-full">
-                          <div className={`h-2 rounded-full ${bar}`} style={{ width }} />
-                        </div>
-                      </div>
+              {/* Cancel Button */}
+              {status === "pending" && (
+                <motion.button
+                  onClick={() => { setSelectedApp(app); setModalOpen(true); }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="mt-4 md:mt-0 md:ml-6 flex-shrink-0 px-4 py-2 bg-red-600 text-white rounded-xl shadow hover:bg-red-700 transition"
+                >
+                  Cancel
+                </motion.button>
+              )}
+            </motion.li>
+          );
+        })}
+      </ul>
+    )}
+  </section>
+)}
 
-                      {status === "pending" && (
-                        <button
-                          onClick={() => { setSelectedApp(app); setModalOpen(true); }}
-                          className="mt-3 md:mt-0 md:ml-6 flex-shrink-0 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                        >
-                          Cancel
-                        </button>
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </section>
-        )}
-
-        {/* FAVORITES TAB */}
-        {activeTab === "favorites" && (
-          <section>
-            <h3 className="text-xl font-semibold mb-4">My Favorites</h3>
-            {favorites.length === 0 ? (
-              <div className="p-6 rounded-2xl bg-gradient-to-br from-emerald-50/70 via-white/60 to-rose-50/50 backdrop-blur shadow-xl text-gray-600">
-                <p>No favorite pets yet 💚</p>
-              </div>
-            ) : (
-              <ul className="space-y-4">
-                {favorites.map((fav) => (
-                  <li key={fav._id} className="p-4 bg-white rounded-xl shadow flex justify-between items-center">
-                    <div>
-                      <p className="font-semibold text-lg text-[#4C3D3D]">{fav.pet?.name || "Unknown Pet"}</p>
-                      <p className="text-sm text-gray-600">Type: {fav.pet?.type || "N/A"}</p>
-                      <p className="text-sm text-gray-600">Age: {fav.pet?.age || "N/A"}</p>
-                    </div>
-                    <button onClick={() => removeFavorite(fav._id)} className="text-red-600 hover:text-red-800" title="Remove from favorites">
-                      <FaHeart />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-        )}
 
         {/* MY BOOKINGS TAB */}
         {activeTab === "my-bookings" && (
@@ -576,7 +593,13 @@ useEffect(() => {
           <section>
             <h3 className="text-xl font-semibold mb-4">Settings</h3>
             <div className="space-y-3 p-6 rounded-2xl bg-gradient-to-br from-emerald-50/70 via-white/60 to-rose-50/50 backdrop-blur shadow-xl">
-              <Link href="/update-profile" className="block text-emerald-600 hover:underline">Update Profile</Link>
+             <button
+  onClick={() => setUpdateModalOpen(true)}
+  className="block text-emerald-600 hover:underline"
+>
+  Update Profile
+</button>
+
               <Link href="/change-password" className="block text-emerald-600 hover:underline">Change Password</Link>
             </div>
           </section>
@@ -600,6 +623,60 @@ useEffect(() => {
           </div>
         </div>
       )}
+      {updateModalOpen && (
+  <div className="fixed inset-0 flex items-center justify-center z-50">
+    <div className="absolute inset-0 bg-black/30" />
+    <div className="bg-white rounded-xl p-6 w-80 relative z-10">
+      <h3 className="text-lg font-semibold mb-4">Update Profile</h3>
+      
+      <label className="block mb-2 text-sm font-medium text-gray-700">Name</label>
+      <input
+        type="text"
+        value={profileData.name}
+        onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
+        className="w-full mb-4 px-3 py-2 border rounded-lg"
+      />
+
+      <label className="block mb-2 text-sm font-medium text-gray-700">Email</label>
+      <input
+        type="email"
+        value={profileData.email}
+        onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+        className="w-full mb-4 px-3 py-2 border rounded-lg"
+      />
+
+      <div className="flex justify-end space-x-3">
+        <button
+          onClick={() => setUpdateModalOpen(false)}
+          className="px-4 py-2 rounded-lg bg-gray-300 hover:bg-gray-400"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={async () => {
+            try {
+              const res = await fetch("/api/update-profile", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(profileData),
+              });
+              if (!res.ok) throw new Error("Failed to update profile");
+              toast.success("Profile updated!");
+              setUpdateModalOpen(false);
+            } catch (e) {
+              console.error(e);
+              toast.error("Failed to update profile.");
+            }
+          }}
+          className="px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700"
+        >
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 }
