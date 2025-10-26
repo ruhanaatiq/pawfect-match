@@ -29,6 +29,7 @@ const nextConfig = {
         hostname: "api.dicebear.com", // DiceBear avatars
         pathname: "/**",
       },
+      
     ],
   },
 };
