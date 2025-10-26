@@ -1,11 +1,13 @@
+// src/app/api/bookVet/route.js
 import { getCollection } from "@/lib/dbConnect";
-import { ObjectId } from "mongodb";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]/route";
+import authConfig from "@/auth.config";   // ← same config you used in the auth route
+
+export const runtime = "nodejs";
 
 export async function POST(req) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
+  const session = await getServerSession(authConfig);
+  if (!session?.user?.email) {
     return Response.json({ success: false, message: "Not authenticated" }, { status: 401 });
   }
 
@@ -13,18 +15,11 @@ export async function POST(req) {
   const userEmail = session.user.email;
 
   const bookingCollection = await getCollection("bookings");
-
-  // Check if user already booked this vet
   const existing = await bookingCollection.findOne({ vetId, userEmail });
   if (existing) {
     return Response.json({ success: false, message: "Already booked" });
   }
 
-  await bookingCollection.insertOne({
-    vetId,
-    userEmail,
-    bookedAt: new Date(),
-  });
-
+  await bookingCollection.insertOne({ vetId, userEmail, bookedAt: new Date() });
   return Response.json({ success: true, message: "Vet booked successfully" });
 }
