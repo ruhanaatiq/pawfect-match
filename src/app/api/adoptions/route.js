@@ -24,13 +24,14 @@ export async function POST(req) {
     }
 
     const doc = await AdoptionRequest.create({
-      petId,
-      petName: pet.petName || pet.name,
-      applicant: { fullName, email, phone, city },
-      household: { homeType, hasOtherPets: !!hasOtherPets },
-      message: message || "",
-      status: "Pending",
-    });
+  petId,
+  petName: pet.petName || pet.name,
+  petImage: pet.image || pet.petImage || "/default-pet.jpg", // <-- add this line
+  applicant: { fullName, email, phone, city },
+  household: { homeType, hasOtherPets: !!hasOtherPets },
+  message: message || "",
+  status: "Pending",
+});
 
     return NextResponse.json({ ok: true, id: String(doc._id) }, { status: 201 });
   } catch (err) {

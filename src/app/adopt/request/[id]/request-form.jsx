@@ -34,7 +34,9 @@ export default function RequestForm({ petId }) {
 
       if (!res.ok) throw new Error((await res.json()).error || "Request failed");
       // success → go back to listing or show a thank-you page
-      router.push("/adopt?submitted=1");
+// success → go to Dashboard Applications tab
+router.push("/dashboard?tab=applications");
+
     } catch (err) {
       setError(err.message || "Something went wrong");
     } finally {
