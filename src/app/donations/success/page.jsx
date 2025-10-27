@@ -1,206 +1,142 @@
-// src/app/donations/success/page.jsx
+// app/donations/success/page.jsx
 "use client";
-
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { FaCheckCircle, FaHeart, FaHome, FaDownload } from "react-icons/fa";
+import confetti from "canvas-confetti";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
-import { FaHeart, FaHome, FaDownload } from "react-icons/fa";
+import jsPDF from "jspdf";
+// import html2pdf from 'html2pdf.js'
 
-/** Route options (avoid SSG; no accidental 'revalidate' function collisions) */
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-export const runtime = "nodejs";
-
-export default function Page() {
-  return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen flex items-center justify-center text-gray-600">
-          Loading…
-        </div>
-      }
-    >
-      <DonationSuccessContent />
-    </Suspense>
-  );
-}
-
-function DonationSuccessContent() {
+export default function DonationSuccessPage() {
+  // const receiptRef = useRef();
   const searchParams = useSearchParams();
   const router = useRouter();
   const { data: session } = useSession();
 
   const sessionId = searchParams.get("session_id");
-
-  const [loading, setLoading] = useState(true);
-  const [amountCents, setAmountCents] = useState(0);
-  const [donationType, setDonationType] = useState("one-time");
-  const [donorEmail, setDonorEmail] = useState("");
-  const [donorName, setDonorName] = useState("");
+  const amount = searchParams.get("amount");
+  const type = searchParams.get("type");
+  const name = searchParams.get("name");
+  const email = searchParams.get("email");
+  // console.log(name, email)
 
   const [saved, setSaved] = useState(false);
   const [countdown, setCountdown] = useState(10);
+  const hasSaved = useRef(false); // ✅ Prevent double save
 
-  const hasSavedRef = useRef(false);
+  const handleDownload = () => {
+    const doc = new jsPDF();
 
-  const amountUsd = useMemo(() => (amountCents / 100).toFixed(2), [amountCents]);
+    doc.setFontSize(20);
+    doc.text("Donation Receipt", 20, 20);
 
-  /** 1) Load checkout session details from your API */
+    doc.setFontSize(12);
+    doc.text(`Amount: $${amount}`, 20, 40);
+    doc.text(`Type: ${type}`, 20, 50);
+    doc.text(`Transaction ID: ${sessionId}`, 20, 60);
+    doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 70);
+
+    doc.save(`donation-receipt-${sessionId}.pdf`);
+  };
+
+  // ✅ Save donation only once
   useEffect(() => {
-    let cancelled = false;
-
-    async function load() {
-      if (!sessionId) {
-        router.replace("/");
-        return;
-      }
-
-      try {
-        const res = await fetch(
-          `/api/stripe/session?session_id=${encodeURIComponent(sessionId)}`,
-          { headers: { Accept: "application/json" }, cache: "no-store" }
-        );
-
-        const ct = res.headers.get("content-type") || "";
-        const json = ct.includes("application/json") ? await res.json() : null;
-
-        if (!res.ok || !json) {
-          throw new Error(`Failed to load session ${res.status}`);
-        }
-
-        if (cancelled) return;
-
-        setAmountCents(Number(json.amount_total || 0));
-        setDonationType(json.mode === "subscription" ? "monthly" : "one-time");
-        setDonorEmail(json.customer_email || session?.user?.email || "");
-        setDonorName(json.customer_name || session?.user?.name || "");
-      } catch (err) {
-        console.error("[donations/success] load error:", err);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
+    if (session && sessionId && amount && !hasSaved.current) {
+      hasSaved.current = true;
+      saveDonationToDatabase();
     }
+  }, [session, sessionId, amount]);
 
-    load();
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sessionId]);
-
-  /** 2) Persist the donation (only once) */
+  // Confetti effect
   useEffect(() => {
-    async function save() {
-      if (loading || hasSavedRef.current) return;
-      if (!sessionId || !amountCents) return;
+    const duration = 1 * 1000;
+    const animationEnd = Date.now() + duration;
 
-      hasSavedRef.current = true;
+    const interval = setInterval(() => {
+      const timeLeft = animationEnd - Date.now();
+      if (timeLeft <= 0) return clearInterval(interval);
 
-      try {
-        const res = await fetch("/api/donations", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({
-            sessionId,
-            amount: amountCents / 100,
-            donationType,
-            email: donorEmail || null,
-            name: donorName || null,
-          }),
-        });
+      confetti({
+        particleCount: 10,
+        spread: 50,
+        origin: { x: Math.random(), y: Math.random() - 0.2 },
+        colors: ["#10b981", "#3b82f6", "#f59e0b", "#ef4444"],
+      });
+    }, 250);
 
-        const ct = res.headers.get("content-type") || "";
-        const data = ct.includes("application/json")
-          ? await res.json()
-          : { error: await res.text() };
-
-        if (res.ok && data?.success) setSaved(true);
-        else console.error("Save donation failed:", data?.error || data);
-      } catch (err) {
-        console.error("[donations/success] save error:", err);
-      }
-    }
-
-    save();
-  }, [loading, sessionId, amountCents, donationType, donorEmail, donorName]);
-
-  /** 3) Fire some confetti (lazy import keeps it client-only) */
-  useEffect(() => {
-    let id;
-    (async () => {
-      try {
-        const { default: confetti } = await import("canvas-confetti");
-        const end = Date.now() + 1000;
-        id = setInterval(() => {
-          if (Date.now() >= end) return clearInterval(id);
-          confetti({
-            particleCount: 10,
-            spread: 50,
-            origin: { x: Math.random(), y: Math.random() - 0.2 },
-          });
-        }, 250);
-      } catch (e) {
-        // If the package isn't installed, skip gracefully
-        console.warn("canvas-confetti not available:", e?.message || e);
-      }
-    })();
-
-    return () => clearInterval(id);
+    return () => clearInterval(interval);
   }, []);
 
-  /** 4) Auto-redirect countdown */
+  // Countdown
   useEffect(() => {
-    const id = setInterval(() => setCountdown((t) => Math.max(t - 1, 0)), 1000);
-    return () => clearInterval(id);
+    const countdownInterval = setInterval(() => {
+      setCountdown((prev) => Math.max(prev - 1, 0));
+    }, 1000);
+
+    return () => clearInterval(countdownInterval);
   }, []);
+
+  // Redirect
   useEffect(() => {
-    if (countdown === 0) router.push("/");
+    if (countdown === 0) {
+      router.push("/");
+    }
   }, [countdown, router]);
+  // console.log(session?.user?.email, session?.user?.name)
 
-  /** 5) Download receipt (jsPDF via dynamic import) */
-  const handleDownload = async () => {
+  const saveDonationToDatabase = async () => {
     try {
-      const { default: jsPDF } = await import("jspdf");
-      const doc = new jsPDF();
-      const today = new Date().toLocaleString();
+      const response = await fetch("/api/donations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionId: sessionId,
+          amount: parseFloat(amount),
+          donationType: type,
+          email: email ,
+          name: name 
+        }),
+      });
 
-      doc.setFontSize(20);
-      doc.text("Donation Receipt", 20, 20);
+      const result = await response.json();
 
-      doc.setFontSize(12);
-      doc.text(`Amount: $${amountUsd}`, 20, 40);
-      doc.text(
-        `Type: ${donationType === "monthly" ? "Monthly" : "One-time"}`,
-        20,
-        50
-      );
-      doc.text(`Transaction ID: ${sessionId}`, 20, 60);
-      doc.text(`Date: ${today}`, 20, 70);
-      if (donorName) doc.text(`Donor: ${donorName}`, 20, 80);
-      if (donorEmail) doc.text(`Email: ${donorEmail}`, 20, 90);
-
-      doc.save(`donation-receipt-${sessionId}.pdf`);
-    } catch (e) {
-      console.error("Failed to generate PDF:", e);
+      if (result.success) {
+        console.log("✅ Donation saved:", result.message);
+        setSaved(true);
+      } else {
+        console.error("❌ Failed to save donation:", result.error);
+      }
+    } catch (error) {
+      console.error("❌ Error saving donation:", error);
     }
   };
 
-  /** Animations */
+  // Animation variants
   const containerVariants = {
-    hidden: { opacity: 0, scale: 0.96 },
-    visible: { opacity: 1, scale: 1, transition: { duration: 0.4 } },
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: {
+        duration: 0.5,
+        when: "beforeChildren",
+        staggerChildren: 0.1,
+      },
+    },
   };
+
   const itemVariants = {
-    hidden: { opacity: 0, y: 16 },
+    hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 },
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center px-4 py-12">
+    <div
+      // ref={receiptRef}
+      className="min-h-screen bg-white flex items-center justify-center px-4 py-12"
+    >
       <motion.div
         className="max-w-2xl w-full"
         variants={containerVariants}
@@ -211,6 +147,7 @@ function DonationSuccessContent() {
           className="bg-white rounded-3xl shadow-2xl p-8 md:p-12 text-center"
           variants={itemVariants}
         >
+          {/* Thank You Message */}
           <motion.h1
             className="text-4xl md:text-5xl font-bold mb-4"
             variants={itemVariants}
@@ -218,16 +155,21 @@ function DonationSuccessContent() {
             Thank You!
           </motion.h1>
 
-          <motion.p className="text-xl text-gray-600 mb-2" variants={itemVariants}>
+          <motion.p
+            className="text-xl text-gray-600 mb-2"
+            variants={itemVariants}
+          >
             Your donation was successful!
           </motion.p>
+
           <motion.p className="text-gray-500 mb-8" variants={itemVariants}>
-            You&apos;re making a real difference in the lives of rescued pets.
+            You're making a real difference in the lives of rescued pets.
           </motion.p>
 
-          {!loading && amountCents > 0 && (
+          {/* Donation Amount Card */}
+          {amount && (
             <motion.div
-              className="bg-emerald-50 rounded-2xl p-6 mb-8"
+              className="bg-emerald-50  rounded-2xl p-6 mb-8"
               variants={itemVariants}
               whileHover={{ scale: 1.02 }}
             >
@@ -235,26 +177,50 @@ function DonationSuccessContent() {
                 className="text-5xl font-bold text-emerald-600 mb-2"
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ type: "spring", stiffness: 300, delay: 0.3 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 300,
+                  delay: 0.5,
+                }}
               >
-                ${amountUsd}
+                ${amount}
               </motion.div>
-              <p className="text-gray-600">
-                {donationType === "monthly" ? "Monthly Donation" : "One-time Donation"}
+              <p className="text-gray-600 mb-2">
+                {type === "monthly" ? "Monthly Donation" : "One-time Donation"}
               </p>
             </motion.div>
           )}
 
-          <motion.div className="bg-pink-50 rounded-2xl p-6 mb-8" variants={itemVariants}>
-            <FaHeart className="text-red-600 text-3xl mx-auto mb-3" />
+          {/* Impact Message */}
+          <motion.div
+            className="bg-pink-50  rounded-2xl p-6 mb-8"
+            variants={itemVariants}
+          >
+            <motion.div
+              animate={{
+                scale: [1, 1.1, 1],
+              }}
+              transition={{
+                duration: 1.5,
+                repeat: Infinity,
+                repeatType: "reverse",
+              }}
+            >
+              <FaHeart className="text-red-600 text-3xl mx-auto mb-3" />
+            </motion.div>
             <h3 className="font-bold text-gray-800 mb-2">Your Impact</h3>
             <p className="text-gray-700">
-              Your generous donation will help provide food, shelter, and medical care for pets in
-              need.
+              Your generous donation will help provide food, shelter, and
+              medical care for pets in need. You're helping them find their
+              forever homes! 🐾
             </p>
           </motion.div>
 
-          <motion.div className="flex flex-col sm:flex-row gap-4 mb-6" variants={itemVariants}>
+          {/* Action Buttons */}
+          <motion.div
+            className="flex flex-col sm:flex-row gap-4 mb-6"
+            variants={itemVariants}
+          >
             <motion.button
               onClick={() => router.push("/")}
               className="flex-1 flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-6 py-3 rounded-xl transition-colors cursor-pointer"
@@ -263,11 +229,10 @@ function DonationSuccessContent() {
             >
               <FaHome /> Back to Home
             </motion.button>
-
             <motion.button
-              onClick={handleDownload}
-              disabled={loading || !amountCents}
-              className="flex-1 flex items-center justify-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold px-6 py-3 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
+              // onClick={() => window.print()}
+              onClick={() => handleDownload()}
+              className="flex-1 flex items-center justify-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold px-6 py-3 rounded-xl transition-colors cursor-pointer"
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -275,26 +240,50 @@ function DonationSuccessContent() {
             </motion.button>
           </motion.div>
 
-          <motion.div className="mt-8 text-sm text-gray-500" variants={itemVariants}>
+          {/* Stats */}
+          <motion.div
+            className="grid grid-cols-3 gap-4 pt-6 border-t border-gray-200"
+            variants={itemVariants}
+          >
+            {[
+              { emoji: "🐶", label: "Pets Helped" },
+              { emoji: "❤️", label: "Saved Lives" },
+              { emoji: "🏠", label: "Forever Homes" },
+            ].map((stat, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8 + index * 0.1 }}
+              >
+                <motion.div
+                  className="text-2xl font-bold text-emerald-600"
+                  whileHover={{ scale: 1.2, rotate: 5 }}
+                >
+                  {stat.emoji}
+                </motion.div>
+                <div className="text-sm text-gray-600">{stat.label}</div>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* Auto Redirect */}
+          <motion.div
+            className="mt-8 text-sm text-gray-500"
+            variants={itemVariants}
+          >
             Redirecting to home in{" "}
             <motion.span
               className="font-bold text-emerald-600"
               key={countdown}
-              initial={{ scale: 1.5 }}
-              animate={{ scale: 1 }}
+              initial={{ scale: 1.5, color: "#10b981" }}
+              animate={{ scale: 1, color: "#059669" }}
               transition={{ duration: 0.3 }}
             >
               {countdown}
             </motion.span>{" "}
             seconds...
           </motion.div>
-
-          {/* Optional: tiny status line for debugging persistence */}
-          {!loading && (
-            <p className="mt-4 text-xs text-gray-400">
-              {saved ? "Saved to database." : "Saving…"}
-            </p>
-          )}
         </motion.div>
       </motion.div>
     </div>
