@@ -73,28 +73,67 @@ export default function VetsClient({ vets }) {
       <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {sortedVets.length > 0 ? (
           sortedVets.map((vet) => (
+            // <div
+            //   key={vet._id}
+            //   className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition duration-300"
+            // >
+            //   <div className="relative w-full h-80">
+            //     <img
+            //       src={vet.photo}
+            //       alt={vet.name}
+            //       className="h-80 w-full object-contain"
+            //     />
+            //   </div>
+            //   <div className="p-4">
+            //     <h2 className="text-lg font-semibold text-gray-800 ">{vet.name}</h2>
+            //     <p className="text-sm text-gray-600 ">
+            //       Specialties: {vet.specialties?.join(", ")}
+            //     </p>
+            //     <p className="text-sm text-gray-600 ">
+            //       Experience: {vet.experienceYears || "N/A"} yrs
+            //     </p>
+            //     <p className="text-sm text-gray-600">
+            //       Rating: ⭐ {vet.averageRating || "N/A"}
+            //     </p>
+            //     <div className="mt-3 ">
+            //       <Link
+            //         href={`/vets/${vet._id}`}
+            //         className="inline-block w-full text-center bg-[#f9d66f] px-4 py-2 rounded-lg hover:bg-[#f8d056] transition"
+            //       >
+            //         View Details
+            //       </Link>
+            //     </div>
+            //   </div>
+            // </div>
             <div
               key={vet._id}
-              className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition duration-300"
+              className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition duration-300 flex flex-col"
             >
-              <div className="relative w-full h-80">
+              {/* Image Container */}
+              <div className="w-full h-80 overflow-hidden flex-shrink-0">
                 <img
                   src={vet.photo}
                   alt={vet.name}
-                  className="h-80 w-full object-cover"
+                  className="w-full h-full object-cover object-top"
                 />
               </div>
-              <div className="p-4">
-                <h2 className="text-lg font-semibold text-gray-800">{vet.name}</h2>
-                <p className="text-sm text-gray-600">
-                  Specialties: {vet.specialties?.join(", ")}
-                </p>
-                <p className="text-sm text-gray-600">
-                  Experience: {vet.experienceYears || "N/A"} yrs
-                </p>
-                <p className="text-sm text-gray-600">
-                  Rating: ⭐ {vet.averageRating || "N/A"}
-                </p>
+
+              {/* Text Content */}
+              <div className="p-4 flex flex-col justify-between flex-grow">
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-800">
+                    {vet.name}
+                  </h2>
+                  <p className="text-sm text-gray-600">
+                    Specialties: {vet.specialties?.join(", ")}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Experience: {vet.experienceYears || "N/A"} yrs
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Rating: ⭐ {vet.averageRating || "N/A"}
+                  </p>
+                </div>
                 <div className="mt-3">
                   <Link
                     href={`/vets/${vet._id}`}
