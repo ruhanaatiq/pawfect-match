@@ -340,7 +340,7 @@ export default function DashboardClient({ initialTab = "profile" }) {
           { tab: "my-bookings", icon: <FaCalendarCheck className="mr-2" />, label: "My Bookings" },
           { tab: "my-feedback", icon: <FaComments className="mr-2" />, label: "My Feedback" },
           { tab: "users-reviews", icon: <FaStar className="mr-2" />, label: "Reviews" },
-          { tab: "sponsorships", icon: <FaHandshake className="mr-2" />, label: "Sponsorships" },
+          { tab: "sponsorships", icon: <FaHandshake className="mr-2" />, label: "Sponsorship" },
           { tab: "settings", icon: <FaCog className="mr-2" />, label: "Settings" },
         ].map((btn) => (
           <button
@@ -573,7 +573,7 @@ export default function DashboardClient({ initialTab = "profile" }) {
         {/* SPONSORSHIPS TAB */}
         {activeTab === "sponsorships" && (
           <section>
-            <h3 className="text-xl font-semibold mb-4">My Sponsorship Requests</h3>
+            <h3 className="text-xl font-semibold mb-4">All Sponsorship Requests</h3>
             <SponsorshipRequests userEmail={userEmail} />
           </section>
         )}
