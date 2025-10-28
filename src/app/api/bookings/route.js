@@ -1,7 +1,8 @@
+
+
 import { NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
 import { getCollection } from "@/lib/dbConnect";
-
 
 export async function POST(req) {
   try {
@@ -11,27 +12,18 @@ export async function POST(req) {
     if (!vetId || !userEmail)
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
 
-    const vetsCol = await getCollection("vets");
     const bookingsCol = await getCollection("bookings");
 
-    // ✅ Update vet status (only if not already booked)
-    const updateRes = await vetsCol.updateOne(
-      { _id: new ObjectId(vetId), status: { $ne: "booked" } },
-      {
-        $set: {
-          status: "booked",
-          bookedBy: userEmail,
-          bookedAt: new Date(),
-        },
-      }
-    );
+    // ✅ Prevent the same user from booking the same vet twice
+    const existing = await bookingsCol.findOne({ vetId, userEmail });
+    if (existing) {
+      return NextResponse.json(
+        { error: "You already booked this vet." },
+        { status: 409 }
+      );
+    }
 
-    if (updateRes.matchedCount === 0)
-      return NextResponse.json({ error: "Vet not found" }, { status: 404 });
-    if (updateRes.modifiedCount === 0)
-      return NextResponse.json({ error: "Vet already booked" }, { status: 409 });
-
-    // ✅ Create booking
+    // ✅ Create booking (allow other users to book same vet)
     const bookingDoc = {
       vetId,
       vetName,
@@ -52,6 +44,7 @@ export async function POST(req) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
+
 
 export async function GET(req) {
   try {
