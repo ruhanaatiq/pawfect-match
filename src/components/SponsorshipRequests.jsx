@@ -26,14 +26,14 @@ export default function SponsorshipRequests() {
       setLoading(true);
       try {
         const res = await fetch(
-          `/api/sponsor?email=${encodeURIComponent(userEmail)}`,
+          `/api/sponsors?email=${encodeURIComponent(userEmail)}`,
           { cache: "no-store" }
         );
 
         if (!res.ok) {
           let body = "";
           try { body = await res.text(); } catch {}
-          console.error("GET /api/sponsor failed:", res.status, res.statusText, body);
+          console.error("GET /api/sponsors failed:", res.status, res.statusText, body);
           throw new Error(`HTTP ${res.status}`);
         }
 

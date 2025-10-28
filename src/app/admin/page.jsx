@@ -230,6 +230,8 @@ export default async function AdminHome() {
                <Link className="rounded-xl border px-3 py-2 hover:bg-emerald-50" href="/admin/pets">
   Add Campaign
 </Link>
+<Link className="rounded-xl border px-3 py-2 hover:bg-emerald-50" href="/admin/sponsorship-requests">
+Sponsorship Requests</Link>
             </div>
           </div>
         </div>
