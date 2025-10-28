@@ -70,14 +70,14 @@ export default function SupportPage() {
         </div>
       </section>
 
-      {/* -------------------- DONATION SECTION -------------------- */}
-      <section id="donations" className="max-w-5xl mx-auto mt-16 px-6">
-        <DonationSection />
-      </section>
-
       {/* -------------------- SPONSORSHIP SECTION -------------------- */}
       <section id="sponsorships" className="max-w-5xl mx-auto mt-16 px-6">
         <SponsorshipSection />
+      </section>
+
+      {/* -------------------- DONATION SECTION -------------------- */}
+      <section id="donations" className="max-w-5xl mx-auto mt-16 px-6">
+        <DonationSection />
       </section>
     </div>
   );

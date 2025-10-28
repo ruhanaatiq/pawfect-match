@@ -3,11 +3,16 @@ import React, { useState, useRef, useEffect } from "react";
 // import cares from "../../data/care.json";
 import Image from "next/image";
 import { Calendar, User ,  ChevronLeft, ChevronRight} from "lucide-react";
+import {motion} from 'framer-motion'
 
 // 🧩 Card Component
 const PetArticleCard = ({ article }) => {
   return (
-    <div className="bg-white rounded-2xl shadow-md hover:shadow-lg shadow-emerald-50 transition-all overflow-hidden w-full max-w-sm duration-500">
+    <motion.div
+    initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.4 }}
+    className="bg-white rounded-2xl shadow-md hover:shadow-lg shadow-emerald-50 transition-all overflow-hidden w-full max-w-sm duration-500">
       {/* Image Section */}
       <div className="relative h-64 w-full">
         <Image
@@ -15,9 +20,9 @@ const PetArticleCard = ({ article }) => {
           alt={article.title}
           fill
           unoptimized
-          className="object-cover"
+          className="object-cover hover:scale-105 transition-all duration-500"
         />
-        <span className="absolute top-3 right-3 bg-emerald-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
+        <span className=" absolute top-3 right-3 bg-emerald-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
           {article.difficulty}
         </span>
       </div>
@@ -55,7 +60,7 @@ const PetArticleCard = ({ article }) => {
           </a>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
@@ -105,18 +110,23 @@ export default function PetCare() {
   if (loading) return <p>Loading...</p>
 
   return (
-    <section className="scroll-">
+    <section className="">
       {/* 🐾 Hero Section */}
-      <div className="relative w-screen left-1/2 right-1/2 -mx-[50vw] h-[400px] bg-[url('/pet-care.jpg')] bg-cover bg-center ">
+      <div className="relative w-screen left-1/2 right-1/2  -mx-[50vw] h-[400px] lg:h-[450px] bg-[url('/pet-care.jpg')] bg-cover bg-center -mt-8 ">
         <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/60 to-transparent"></div>
-        <div className="relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4">
+        <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          viewport={{amount : 0.5}}
+        className="relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 drop-shadow-lg">
             Learn How to Care for Your Pet
           </h1>
           <p className="md:text-lg lg:text-xl max-w-xl drop-shadow-md">
             Explore essential tips, guides, and routines to keep your furry friend happy and healthy.
           </p>
-        </div>
+        </motion.div>
       </div>
 
       {/* 🟢 Category Section with Arrows */}
@@ -133,17 +143,17 @@ export default function PetCare() {
           className="flex gap-3 overflow-x-hidden scrollbar-hide px-10  scroll-smooth "
         >
           {categories.map((category) => (
-            <button
+            <motion.button
               key={category}
               onClick={() => setSelectedCategory(category)}
-              className={`flex-shrink-0 px-4 py-2 rounded-full border text-sm font-medium cursor-pointer transition-all ${
+              className={`flex-shrink-0 px-4 py-2 rounded-full border text-sm font-medium cursor-pointer transition-all hover:scale-102 ${
                 selectedCategory === category
                   ? "bg-emerald-600 text-white border-emerald-600 shadow-md"
                   : "bg-white text-emerald-700 border-emerald-600 hover:bg-emerald-100"
               }`}
             >
               {category}
-            </button>
+            </motion.button>
           ))}
         </div>
 
