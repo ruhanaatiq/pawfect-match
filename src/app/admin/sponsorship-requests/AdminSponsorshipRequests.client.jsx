@@ -4,10 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import { Check, X, Trash2, Search, Loader2 } from "lucide-react";
 
-/* Small helpers */
+/* helpers */
 const fmtDate = (v) =>
   v ? new Date(v).toLocaleString(undefined, { hour12: true }) : "—";
-const badgeTone = (s) => {
+const tone = (s) => {
   const k = String(s || "pending").toLowerCase();
   if (k === "approved") return "badge-success";
   if (k === "rejected") return "badge-error";
@@ -22,7 +22,6 @@ export default function AdminSponsorshipRequests() {
   const [page, setPage] = useState(1);
   const pageSize = 8;
 
-  /* fetch data */
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -40,12 +39,9 @@ export default function AdminSponsorshipRequests() {
         if (!cancelled) setLoading(false);
       }
     })();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, []);
 
-  /* filter + paginate */
   const filtered = useMemo(() => {
     const term = q.trim().toLowerCase();
     return rows.filter((r) => {
@@ -60,7 +56,6 @@ export default function AdminSponsorshipRequests() {
   const pageSafe = Math.min(page, totalPages);
   const slice = filtered.slice((pageSafe - 1) * pageSize, pageSafe * pageSize);
 
-  /* actions */
   const updateStatus = async (id, next) => {
     try {
       const res = await fetch(`/api/sponsors/${id}`, {
@@ -93,7 +88,6 @@ export default function AdminSponsorshipRequests() {
     }
   };
 
-  /* loading state */
   if (loading) {
     return (
       <div className="rounded-2xl bg-white/90 shadow-sm ring-1 ring-black/5 p-6 flex items-center gap-3">
@@ -105,16 +99,19 @@ export default function AdminSponsorshipRequests() {
 
   return (
     <div className="space-y-4">
-      {/* Controls */}
-      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+      {/* Section header (small helper text to the right like your users page) */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-semibold text-[#4C3D3D]">Sponsorship Requests</h2>
+        <div className="text-sm text-gray-500">Admin tools · Approve / Reject / Delete</div>
+      </div>
+
+      {/* Controls block – pill card like your Manage Users filters */}
+      <div className="rounded-2xl bg-white/80 ring-1 ring-black/5 shadow-sm p-3 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
         <div className="relative w-full sm:max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <input
             value={q}
-            onChange={(e) => {
-              setQ(e.target.value);
-              setPage(1);
-            }}
+            onChange={(e) => { setQ(e.target.value); setPage(1); }}
             placeholder="Search company, contact, email…"
             className="input input-bordered w-full pl-10"
           />
@@ -123,10 +120,7 @@ export default function AdminSponsorshipRequests() {
         <select
           className="select select-bordered sm:w-44"
           value={status}
-          onChange={(e) => {
-            setStatus(e.target.value);
-            setPage(1);
-          }}
+          onChange={(e) => { setStatus(e.target.value); setPage(1); }}
         >
           <option value="all">All statuses</option>
           <option value="pending">Pending</option>
@@ -139,110 +133,131 @@ export default function AdminSponsorshipRequests() {
         </div>
       </div>
 
-      {/* Desktop table */}
-      <div className="hidden md:block overflow-auto rounded-2xl bg-white/90 shadow-sm ring-1 ring-black/5">
-        <table className="table table-zebra">
-          <thead className="sticky top-0 bg-white/95 backdrop-blur z-10">
-            <tr className="text-gray-600">
-              <th className="w-[22%]">Company</th>
-              <th className="w-[14%]">Contact</th>
-              <th className="w-[20%]">Email</th>
-              <th className="w-[12%]">Phone</th>
-              <th className="w-[16%]">Applied</th>
-              <th className="w-[10%]">Status</th>
-              <th className="w-[16%] text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {slice.map((r) => (
-              <tr key={r._id} className="hover">
-                <td className="font-medium">
-                  <div className="truncate max-w-[260px]" title={r.companyName ?? r.org ?? ""}>
-                    {r.companyName ?? r.org ?? "—"}
-                  </div>
-                </td>
-                <td>
-                  <div className="truncate max-w-[180px]" title={r.contactName ?? ""}>
-                    {r.contactName ?? "—"}
-                  </div>
-                </td>
-                <td>
-                  <div className="truncate max-w-[240px]" title={r.email ?? r.userEmail ?? ""}>
-                    {r.email ?? r.userEmail ?? "—"}
-                  </div>
-                </td>
-                <td>
-                  <div className="truncate max-w-[140px]" title={r.phone ?? ""}>
-                    {r.phone ?? "—"}
-                  </div>
-                </td>
-                <td className="text-sm text-gray-600">{fmtDate(r.appliedAt)}</td>
-                <td>
-                  <span className={`badge ${badgeTone(r.status)} badge-sm`}>
-                    {String(r.status ?? "pending").toLowerCase()}
-                  </span>
-                </td>
-                <td className="text-right space-x-2 whitespace-nowrap">
-                  <button
-                    className="btn btn-xs btn-success"
-                    onClick={() => updateStatus(r._id, "approved")}
-                    disabled={r.status === "approved"}
-                    title="Approve"
-                  >
-                    <Check className="h-3.5 w-3.5" />
-                    <span className="ml-1 hidden lg:inline">Approve</span>
-                  </button>
-                  <button
-                    className="btn btn-xs btn-warning"
-                    onClick={() => updateStatus(r._id, "rejected")}
-                    disabled={r.status === "rejected"}
-                    title="Reject"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                    <span className="ml-1 hidden lg:inline">Reject</span>
-                  </button>
-                  <button
-                    className="btn btn-xs btn-outline"
-                    onClick={() => removeRow(r._id)}
-                    title="Delete"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                    <span className="ml-1 hidden lg:inline">Delete</span>
-                  </button>
-                </td>
+      {/* Table card */}
+      <div className="overflow-hidden rounded-2xl bg-white/90 shadow-sm ring-1 ring-black/5">
+        <div className="overflow-x-auto">
+          <table className="table table-zebra">
+            <thead className="sticky top-0 bg-white/95 backdrop-blur z-10">
+              <tr className="text-gray-600">
+                <th className="w-[22%]">Company</th>
+                <th className="w-[16%]">Contact</th>
+                <th className="w-[22%]">Email</th>
+                <th className="w-[12%]">Phone</th>
+                <th className="w-[14%]">Applied</th>
+                <th className="w-[8%]">Status</th>
+                <th className="w-[16%] text-right">Actions</th>
               </tr>
-            ))}
-            {!slice.length && (
-              <tr>
-                <td colSpan={7} className="text-center py-10 text-gray-500">
-                  No results on this page.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {slice.map((r) => (
+                <tr key={r._id} className="align-middle">
+                  <td className="font-medium">
+                    <div className="truncate max-w-[260px]" title={r.companyName ?? r.org ?? ""}>
+                      {r.companyName ?? r.org ?? "—"}
+                    </div>
+                  </td>
+                  <td>
+                    <div className="truncate max-w-[180px]" title={r.contactName ?? ""}>
+                      {r.contactName ?? "—"}
+                    </div>
+                  </td>
+                  <td>
+                    <div className="truncate max-w-[240px]" title={r.email ?? r.userEmail ?? ""}>
+                      {r.email ?? r.userEmail ?? "—"}
+                    </div>
+                  </td>
+                  <td>
+                    <div className="truncate max-w-[140px]" title={r.phone ?? ""}>
+                      {r.phone ?? "—"}
+                    </div>
+                  </td>
+                  <td className="text-sm text-gray-600">{fmtDate(r.appliedAt)}</td>
+                  <td>
+                    <span className={`badge ${tone(r.status)} badge-sm`}>
+                      {String(r.status ?? "pending").toLowerCase()}
+                    </span>
+                  </td>
+                  <td className="text-right whitespace-nowrap">
+                    <div className="inline-flex gap-2">
+                      <button
+                        className="btn btn-xs btn-success"
+                        onClick={() => updateStatus(r._id, "approved")}
+                        disabled={r.status === "approved"}
+                        title="Approve"
+                      >
+                        <Check className="h-3.5 w-3.5" />
+                        <span className="ml-1 hidden lg:inline">Approve</span>
+                      </button>
+                      <button
+                        className="btn btn-xs btn-warning"
+                        onClick={() => updateStatus(r._id, "rejected")}
+                        disabled={r.status === "rejected"}
+                        title="Reject"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                        <span className="ml-1 hidden lg:inline">Reject</span>
+                      </button>
+                      <button
+                        className="btn btn-xs btn-outline"
+                        onClick={() => removeRow(r._id)}
+                        title="Delete"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        <span className="ml-1 hidden lg:inline">Delete</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+
+              {!slice.length && (
+                <tr>
+                  <td colSpan={7} className="text-center py-10 text-gray-500">
+                    No results on this page.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination bar to match your UX */}
+        <div className="flex items-center justify-center gap-3 p-3 border-t bg-white/60">
+          <button
+            className="btn btn-sm"
+            disabled={pageSafe <= 1}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+          >
+            Prev
+          </button>
+          <div className="text-sm text-gray-600">
+            Page <span className="font-medium">{pageSafe}</span> of {totalPages}
+          </div>
+          <button
+            className="btn btn-sm"
+            disabled={pageSafe >= totalPages}
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+          >
+            Next
+          </button>
+        </div>
       </div>
 
-      {/* Mobile cards */}
+      {/* Mobile cards (kept minimal; page already matches your style on desktop) */}
       <div className="md:hidden space-y-3">
         {slice.map((r) => (
-          <div
-            key={r._id}
-            className="rounded-xl bg-white/90 shadow-sm ring-1 ring-black/5 p-4"
-          >
+          <div key={r._id} className="rounded-xl bg-white/90 shadow-sm ring-1 ring-black/5 p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <div className="font-semibold">{r.companyName ?? r.org ?? "—"}</div>
                 <div className="text-sm text-gray-500">{r.contactName ?? "—"}</div>
               </div>
-              <span className={`badge ${badgeTone(r.status)} badge-sm`}>
+              <span className={`badge ${tone(r.status)} badge-sm`}>
                 {String(r.status ?? "pending").toLowerCase()}
               </span>
             </div>
             <div className="mt-2 text-sm text-gray-600">
-              <div className="truncate" title={r.email ?? r.userEmail ?? ""}>
-                {r.email ?? r.userEmail ?? "—"}
-              </div>
+              <div className="truncate" title={r.email ?? r.userEmail ?? ""}>{r.email ?? r.userEmail ?? "—"}</div>
               <div>{r.phone ?? "—"}</div>
               <div>{fmtDate(r.appliedAt)}</div>
             </div>
@@ -261,42 +276,12 @@ export default function AdminSponsorshipRequests() {
               >
                 <X className="h-3.5 w-3.5" /> <span className="ml-1">Reject</span>
               </button>
-              <button
-                className="btn btn-xs btn-outline"
-                onClick={() => removeRow(r._id)}
-                aria-label="Delete"
-              >
+              <button className="btn btn-xs btn-outline" onClick={() => removeRow(r._id)} aria-label="Delete">
                 <Trash2 className="h-3.5 w-3.5" />
               </button>
             </div>
           </div>
         ))}
-        {!slice.length && (
-          <div className="rounded-xl bg-white/90 shadow-sm ring-1 ring-black/5 p-6 text-center text-gray-500">
-            No results.
-          </div>
-        )}
-      </div>
-
-      {/* Pagination */}
-      <div className="flex items-center justify-center gap-2 pt-2">
-        <button
-          className="btn btn-sm"
-          disabled={pageSafe <= 1}
-          onClick={() => setPage((p) => Math.max(1, p - 1))}
-        >
-          Prev
-        </button>
-        <div className="text-sm text-gray-600">
-          Page <span className="font-medium">{pageSafe}</span> of {totalPages}
-        </div>
-        <button
-          className="btn btn-sm"
-          disabled={pageSafe >= totalPages}
-          onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-        >
-          Next
-        </button>
       </div>
     </div>
   );

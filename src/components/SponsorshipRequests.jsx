@@ -6,7 +6,7 @@ import { toast } from "react-hot-toast";
 
 export default function SponsorshipRequests() {
   const { data: session, status } = useSession();
-  const userEmail = session?.user?.email;
+  const userEmail = session?.user?.email || "";
 
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,41 +14,45 @@ export default function SponsorshipRequests() {
   useEffect(() => {
     let cancelled = false;
 
-    async function fetchRequests() {
-      // don't fire until session is resolved
-      if (status === "loading") return;
+   async function fetchRequests() {
+  if (status === "loading") return;
 
-      if (!userEmail) {
-        setLoading(false);
-        return;
-      }
+  if (!userEmail) {
+    setRequests([]);
+    setLoading(false);
+    return;
+  }
 
-      setLoading(true);
-      try {
-        const res = await fetch(
-          `/api/sponsors?email=${encodeURIComponent(userEmail)}`,
-          { cache: "no-store" }
-        );
+  setLoading(true);
+  try {
+    const res = await fetch(
+      `/api/sponsors?email=${encodeURIComponent(userEmail)}`,
+      { cache: "no-store" }
+    );
 
-        if (!res.ok) {
-          let body = "";
-          try { body = await res.text(); } catch {}
-          console.error("GET /api/sponsors failed:", res.status, res.statusText, body);
-          throw new Error(`HTTP ${res.status}`);
-        }
-
-        const data = await res.json();
-        if (!cancelled) setRequests(Array.isArray(data) ? data : []);
-      } catch (err) {
-        if (!cancelled) {
-          console.error(err);
-          toast.error("Failed to fetch sponsorship requests");
-          setRequests([]);
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
+    if (!res.ok) {
+      const body = await res.text().catch(() => "");
+      console.error("GET /api/sponsors failed:", res.status, res.statusText, body);
+      throw new Error(`HTTP ${res.status}`);
     }
+
+    const json = await res.json();
+    const arr = Array.isArray(json?.data)
+      ? json.data
+      : Array.isArray(json)
+      ? json
+      : [];
+
+    setRequests(arr);
+  } catch (err) {
+    console.error("GET /api/sponsors error:", err);
+    toast.error("Failed to fetch sponsorship requests");
+    setRequests([]);
+  } finally {
+    setLoading(false);
+  }
+}
+
 
     fetchRequests();
     return () => { cancelled = true; };
@@ -60,19 +64,53 @@ export default function SponsorshipRequests() {
   return (
     <div className="space-y-4">
       {requests.map((req) => {
-        const org = req.org ?? req.organization ?? "Unknown Organization";
-        const email = req.userEmail ?? req.email ?? "N/A";
-        const applied = req.appliedAt ? new Date(req.appliedAt).toLocaleDateString() : "—";
-        const statusText = req.status ?? "pending";
+        const {
+          _id,
+          companyName = "Unknown Company",
+          contactName = "",
+          email = "N/A",
+          phone = "",
+          website = "",
+          logoUrl = "",
+          message = "",
+          status: st = "pending",
+          appliedAt,
+        } = req || {};
+
+        const applied = appliedAt ? new Date(appliedAt).toLocaleString() : "—";
 
         return (
-          <div key={req._id || `${org}-${applied}`} className="p-4 rounded-xl bg-white shadow flex flex-col md:flex-row justify-between items-center">
-            <div>
-              <p className="font-semibold text-lg">{org}</p>
-              <p className="text-sm text-gray-500">Email: {email}</p>
-              <p className="text-sm text-gray-500">Status: <span className="font-medium">{statusText}</span></p>
-              <p className="text-sm text-gray-500">Applied at: {applied}</p>
+          <div
+            key={_id || `${companyName}-${applied}`}
+            className="p-4 rounded-xl bg-white shadow flex flex-col md:flex-row md:items-center md:justify-between gap-3"
+          >
+            <div className="flex items-center gap-3">
+              {logoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={logoUrl} alt={companyName} className="w-12 h-12 rounded-full object-cover" />
+              ) : (
+                <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center font-semibold">
+                  {companyName.slice(0,1)}
+                </div>
+              )}
+              <div>
+                <p className="font-semibold text-lg">{companyName}</p>
+                <p className="text-sm text-gray-500">Contact: {contactName || "—"}</p>
+                <p className="text-sm text-gray-500">Email: {email}{phone ? ` · ${phone}` : ""}</p>
+                <p className="text-sm text-gray-500">Website: {website || "—"}</p>
+              </div>
             </div>
+
+            <div className="text-sm">
+              <p className="text-gray-500">
+                Status: <span className="font-medium capitalize">{st}</span>
+              </p>
+              <p className="text-gray-500">Applied: {applied}</p>
+            </div>
+
+            {message ? (
+              <p className="text-sm text-gray-700 md:max-w-xl">{message}</p>
+            ) : null}
           </div>
         );
       })}

@@ -57,13 +57,22 @@ function Sparkline({ points = [], className = "text-emerald-500" }) {
   );
 }
 
+/* ---------- StatCard (marquee label only) ---------- */
 function StatCard({ label, value, icon }) {
   return (
     <div className="rounded-2xl bg-white/90 shadow-sm ring-1 ring-black/5 p-4 flex items-start gap-4">
-      <div className="shrink-0 rounded-xl bg-emerald-50 p-3" aria-hidden="true">{icon}</div>
+      <div className="shrink-0 rounded-xl bg-emerald-50 p-3" aria-hidden="true">
+        {icon}
+      </div>
       <div className="flex-1">
-        <div className="text-sm text-gray-500">{label}</div>
-        <div className="mt-1 text-2xl font-semibold text-gray-900">{value}</div>
+        {/* Label scrolls */}
+        <div className="text-sm text-gray-500 pm-marquee" aria-label={label}>
+          <span className="pm-track">{label} • {label}</span>
+        </div>
+        {/* Value stays static */}
+        <div className="mt-1 text-2xl font-semibold text-gray-900">
+          {String(value)}
+        </div>
       </div>
     </div>
   );
@@ -105,10 +114,8 @@ export default function DashboardClient({ initialTab = "profile" }) {
   };
 
   /* ---------- Effects ---------- */
-  // Sync tab with URL
-  useEffect(() => { setActiveTab((searchParams.get("tab") || initialTab).toLowerCase()); }, [searchParams]);
+  useEffect(() => { setActiveTab((searchParams.get("tab") || initialTab).toLowerCase()); }, [searchParams, initialTab]);
 
-  // Fetch applications
   useEffect(() => {
     let cancelled = false;
     async function run() {
@@ -127,7 +134,6 @@ export default function DashboardClient({ initialTab = "profile" }) {
     return () => { cancelled = true; };
   }, [userEmail]);
 
-  // Fetch favorites when tab is active
   useEffect(() => {
     if (activeTab !== "favorites" || !userEmail) return;
     let cancelled = false;
@@ -143,7 +149,6 @@ export default function DashboardClient({ initialTab = "profile" }) {
     return () => { cancelled = true; };
   }, [activeTab, userEmail]);
 
-  // Fetch workshops
   useEffect(() => {
     let cancelled = false;
     async function fetchWorkshops() {
@@ -158,7 +163,6 @@ export default function DashboardClient({ initialTab = "profile" }) {
     return () => { cancelled = true; };
   }, []);
 
-  // Load joined workshops from localStorage
   useEffect(() => {
     try {
       const stored = localStorage.getItem("joinedWorkshops");
@@ -166,7 +170,6 @@ export default function DashboardClient({ initialTab = "profile" }) {
     } catch {}
   }, []);
 
-  // Clock for countdowns
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(id);
@@ -262,7 +265,6 @@ export default function DashboardClient({ initialTab = "profile" }) {
       {sidebarOpen && <div className="fixed inset-0 bg-black/30 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />}
 
       <main className="flex-1 p-6 md:p-8 overflow-y-auto transition-all duration-300">
-        {/* Tabs: profile, applications, bookings, feedback, reviews, sponsorships, settings */}
         {/* PROFILE TAB */}
         {activeTab === "profile" && (
           <div className="flex flex-col lg:flex-row gap-6">
@@ -347,7 +349,7 @@ export default function DashboardClient({ initialTab = "profile" }) {
               <div className="p-8 rounded-3xl bg-gradient-to-br from-emerald-50/70 via-white/60 to-rose-50/50 backdrop-blur shadow-xl text-gray-600 text-center font-medium"><p className="text-lg">No applications yet 🐶🐱</p></div>
             ) : (
               <ul className="space-y-4">
-                {applications.map((app, i) => {
+                {applications.map((app) => {
                   const status = app.status?.toLowerCase();
                   const width = status === "approved" ? "100%" : status === "pending" ? "50%" : "0%";
                   const bar = status === "approved" ? "bg-green-500" : status === "pending" ? "bg-yellow-400" : "bg-gray-400";
@@ -417,6 +419,28 @@ export default function DashboardClient({ initialTab = "profile" }) {
           </div>
         </div>
       )}
+
+      {/* --- Marquee styles (global to this page) --- */}
+      <style jsx global>{`
+        .pm-marquee {
+          position: relative;
+          overflow: hidden;
+          line-height: 1.2;
+        }
+        .pm-track {
+          display: inline-block;
+          white-space: nowrap;
+          padding-right: 2rem; /* gap between repeats */
+          animation: pm-scroll 9s linear infinite;
+        }
+        .pm-marquee:hover .pm-track {
+          animation-play-state: paused; /* pause on hover */
+        }
+        @keyframes pm-scroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+      `}</style>
     </div>
   );
 }
