@@ -11,13 +11,13 @@ import { useRouter } from "next/navigation";
 const DEMO_ACCESSORIES_LIST = [
   { id: "a1", name: "Comfort Harness", category: "Walking", brand: "PawCo", price: 24.99, oldPrice: 32, rating: 4.6, reviews: 128, image: "https://i.ibb.co/cXpz7TKN/harness.jpg", badge: "Sale", inStock: true },
   { id: "a2", name: "Ceramic Bowl", category: "Feeding", brand: "PetNest", price: 18.5, rating: 4.3, reviews: 76, image: "https://i.ibb.co/S79wdT8R/bowls.jpg", badge: "New", inStock: true },
-  { id: "a3", name: "Chew Toy Set", category: "Toys", brand: "ChewyTime", price: 14.0, rating: 4.1, reviews: 64, image: "https://i.ibb.co/cXpz7TKN/harness.jpg", inStock: true },
-  { id: "a4", name: "Cozy Bed (M/L)", category: "Beds", brand: "Snuggo", price: 39.99, rating: 4.8, reviews: 210, image: "https://i.ibb.co/cXpz7TKN/harness.jpg", badge: "Top", inStock: true },
-  { id: "a5", name: "LED Collar", category: "Walking", brand: "GlowPaws", price: 12.99, rating: 4.2, reviews: 41, image: "/accessories/collar.jpg", inStock: false },
-  { id: "a6", name: "Travel Carrier", category: "Travel", brand: "RoamPet", price: 55.0, rating: 4.7, reviews: 96, image: "/accessories/carrier.jpg", badge: "Hot", inStock: true },
-  { id: "a7", name: "Grooming Kit", category: "Grooming", brand: "FurCare", price: 22.0, rating: 4.4, reviews: 72, image: "/accessories/groom.jpg", inStock: true },
-  { id: "a8", name: "Cooling Mat", category: "Beds", brand: "ChillPet", price: 27.5, rating: 4.0, reviews: 35, image: "/accessories/coolmat.jpg", inStock: true },
-  { id: "a9", name: "Puzzle Feeder", category: "Feeding", brand: "BrainyBowl", price: 21.0, rating: 4.5, reviews: 119, image: "/accessories/puzzle.jpg", inStock: true },
+  { id: "a3", name: "Chew Toy Set", category: "Toys", brand: "ChewyTime", price: 14.0, rating: 4.1, reviews: 64, image: "https://i.ibb.co.com/b85HqVx/chewy-toy.jpg", inStock: true },
+  { id: "a4", name: "Cozy Bed (M/L)", category: "Beds", brand: "Snuggo", price: 39.99, rating: 4.8, reviews: 210, image: "https://i.ibb.co.com/HLpb42Tp/bed.jpg", badge: "Top", inStock: true },
+  { id: "a5", name: "LED Collar", category: "Walking", brand: "GlowPaws", price: 12.99, rating: 4.2, reviews: 41, image: "https://i.ibb.co.com/chhFvB7G/led-collar.jpg", inStock: false },
+  { id: "a6", name: "Travel Carrier", category: "Travel", brand: "RoamPet", price: 55.0, rating: 4.7, reviews: 96, image: "https://i.ibb.co.com/dJgYnM45/carrier.jpg", badge: "Hot", inStock: true },
+  { id: "a7", name: "Grooming Kit", category: "Grooming", brand: "FurCare", price: 22.0, rating: 4.4, reviews: 72, image: "https://i.ibb.co.com/CKHSWkzq/grooimg-kit.jpg", inStock: true },
+  { id: "a8", name: "Cooling Mat", category: "Beds", brand: "ChillPet", price: 27.5, rating: 4.0, reviews: 35, image: "https://i.ibb.co.com/spf1w9Pd/cooling-amt.jpg", inStock: true },
+  { id: "a9", name: "Puzzle Feeder", category: "Feeding", brand: "BrainyBowl", price: 21.0, rating: 4.5, reviews: 119, image: "https://i.ibb.co.com/xKRJSVf8/puzzle-feeder.jpg", inStock: true },
 ];
 
 export const dynamic = "force-dynamic";
@@ -281,7 +281,10 @@ export default function AccessoriesPage() {
                 transition={{ duration: 0.35 }}
               >
                 <div className="relative h-48 z-0">
-                  <Image src={p.image} alt={p.name} fill className="object-cover" sizes="(max-width:768px) 50vw, 33vw" />
+{p.image.startsWith('http')
+  ? <img src={p.image} alt={p.name} className="object-cover w-full h-full" />
+  : <Image src={p.image} alt={p.name} fill className="object-cover" sizes="(max-width:768px) 50vw, 33vw" />
+}
                   {!p.inStock && <span className="absolute left-2 top-2 z-10 badge">Out of stock</span>}
                   {p.badge && (
                     <span className="absolute right-2 top-2 z-10 badge badge-primary text-white">
