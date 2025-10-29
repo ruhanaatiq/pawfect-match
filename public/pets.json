@@ -759,4 +759,399 @@
     "createdAt": "2025-07-16T16:00:00.697Z",
     "status": "Available"
   }
+  ,
+  {
+    "id": 21,
+    "petName": "Mochi",
+    "species": "Cat",
+    "breed": "British Shorthair",
+    "petAge": "2 years",
+    "gender": "Female",
+    "size": "Medium",
+    "color": "Blue (Gray)",
+    "petCategory": "Adult",
+    "petLocation": {
+      "city": "Dhaka",
+      "area": "Dhanmondi",
+      "address": "House 7, Road 4A, Dhanmondi, Dhaka",
+      "geo": { "lat": 23.7465, "lng": 90.3760 }
+    },
+    "vaccinationStatus": "Fully vaccinated",
+    "healthCondition": "Healthy, Spayed",
+    "temperament": "Calm, gentle, indoor-loving",
+    "longDescription": "Mochi is a mellow indoor cat who loves sunny windowsills and quiet evenings.",
+    "adoptionFee": 650,
+    "adopted": false,
+    "images": "https://i.ibb.co/3yqL0Yj/bs-01.jpg",
+    "shelterInfo": {
+      "name": "Happy Paws Shelter",
+      "contactNumber": "+8801712345678",
+      "email": "info@happypaws.org"
+    },
+    "vetDetails": {
+      "name": "Dr. Rahman",
+      "clinic": "Pet Care Clinic, Dhaka",
+      "contact": "+8801911223344",
+      "lastCheckup": "2025-07-08"
+    },
+    "createdBy": "sadia@gmail.com",
+    "createdAt": "2025-07-16T16:30:00.000Z",
+    "status": "Available",
+    "traits": {
+      "energyLevel": 2,
+      "sociability": 3,
+      "noiseTolerance": 2,
+      "trainingComfort": 2,
+      "aloneHoursOk": 4,
+      "indoorPreferred": true,
+      "apartmentFriendly": true,
+      "kidFriendly": true,
+      "otherPetsFriendly": true
+    }
+  },
+  {
+    "id": 22,
+    "petName": "Olive",
+    "species": "Cat",
+    "breed": "Persian Mix",
+    "petAge": "1 year 6 months",
+    "gender": "Female",
+    "size": "Small",
+    "color": "Cream",
+    "petCategory": "Young",
+    "petLocation": {
+      "city": "Chittagong",
+      "area": "Nasirabad",
+      "address": "Flat 3C, Nasirabad, Chittagong",
+      "geo": { "lat": 22.3660, "lng": 91.8225 }
+    },
+    "vaccinationStatus": "Partially vaccinated",
+    "healthCondition": "Healthy",
+    "temperament": "Affectionate, indoor-only, lap cat",
+    "longDescription": "Olive is a cuddly indoor cat who enjoys gentle play and cozy naps.",
+    "adoptionFee": 500,
+    "adopted": false,
+    "images": "https://i.ibb.co/6BJvCxm/persian-olive.jpg",
+    "shelterInfo": {
+      "name": "Cat Haven",
+      "contactNumber": "+8801811122233",
+      "email": "info@cathaven.org"
+    },
+    "vetDetails": {
+      "name": "Dr. Alam",
+      "clinic": "Chittagong Pet Hospital",
+      "contact": "+8801711222333",
+      "lastCheckup": "2025-07-10"
+    },
+    "createdBy": "nabila@gmail.com",
+    "createdAt": "2025-07-16T16:40:00.000Z",
+    "status": "Available",
+    "traits": {
+      "energyLevel": 2,
+      "sociability": 3,
+      "noiseTolerance": 3,
+      "trainingComfort": 2,
+      "aloneHoursOk": 4,
+      "indoorPreferred": true,
+      "apartmentFriendly": true,
+      "kidFriendly": true,
+      "otherPetsFriendly": true
+    }
+  },
+  {
+    "id": 23,
+    "petName": "Pumpkin",
+    "species": "Cat",
+    "breed": "Domestic Short Hair",
+    "petAge": "8 months",
+    "gender": "Male",
+    "size": "Small",
+    "color": "Orange Tabby",
+    "petCategory": "Young",
+    "petLocation": {
+      "city": "Dhaka",
+      "area": "Mohammadpur",
+      "address": "Lane 9, Mohammadpur, Dhaka",
+      "geo": { "lat": 23.7640, "lng": 90.3580 }
+    },
+    "vaccinationStatus": "Fully vaccinated",
+    "healthCondition": "Healthy, Neutered",
+    "temperament": "Playful but polite indoors",
+    "longDescription": "Pumpkin likes teaser wands and window bird-watching. Apartment friendly.",
+    "adoptionFee": 350,
+    "adopted": false,
+    "images": "https://i.ibb.co/NYQqv7M/dsh-pumpkin.jpg",
+    "shelterInfo": {
+      "name": "Dhaka Animal Rescue",
+      "contactNumber": "+8801999223344",
+      "email": "info@dar.org"
+    },
+    "vetDetails": {
+      "name": "Dr. Mahmud",
+      "clinic": "Banani Vet Hospital",
+      "contact": "+8801777889900",
+      "lastCheckup": "2025-07-12"
+    },
+    "createdBy": "mehedi@gmail.com",
+    "createdAt": "2025-07-16T16:50:00.000Z",
+    "status": "Available",
+    "traits": {
+      "energyLevel": 3,
+      "sociability": 3,
+      "noiseTolerance": 3,
+      "trainingComfort": 2,
+      "aloneHoursOk": 4,
+      "indoorPreferred": true,
+      "apartmentFriendly": true,
+      "kidFriendly": true,
+      "otherPetsFriendly": true
+    }
+  },
+  {
+    "id": 24,
+    "petName": "Smokey",
+    "species": "Cat",
+    "breed": "Russian Blue Mix",
+    "petAge": "3 years",
+    "gender": "Male",
+    "size": "Medium",
+    "color": "Gray",
+    "petCategory": "Adult",
+    "petLocation": {
+      "city": "Khulna",
+      "area": "Boyra",
+      "address": "House 11, Boyra Main Road, Khulna",
+      "geo": { "lat": 22.8456, "lng": 89.5403 }
+    },
+    "vaccinationStatus": "Fully vaccinated",
+    "healthCondition": "Healthy",
+    "temperament": "Quiet, independent, gentle with kids",
+    "longDescription": "Smokey is low-energy and thrives in quiet apartments with a steady routine.",
+    "adoptionFee": 450,
+    "adopted": false,
+    "images": "https://i.ibb.co/t3y2q4y/rb-smokey.jpg",
+    "shelterInfo": {
+      "name": "Paws & Friends",
+      "contactNumber": "+8801722334455",
+      "email": "adopt@pawsfriends.org"
+    },
+    "vetDetails": {
+      "name": "Dr. Sultana",
+      "clinic": "Khulna Vet Clinic",
+      "contact": "+8801933445566",
+      "lastCheckup": "2025-07-05"
+    },
+    "createdBy": "rahim@gmail.com",
+    "createdAt": "2025-07-16T17:00:00.000Z",
+    "status": "Available",
+    "traits": {
+      "energyLevel": 2,
+      "sociability": 3,
+      "noiseTolerance": 2,
+      "trainingComfort": 2,
+      "aloneHoursOk": 4,
+      "indoorPreferred": true,
+      "apartmentFriendly": true,
+      "kidFriendly": true,
+      "otherPetsFriendly": false
+    }
+  },
+  {
+    "id": 25,
+    "petName": "Nori",
+    "species": "Cat",
+    "breed": "Ragdoll",
+    "petAge": "1 year 2 months",
+    "gender": "Female",
+    "size": "Medium",
+    "color": "Seal Point",
+    "petCategory": "Young",
+    "petLocation": {
+      "city": "Sylhet",
+      "area": "Zindabazar",
+      "address": "Road 3, Zindabazar, Sylhet",
+      "geo": { "lat": 24.8960, "lng": 91.8680 }
+    },
+    "vaccinationStatus": "Fully vaccinated",
+    "healthCondition": "Healthy, Spayed",
+    "temperament": "Affectionate, relaxed, couch companion",
+    "longDescription": "Nori is a classic apartment cat—cuddly, calm, and indoor-only.",
+    "adoptionFee": 780,
+    "adopted": false,
+    "images": "https://i.ibb.co/1KsJ8Q2/ragdoll-nori.jpg",
+    "shelterInfo": {
+      "name": "Sylhet Pet Shelter",
+      "contactNumber": "+8801944556677",
+      "email": "shelter@sylhetpets.org"
+    },
+    "vetDetails": {
+      "name": "Dr. Hossain",
+      "clinic": "Sylhet Animal Care",
+      "contact": "+8801788990011",
+      "lastCheckup": "2025-07-13"
+    },
+    "createdBy": "sharmin@gmail.com",
+    "createdAt": "2025-07-16T17:10:00.000Z",
+    "status": "Available",
+    "traits": {
+      "energyLevel": 2,
+      "sociability": 3,
+      "noiseTolerance": 3,
+      "trainingComfort": 2,
+      "aloneHoursOk": 4,
+      "indoorPreferred": true,
+      "apartmentFriendly": true,
+      "kidFriendly": true,
+      "otherPetsFriendly": true
+    }
+  },
+  {
+    "id": 26,
+    "petName": "Biscuit",
+    "species": "Cat",
+    "breed": "Siamese Mix",
+    "petAge": "2 years",
+    "gender": "Male",
+    "size": "Medium",
+    "color": "Cream",
+    "petCategory": "Adult",
+    "petLocation": {
+      "city": "Barisal",
+      "area": "Nathullabad",
+      "address": "Block C, Lake Side, Barisal",
+      "geo": { "lat": 22.7055, "lng": 90.3560 }
+    },
+    "vaccinationStatus": "Fully vaccinated",
+    "healthCondition": "Healthy",
+    "temperament": "Chatty but polite, bond-forming",
+    "longDescription": "Biscuit enjoys people and puzzle feeders. Best as indoor-only.",
+    "adoptionFee": 520,
+    "adopted": false,
+    "images": "https://i.ibb.co/FX5JPTL/siamese-biscuit.jpg",
+    "shelterInfo": {
+      "name": "Barisal Pet Home",
+      "contactNumber": "+8801766778899",
+      "email": "barisal@pethome.org"
+    },
+    "vetDetails": {
+      "name": "Dr. Jahan",
+      "clinic": "Barisal Vet Care",
+      "contact": "+8801555332211",
+      "lastCheckup": "2025-07-09"
+    },
+    "createdBy": "farhana@gmail.com",
+    "createdAt": "2025-07-16T17:20:00.000Z",
+    "status": "Available",
+    "traits": {
+      "energyLevel": 3,
+      "sociability": 3,
+      "noiseTolerance": 3,
+      "trainingComfort": 2,
+      "aloneHoursOk": 4,
+      "indoorPreferred": true,
+      "apartmentFriendly": true,
+      "kidFriendly": true,
+      "otherPetsFriendly": true
+    }
+  },
+  {
+    "id": 27,
+    "petName": "Peanut",
+    "species": "Cat",
+    "breed": "Domestic Long Hair",
+    "petAge": "4 years",
+    "gender": "Female",
+    "size": "Medium",
+    "color": "Brown Tabby",
+    "petCategory": "Adult",
+    "petLocation": {
+      "city": "Mymensingh",
+      "area": "Town Hall",
+      "address": "Town Hall Road, Mymensingh",
+      "geo": { "lat": 24.7560, "lng": 90.4060 }
+    },
+    "vaccinationStatus": "Fully vaccinated",
+    "healthCondition": "Healthy, Spayed",
+    "temperament": "Quiet, patient, sofa-lover",
+    "longDescription": "Peanut is low-maintenance and prefers a calm apartment lifestyle.",
+    "adoptionFee": 300,
+    "adopted": false,
+    "images": "https://i.ibb.co/qB3yV8c/dlh-peanut.jpg",
+    "shelterInfo": {
+      "name": "Mymensingh Animal Care",
+      "contactNumber": "+8801714455667",
+      "email": "info@mymenpet.org"
+    },
+    "vetDetails": {
+      "name": "Dr. Nisha",
+      "clinic": "Mymensingh Vet Center",
+      "contact": "+8801777112233",
+      "lastCheckup": "2025-07-11"
+    },
+    "createdBy": "asma@gmail.com",
+    "createdAt": "2025-07-16T17:30:00.000Z",
+    "status": "Available",
+    "traits": {
+      "energyLevel": 1,
+      "sociability": 3,
+      "noiseTolerance": 2,
+      "trainingComfort": 2,
+      "aloneHoursOk": 4,
+      "indoorPreferred": true,
+      "apartmentFriendly": true,
+      "kidFriendly": true,
+      "otherPetsFriendly": false
+    }
+  },
+  {
+    "id": 28,
+    "petName": "Tofu",
+    "species": "Dog",
+    "breed": "Toy Poodle",
+    "petAge": "3 years",
+    "gender": "Male",
+    "size": "Small",
+    "color": "Apricot",
+    "petCategory": "Adult",
+    "petLocation": {
+      "city": "Dhaka",
+      "area": "Gulshan",
+      "address": "Road 10, Gulshan 2, Dhaka",
+      "geo": { "lat": 23.7922, "lng": 90.4145 }
+    },
+    "vaccinationStatus": "Fully vaccinated",
+    "healthCondition": "Healthy, Hypoallergenic",
+    "temperament": "Friendly, trainable, apartment perfect",
+    "longDescription": "Tofu is a tiny, people-oriented poodle who fits very well in apartments.",
+    "adoptionFee": 1200,
+    "adopted": false,
+    "images": "https://i.ibb.co/3B7Zq7J/toy-poodle-tofu.jpg",
+    "shelterInfo": {
+      "name": "Gulshan Animal Rescue",
+      "contactNumber": "+8801719090909",
+      "email": "gulshan@animalrescue.org"
+    },
+    "vetDetails": {
+      "name": "Dr. Tasnim",
+      "clinic": "Gulshan Vet Care",
+      "contact": "+8801777668899",
+      "lastCheckup": "2025-07-12"
+    },
+    "createdBy": "arif@gmail.com",
+    "createdAt": "2025-07-16T17:40:00.000Z",
+    "status": "Available",
+    "traits": {
+      "energyLevel": 2,
+      "sociability": 4,
+      "noiseTolerance": 3,
+      "trainingComfort": 3,
+      "aloneHoursOk": 4,
+      "indoorPreferred": true,
+      "apartmentFriendly": true,
+      "kidFriendly": true,
+      "otherPetsFriendly": true
+    }
+  }
 ]
+
+

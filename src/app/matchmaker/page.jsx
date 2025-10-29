@@ -264,7 +264,7 @@ export default function MatchmakerPage() {
             <Sparkles className="h-4 w-4" /> Smart AI Matchmaker
           </div>
           <h1 className="mt-3 text-4xl md:text-5xl font-extrabold leading-tight text-[#173d33]">
-         <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600">Pawfect Profile</span>
+         <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600">Pawfect Match</span>
           </h1>
           <p className="mt-2 text-gray-600">Answer a few delightful prompts—your matches adapt instantly.</p>
         </motion.div>
