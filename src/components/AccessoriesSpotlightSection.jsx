@@ -270,11 +270,11 @@ export default function AccessoriesSpotlightSection() {
     whileTap={{ scale: 0.97 }}
     onClick={() => console.log("Add to cart:", p.id)}
     className={`
-      relative btn btn-sm
+      relative btn btn-outline
       border-2 border-emerald-500
       rounded-md
       bg-emerald-500 text-white font-semibold
-       gap-2 px-4
+        px-2
       hover:bg-emerald-600 hover:border-emerald-600
       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400
       transition-colors

@@ -424,7 +424,7 @@ export default function MatchmakerPage() {
             <button
               type="submit"
               disabled={submitting}
-              className="mt-6 w-full btn btn-primary bg-gradient-to-r from-emerald-600 to-teal-500 border-0 text-white font-bold rounded-2xl"
+              className="mt-6 w-full py-2 btn btn-primary bg-gradient-to-r from-emerald-600 to-teal-500 border-0 text-white font-bold rounded-2xl"
             >
               <span className="mr-2 inline-block animate-[bounce_2s_infinite]">🐾</span>
               {submitting ? "Matching…" : "See My Matches"}
