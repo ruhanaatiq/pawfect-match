@@ -5,6 +5,39 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
+/* ---------------------------------------------
+   SafeImage: avoids next/image host errors
+---------------------------------------------- */
+function SafeImage({
+  src,
+  alt = "",
+  className = "",
+  fill = false,
+  sizes,
+  priority = false,
+  allowedHosts = ["i.ibb.co", "localhost"],
+}) {
+  const url = typeof src === "string" ? src.trim() : "";
+  if (!url) return null;
+
+  const isRemote = /^https?:\/\//i.test(url);
+  let host = "";
+  try {
+    if (isRemote) host = new URL(url).hostname;
+  } catch {}
+
+  const canUseNextImage = !isRemote || allowedHosts.includes(host);
+
+  if (canUseNextImage) {
+    return fill ? (
+      <Image src={url} alt={alt} fill className={className} sizes={sizes} priority={priority} />
+    ) : (
+      <Image src={url} alt={alt} width={80} height={80} className={className} sizes={sizes} priority={priority} />
+    );
+  }
+  return <img src={url} alt={alt} className={className} loading={priority ? "eager" : "lazy"} />;
+}
+
 export default function PaymentPage() {
   const router = useRouter();
   const [items, setItems] = useState([]);
@@ -54,7 +87,6 @@ export default function PaymentPage() {
       setErr("");
       setLoading(true);
 
-      // 1) Read the latest cart
       const current = JSON.parse(localStorage.getItem("cart") || "[]");
       if (!Array.isArray(current) || current.length === 0) {
         setErr("Your cart is empty.");
@@ -62,7 +94,6 @@ export default function PaymentPage() {
         return;
       }
 
-      // 2) Create a Checkout Session (server-side)
       const res = await fetch("/api/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -70,12 +101,8 @@ export default function PaymentPage() {
       });
 
       const data = await res.json();
+      if (!res.ok || !data?.url) throw new Error(data?.error || "Failed to start checkout");
 
-      if (!res.ok || !data?.url) {
-        throw new Error(data?.error || "Failed to start checkout");
-      }
-
-      // 3) Redirect the user to Stripe Checkout
       window.location.href = data.url;
     } catch (e) {
       setErr(e?.message || "Something went wrong starting checkout.");
@@ -97,7 +124,7 @@ export default function PaymentPage() {
         <div className="card bg-base-100 border border-gray-100 shadow p-6">
           <p>Your cart is empty.</p>
           <button
-            className="btn btn-primary mt-3"
+            className="btn rounded-none border-6 border-emerald-600 bg-emerald-600 text-white hover:bg-emerald-700 mt-3"
             onClick={() => router.push("/accessories")}
           >
             Continue shopping
@@ -109,11 +136,12 @@ export default function PaymentPage() {
           <div className="card bg-base-100 border border-gray-100 shadow">
             <div className="card-body">
               <h2 className="card-title">Your items</h2>
+
               <div className="divide-y">
                 {items.map((i) => (
                   <div key={i.id} className="py-4 flex gap-4 items-center">
-                    <div className="relative w-20 h-20 rounded overflow-hidden bg-gray-100">
-                      <Image
+                    <div className="relative w-20 h-20 overflow-hidden bg-gray-100">
+                      <SafeImage
                         src={i.image}
                         alt={i.name}
                         fill
@@ -121,34 +149,36 @@ export default function PaymentPage() {
                         sizes="80px"
                       />
                     </div>
+
                     <div className="flex-1">
                       <div className="font-semibold">{i.name}</div>
-                      <div className="text-sm text-gray-500">
-                        ${Number(i.price).toFixed(2)}
-                      </div>
+                      <div className="text-sm text-gray-500">${Number(i.price).toFixed(2)}</div>
                     </div>
+
                     <div className="flex items-center gap-2">
                       <button
-                        className="btn btn-xs"
+                        className="btn btn-xs rounded-none border"
                         onClick={() => updateQty(i.id, -1)}
                         disabled={loading}
                       >
-                        -
+                        −
                       </button>
                       <span className="w-8 text-center">{i.qty || 1}</span>
                       <button
-                        className="btn btn-xs"
+                        className="btn btn-xs rounded-none border"
                         onClick={() => updateQty(i.id, 1)}
                         disabled={loading}
                       >
                         +
                       </button>
                     </div>
+
                     <div className="w-24 text-right font-semibold">
                       ${(Number(i.price) * Number(i.qty || 1)).toFixed(2)}
                     </div>
+
                     <button
-                      className="btn btn-ghost btn-xs"
+                      className="btn btn-ghost btn-xs rounded-none"
                       onClick={() => removeItem(i.id)}
                       disabled={loading}
                     >
@@ -157,9 +187,10 @@ export default function PaymentPage() {
                   </div>
                 ))}
               </div>
+
               <div className="mt-3">
                 <button
-                  className="btn btn-ghost btn-sm"
+                  className="btn btn-ghost btn-sm rounded-none"
                   onClick={clearCart}
                   disabled={loading}
                 >
@@ -173,6 +204,7 @@ export default function PaymentPage() {
           <div className="card bg-base-100 border border-gray-100 shadow h-fit">
             <div className="card-body">
               <h3 className="card-title">Order summary</h3>
+
               <div className="flex justify-between text-sm">
                 <span>Items ({totalQty})</span>
                 <span>${subtotal.toFixed(2)}</span>
@@ -181,27 +213,36 @@ export default function PaymentPage() {
                 <span>Shipping</span>
                 <span>Free</span>
               </div>
+
               <div className="divider my-2"></div>
-              <div className="flex justify-between font-bold">
+
+              <div className="flex justify-between font-bold ">
                 <span>Total</span>
                 <span>${subtotal.toFixed(2)}</span>
               </div>
 
-              <button
-                className={`bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-3xl mt-4 px-2 ${loading ? "btn-disabled" : ""}`}
-                onClick={handleProceedToPay}
-                disabled={loading}
-              >
-                {loading ? "Redirecting…" : "Proceed to Pay"}
-              </button>
+          <div className="mt-4 flex flex-col gap-3">
+  <button
+    className={`btn rounded-none h-11 px-4 border-2 font-semibold ${
+      loading
+        ? "btn-disabled border-gray-300 bg-gray-200 text-gray-500"
+        : "border-emerald-600 bg-emerald-600 hover:bg-emerald-700 text-white"
+    }`}
+    onClick={handleProceedToPay}
+    disabled={loading}
+  >
+    {loading ? "Redirecting…" : "Proceed to Pay"}
+  </button>
 
-              <button
-                className="btn text-emerald-600 hover:bg-emerald-700 bg-white font-semibold py-3 rounded-3xl mt-4 px-2"
-                onClick={() => router.push("/accessories")}
-                disabled={loading}
-              >
-                Continue shopping
-              </button>
+  <button
+    className="btn rounded-none h-11 border-2 border-emerald-600 bg-white text-emerald-700 hover:bg-emerald-50"
+    onClick={() => router.push("/accessories")}
+    disabled={loading}
+  >
+    Continue shopping
+  </button>
+</div>
+
 
               <p className="text-[11px] text-gray-500 mt-2">
                 You’ll be securely redirected to Stripe Checkout to complete your purchase.

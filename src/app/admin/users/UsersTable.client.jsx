@@ -143,8 +143,7 @@ export default function UsersTable() {
                 <td className="py-2 pr-4">
                   <Pill tone={u.status === "active" ? "green" : u.status === "suspended" ? "red" : "yellow"}>{u.status}</Pill>
                 </td>
-                <td className="py-2 pr-4">
-                  {new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Dhaka" }).format(new Date(u.createdAt))}
+                <td className="py-2 pr-4">                  {new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Dhaka" }).format(new Date(u.createdAt))}
                 </td>
                 <td className="py-2 pr-0">
                   <div className="flex justify-end gap-2">
