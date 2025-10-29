@@ -92,3 +92,83 @@ export async function GET(req) {
     return NextResponse.json({ error: "Failed to fetch pets" }, { status: 500 });
   }
 }
+function normalizeImages(input) {
+  if (!input) return [];
+  if (Array.isArray(input)) return input.filter(Boolean);
+  if (typeof input === "string") return input.split(",").map(s => s.trim()).filter(Boolean);
+  return [];
+}
+
+const ALLOWED_STATUSES = new Set(["available", "pending", "adopted", "inactive"]);
+
+/* --- POST /api/pets  (create) --- */
+export async function POST(req) {
+  try {
+    const body = await req.json();
+
+    // map your NewPetPage payload -> DB doc
+    const imgs = normalizeImages(body.images);
+    const doc = {
+      name: body?.name ?? "",
+      petName: body?.name ?? "",
+
+      species: body?.species ?? "Other",
+      petCategory: body?.species ?? "Other",
+
+      breed: body?.breed ?? "",
+      petBreed: body?.breed ?? "",
+
+      age: Number(body?.age ?? 0),
+      petAge: Number(body?.age ?? 0),
+
+      gender: body?.gender ?? "Unknown",
+      size: body?.size ?? "Medium",
+
+      status: ALLOWED_STATUSES.has(String(body?.status)) ? body.status : "available",
+
+      longDescription: body?.longDescription ?? body?.description ?? "",
+      description: body?.description ?? undefined,
+
+      vaccinated: !!body?.vaccinated,
+      spayedNeutered: !!body?.spayedNeutered,
+      goodWithKids: !!body?.goodWithKids,
+
+      tags: Array.isArray(body?.tags) ? body.tags : [],
+
+      petLocation: body?.petLocation ?? "",
+      shelter: body?.shelter ?? "",
+      ...(typeof body?.distanceKm === "number" ? { distanceKm: body.distanceKm } : {}),
+
+      images: imgs,
+      image: imgs[0] || undefined,
+
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const pets = await getCollection("pets");
+    const { insertedId } = await pets.insertOne(doc);
+    const created = await pets.findOne({ _id: insertedId });
+
+    return NextResponse.json(
+      { success: true, item: shape(created), id: insertedId, message: "created" },
+      { status: 201 }
+    );
+  } catch (err) {
+    console.error("POST /api/pets error:", err);
+    return NextResponse.json({ success: false, error: "Failed to create pet" }, { status: 500 });
+  }
+}
+
+/* --- OPTIONS (preflight/CORS, optional) --- */
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      Allow: "GET,POST,OPTIONS",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    },
+  });
+}

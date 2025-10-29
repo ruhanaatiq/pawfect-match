@@ -1151,6 +1151,55 @@
       "kidFriendly": true,
       "otherPetsFriendly": true
     }
+  },
+   {
+    "id": 29,
+    "petName": "Bento",
+    "species": "Cat",
+    "breed": "British Shorthair",
+    "petAge": "3 years",
+    "gender": "Male",
+    "size": "Medium",
+    "color": "Blue (Gray)",
+    "petCategory": "Adult",
+    "petLocation": {
+      "city": "Dhaka",
+      "area": "Banani",
+      "address": "Road 2, Banani, Dhaka",
+      "geo": { "lat": 23.7935, "lng": 90.4045 }
+    },
+    "vaccinationStatus": "Fully vaccinated",
+    "healthCondition": "Healthy, Neutered",
+    "temperament": "Calm, independent, couch cuddler",
+    "longDescription": "Low-energy indoor cat who is content with windowsill naps and puzzle feeders.",
+    "adoptionFee": 600,
+    "adopted": false,
+    "images": "https://i.ibb.co/6mQZqfG/bento-bsh.jpg",
+    "shelterInfo": {
+      "name": "Dhaka Animal Rescue",
+      "contactNumber": "+8801999223344",
+      "email": "info@dar.org"
+    },
+    "vetDetails": {
+      "name": "Dr. Mahmud",
+      "clinic": "Banani Vet Hospital",
+      "contact": "+8801777889900",
+      "lastCheckup": "2025-07-13"
+    },
+    "createdBy": "mehedi@gmail.com",
+    "createdAt": "2025-07-16T18:00:00.000Z",
+    "status": "Available",
+    "traits": {
+      "energyLevel": 1,
+      "sociability": 2,
+      "noiseTolerance": 2,
+      "trainingComfort": 2,
+      "aloneHoursOk": 5,
+      "indoorPreferred": true,
+      "apartmentFriendly": true,
+      "kidFriendly": true,
+      "otherPetsFriendly": true
+    }
   }
 ]
 
