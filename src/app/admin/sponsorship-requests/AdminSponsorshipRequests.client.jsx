@@ -9,10 +9,17 @@ const fmtDate = (v) =>
   v ? new Date(v).toLocaleString(undefined, { hour12: true }) : "—";
 const tone = (s) => {
   const k = String(s || "pending").toLowerCase();
-  if (k === "approved") return "badge-success";
-  if (k === "rejected") return "badge-error";
-  return "badge-warning";
+  if (k === "approved") return "text-emerald-700 bg-emerald-50 ring-emerald-200";
+  if (k === "rejected") return "text-rose-700 bg-rose-50 ring-rose-200";
+  return "text-amber-700 bg-amber-50 ring-amber-200";
 };
+const initials = (name = "") =>
+  name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((s) => s[0]?.toUpperCase() || "")
+    .join("") || "•";
 
 export default function AdminSponsorshipRequests() {
   const [rows, setRows] = useState([]);
@@ -39,14 +46,18 @@ export default function AdminSponsorshipRequests() {
         if (!cancelled) setLoading(false);
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const filtered = useMemo(() => {
     const term = q.trim().toLowerCase();
     return rows.filter((r) => {
       const matchesStatus = status === "all" || (r.status ?? "pending") === status;
-      const blob = `${r.companyName ?? r.org ?? ""} ${r.contactName ?? ""} ${r.email ?? r.userEmail ?? ""} ${r.phone ?? ""} ${r.message ?? ""}`.toLowerCase();
+      const blob = `${r.companyName ?? r.org ?? ""} ${r.contactName ?? ""} ${
+        r.email ?? r.userEmail ?? ""
+      } ${r.phone ?? ""} ${r.message ?? ""}`.toLowerCase();
       const matchesQ = !term || blob.includes(term);
       return matchesStatus && matchesQ;
     });
@@ -67,7 +78,9 @@ export default function AdminSponsorshipRequests() {
         const t = await res.text().catch(() => "");
         throw new Error(t || `HTTP ${res.status}`);
       }
-      setRows((prev) => prev.map((r) => (String(r._id) === String(id) ? { ...r, status: next } : r)));
+      setRows((prev) =>
+        prev.map((r) => (String(r._id) === String(id) ? { ...r, status: next } : r))
+      );
       toast.success(`Marked as ${next}`);
     } catch (e) {
       console.error(e);
@@ -99,19 +112,22 @@ export default function AdminSponsorshipRequests() {
 
   return (
     <div className="space-y-4">
-      {/* Section header (small helper text to the right like your users page) */}
+      {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold text-[#4C3D3D]">Sponsorship Requests</h2>
         <div className="text-sm text-gray-500">Admin tools · Approve / Reject / Delete</div>
       </div>
 
-      {/* Controls block – pill card like your Manage Users filters */}
+      {/* Controls */}
       <div className="rounded-2xl bg-white/80 ring-1 ring-black/5 shadow-sm p-3 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
         <div className="relative w-full sm:max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <input
             value={q}
-            onChange={(e) => { setQ(e.target.value); setPage(1); }}
+            onChange={(e) => {
+              setQ(e.target.value);
+              setPage(1);
+            }}
             placeholder="Search company, contact, email…"
             className="input input-bordered w-full pl-10"
           />
@@ -120,7 +136,10 @@ export default function AdminSponsorshipRequests() {
         <select
           className="select select-bordered sm:w-44"
           value={status}
-          onChange={(e) => { setStatus(e.target.value); setPage(1); }}
+          onChange={(e) => {
+            setStatus(e.target.value);
+            setPage(1);
+          }}
         >
           <option value="all">All statuses</option>
           <option value="pending">Pending</option>
@@ -133,82 +152,97 @@ export default function AdminSponsorshipRequests() {
         </div>
       </div>
 
-      {/* Table card */}
+      {/* Table card — styled like Admin Pets list */}
       <div className="overflow-hidden rounded-2xl bg-white/90 shadow-sm ring-1 ring-black/5">
         <div className="overflow-x-auto">
-          <table className="table table-zebra">
-            <thead className="sticky top-0 bg-white/95 backdrop-blur z-10">
-              <tr className="text-gray-600">
-                <th className="w-[22%]">Company</th>
-                <th className="w-[16%]">Contact</th>
-                <th className="w-[22%]">Email</th>
-                <th className="w-[12%]">Phone</th>
-                <th className="w-[14%]">Applied</th>
-                <th className="w-[8%]">Status</th>
-                <th className="w-[16%] text-right">Actions</th>
+          <table className="table w-full">
+            <thead>
+              <tr className="bg-emerald-50 text-emerald-900">
+                <th className="rounded-tl-2xl">Company</th>
+                <th>Contact</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Applied</th>
+                <th>Status</th>
+                <th className="rounded-tr-2xl text-right pr-6">Actions</th>
               </tr>
             </thead>
-            <tbody>
-              {slice.map((r) => (
-                <tr key={r._id} className="align-middle">
-                  <td className="font-medium">
-                    <div className="truncate max-w-[260px]" title={r.companyName ?? r.org ?? ""}>
-                      {r.companyName ?? r.org ?? "—"}
-                    </div>
-                  </td>
-                  <td>
-                    <div className="truncate max-w-[180px]" title={r.contactName ?? ""}>
-                      {r.contactName ?? "—"}
-                    </div>
-                  </td>
-                  <td>
-                    <div className="truncate max-w-[240px]" title={r.email ?? r.userEmail ?? ""}>
-                      {r.email ?? r.userEmail ?? "—"}
-                    </div>
-                  </td>
-                  <td>
-                    <div className="truncate max-w-[140px]" title={r.phone ?? ""}>
-                      {r.phone ?? "—"}
-                    </div>
-                  </td>
-                  <td className="text-sm text-gray-600">{fmtDate(r.appliedAt)}</td>
-                  <td>
-                    <span className={`badge ${tone(r.status)} badge-sm`}>
-                      {String(r.status ?? "pending").toLowerCase()}
-                    </span>
-                  </td>
-                  <td className="text-right whitespace-nowrap">
-                    <div className="inline-flex gap-2">
+            <tbody className="[&>tr]:border-b [&>tr:last-child]:border-b-0">
+              {slice.map((r) => {
+                const company = r.companyName ?? r.org ?? "—";
+                return (
+                  <tr
+                    key={r._id}
+                    className="hover:bg-emerald-50/40 transition-colors"
+                  >
+                    {/* company with tiny avatar bubble (mirrors pet thumbnail feel) */}
+                    <td>
+                      <div className="flex items-center gap-3">
+                        <div className="h-9 w-9 rounded-md bg-emerald-100 text-emerald-700 grid place-items-center font-semibold">
+                          {initials(company)}
+                        </div>
+                        <div className="leading-tight">
+                          <div className="font-medium">{company}</div>
+                          <div className="text-xs text-gray-500 truncate max-w-[220px]">
+                            {r.message ? r.message : ""}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+
+                    <td className="whitespace-nowrap">{r.contactName ?? "—"}</td>
+
+                    <td>
+                      <div className="truncate max-w-[260px]" title={r.email ?? r.userEmail ?? ""}>
+                        {r.email ?? r.userEmail ?? "—"}
+                      </div>
+                    </td>
+
+                    <td className="whitespace-nowrap">{r.phone ?? "—"}</td>
+
+                    <td className="text-sm text-gray-600 whitespace-nowrap">
+                      {fmtDate(r.appliedAt)}
+                    </td>
+
+                    <td>
+                      <span
+                        className={`inline-flex items-center px-2 py-1 rounded-md text-xs ring-1 ${tone(
+                          r.status
+                        )}`}
+                      >
+                        {String(r.status ?? "pending").toLowerCase()}
+                      </span>
+                    </td>
+
+                    {/* Text-link actions aligned right like "Campaigns Edit Delete" */}
+                    <td className="text-right pr-6 whitespace-nowrap">
                       <button
-                        className="btn btn-xs btn-success"
+                        className="text-emerald-700 hover:underline mr-3"
                         onClick={() => updateStatus(r._id, "approved")}
                         disabled={r.status === "approved"}
                         title="Approve"
                       >
-                        <Check className="h-3.5 w-3.5" />
-                        <span className="ml-1 hidden lg:inline">Approve</span>
+                        Approve
                       </button>
                       <button
-                        className="btn btn-xs btn-warning"
+                        className="text-amber-700 hover:underline mr-3"
                         onClick={() => updateStatus(r._id, "rejected")}
                         disabled={r.status === "rejected"}
                         title="Reject"
                       >
-                        <X className="h-3.5 w-3.5" />
-                        <span className="ml-1 hidden lg:inline">Reject</span>
+                        Reject
                       </button>
                       <button
-                        className="btn btn-xs btn-outline"
+                        className="text-rose-700 hover:underline"
                         onClick={() => removeRow(r._id)}
                         title="Delete"
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
-                        <span className="ml-1 hidden lg:inline">Delete</span>
+                        Delete
                       </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                  </tr>
+                );
+              })}
 
               {!slice.length && (
                 <tr>
@@ -221,7 +255,7 @@ export default function AdminSponsorshipRequests() {
           </table>
         </div>
 
-        {/* Pagination bar to match your UX */}
+        {/* Pagination bar */}
         <div className="flex items-center justify-center gap-3 p-3 border-t bg-white/60">
           <button
             className="btn btn-sm"
@@ -243,41 +277,52 @@ export default function AdminSponsorshipRequests() {
         </div>
       </div>
 
-      {/* Mobile cards (kept minimal; page already matches your style on desktop) */}
+      {/* Mobile cards (kept minimal, aligned with overall tone) */}
       <div className="md:hidden space-y-3">
         {slice.map((r) => (
           <div key={r._id} className="rounded-xl bg-white/90 shadow-sm ring-1 ring-black/5 p-4">
             <div className="flex items-start justify-between gap-3">
-              <div>
-                <div className="font-semibold">{r.companyName ?? r.org ?? "—"}</div>
-                <div className="text-sm text-gray-500">{r.contactName ?? "—"}</div>
+              <div className="flex items-center gap-3">
+                <div className="h-9 w-9 rounded-md bg-emerald-100 text-emerald-700 grid place-items-center font-semibold">
+                  {initials(r.companyName ?? r.org ?? "")}
+                </div>
+                <div>
+                  <div className="font-semibold">{r.companyName ?? r.org ?? "—"}</div>
+                  <div className="text-sm text-gray-500">{r.contactName ?? "—"}</div>
+                </div>
               </div>
-              <span className={`badge ${tone(r.status)} badge-sm`}>
+              <span
+                className={`inline-flex items-center px-2 py-1 rounded-md text-xs ring-1 ${tone(
+                  r.status
+                )}`}
+              >
                 {String(r.status ?? "pending").toLowerCase()}
               </span>
             </div>
             <div className="mt-2 text-sm text-gray-600">
-              <div className="truncate" title={r.email ?? r.userEmail ?? ""}>{r.email ?? r.userEmail ?? "—"}</div>
+              <div className="truncate" title={r.email ?? r.userEmail ?? ""}>
+                {r.email ?? r.userEmail ?? "—"}
+              </div>
               <div>{r.phone ?? "—"}</div>
               <div>{fmtDate(r.appliedAt)}</div>
             </div>
-            <div className="mt-3 flex gap-2">
+            <div className="mt-3 text-right">
               <button
-                className="btn btn-xs btn-success flex-1"
+                className="text-emerald-700 hover:underline mr-3"
                 onClick={() => updateStatus(r._id, "approved")}
                 disabled={r.status === "approved"}
               >
-                <Check className="h-3.5 w-3.5" /> <span className="ml-1">Approve</span>
+                Approve
               </button>
               <button
-                className="btn btn-xs btn-warning flex-1"
+                className="text-amber-700 hover:underline mr-3"
                 onClick={() => updateStatus(r._id, "rejected")}
                 disabled={r.status === "rejected"}
               >
-                <X className="h-3.5 w-3.5" /> <span className="ml-1">Reject</span>
+                Reject
               </button>
-              <button className="btn btn-xs btn-outline" onClick={() => removeRow(r._id)} aria-label="Delete">
-                <Trash2 className="h-3.5 w-3.5" />
+              <button className="text-rose-700 hover:underline" onClick={() => removeRow(r._id)}>
+                Delete
               </button>
             </div>
           </div>

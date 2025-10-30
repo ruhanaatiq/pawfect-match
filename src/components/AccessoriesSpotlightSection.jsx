@@ -28,7 +28,7 @@ function SafeImage({
         src={placeholderSrc}
         alt={alt || "placeholder image"}
         className={className}
-        {...(fill ? { fill } : { width: 400, height: 300 })}
+        {...(fill ? { fill: true } : { width: 400, height: 300 })}
         sizes={sizes}
         priority={priority}
       />
@@ -51,13 +51,14 @@ function SafeImage({
         src={str}
         alt={alt || "image"}
         className={className}
-        {...(fill ? { fill } : { width: 400, height: 300 })}
+        {...(fill ? { fill: true } : { width: 400, height: 300 })}
         sizes={sizes}
         priority={priority}
       />
     );
   }
 
+  // Fallback to native img for unconfigured remote hosts
   return (
     <img
       src={str}
@@ -126,9 +127,7 @@ const DEMO_ACCESSORIES = [
 ---------------------------------------------- */
 const gridVariants = {
   hidden: {},
-  show: {
-    transition: { staggerChildren: 0.08, delayChildren: 0.05 },
-  },
+  show: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
 };
 
 const cardVariants = {
@@ -187,12 +186,12 @@ export default function AccessoriesSpotlightSection() {
               key={p.id}
               variants={cardVariants}
               whileHover={{ y: -4 }}
-              className="group card bg-base-100 shadow border border-gray-100 overflow-hidden"
+              className="group card bg-base-100 shadow border border-gray-100 overflow-hidden rounded-xl"
               onMouseEnter={() => setHover(p.id)}
               onMouseLeave={() => setHover(null)}
             >
-              {/* Media */}
-              <div className="relative h-48 overflow-hidden">
+              {/* Media (rounded to match card) */}
+              <div className="relative h-48 overflow-hidden rounded-t-xl">
                 <motion.div
                   className="absolute inset-0"
                   initial={false}
@@ -229,7 +228,9 @@ export default function AccessoriesSpotlightSection() {
               {/* Body */}
               <div className="card-body p-4">
                 <h3 className="font-semibold leading-snug line-clamp-2">{p.name}</h3>
-                <p className="text-xs text-gray-500">{p.brand} • {p.category}</p>
+                <p className="text-xs text-gray-500">
+                  {p.brand} • {p.category}
+                </p>
 
                 <div className="mt-2 flex items-center justify-between">
                   <Price price={p.price} old={p.oldPrice} />
@@ -238,66 +239,73 @@ export default function AccessoriesSpotlightSection() {
 
                 {/* Actions */}
                 <div className="card-actions mt-3 flex gap-2">
-  {/* Quick View button */}
-  <motion.div whileTap={{ scale: 0.97 }}>
-    <Link
-      href={`/accessories#${p.id}`}
-      aria-label={`Quick view of ${p.name}`}
-      className={`
-        relative btn btn-sm
-        border-2 border-emerald-200
-        rounded-md
-        bg-white text-emerald-700 font-semibold
-        tracking-wide gap-2 px-4
-        hover:bg-emerald-50 hover:border-emerald-300
-        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400
-        transition-colors
-      `}
-    >
-      {/* eye icon */}
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
-        <circle cx="12" cy="12" r="3" />
-      </svg>
-      Quick View
-    </Link>
-  </motion.div>
+                  {/* Quick View (rectangle, icon beside text) */}
+                  <motion.div whileTap={{ scale: 0.97 }}>
+                    <Link
+                      href={`/accessories#${p.id}`}
+                      aria-label={`Quick view of ${p.name}`}
+                      className={`
+                        inline-flex items-center gap-2
+                        btn btn-sm rounded-md
+                        border border-emerald-300
+                        bg-white text-emerald-700 font-semibold
+                        px-4
+                        hover:bg-emerald-50 hover:border-emerald-400
+                        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400
+                        transition-colors
+                      `}
+                    >
+                      {/* Eye icon beside text */}
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-6 w-6"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        aria-hidden="true"
+                      >
+                        <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
+                      Quick View
+                    </Link>
+                  </motion.div>
 
-  {/* Add to Cart button */}
-  <motion.button
-    type="button"
-    aria-label={`Add ${p.name} to cart`}
-    whileTap={{ scale: 0.97 }}
-    onClick={() => console.log("Add to cart:", p.id)}
-    className={`
-      relative btn btn-outline
-      border-2 border-emerald-500
-      rounded-md
-      bg-emerald-500 text-white font-semibold
-        px-2
-      hover:bg-emerald-600 hover:border-emerald-600
-      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400
-      transition-colors
-    `}
-  >
-    {/* cart icon */}
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className="h-4 w-4"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-    >
-      <circle cx="9" cy="21" r="1" />
-      <circle cx="20" cy="21" r="1" />
-      <path d="M1 1h4l2.68 12.39a2 2 0 0 0 2 1.61h7.72a2 2 0 0 0 2-1.61L23 6H6" />
-      <path d="M16 3v4m2-2h-4" /> {/* plus badge */}
-    </svg>
-    Add To Cart
-  </motion.button>
-</div>
-
+                  {/* Add to Cart (rectangle, icon beside text) */}
+                  <motion.button
+                    type="button"
+                    aria-label={`Add ${p.name} to cart`}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => console.log("Add to cart:", p.id)}
+                    className={`
+                      inline-flex items-center gap-2
+                      btn btn-sm rounded-md
+                      bg-emerald-500 text-white font-semibold
+                      px-4
+                      hover:bg-emerald-600
+                      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400
+                      transition-colors
+                    `}
+                  >
+                    {/* Cart icon beside text */}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      aria-hidden="true"
+                    >
+                      <circle cx="9" cy="21" r="1" />
+                      <circle cx="20" cy="21" r="1" />
+                      <path d="M1 1h4l2.68 12.39a2 2 0 0 0 2 1.61h7.72a2 2 0 0 0 2-1.61L23 6H6" />
+                      <path d="M16 3v4m2-2h-4" />
+                    </svg>
+                    Add To Cart
+                  </motion.button>
+                </div>
               </div>
             </motion.article>
           ))}
